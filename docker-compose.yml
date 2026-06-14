@@ -1,0 +1,79 @@
+# Local dev environment for foundation-translator v3.
+#   docker compose up -d db          # start Postgres (schema auto-applied)
+#   docker compose run --rm app      # build image + run extract_smoke
+# DASHSCOPE_API_KEY is read from the host .env (gitignored) for translate stages.
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: arxiv_translation_hub
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # v3 schema is auto-applied on first init of an empty data volume
+      - ./arxiv_translation_hub.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d arxiv_translation_hub"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:root@db:5432/arxiv_translation_hub
+      DASHSCOPE_API_KEY: ${DASHSCOPE_API_KEY:-}
+      # coding-plan endpoint key (cross-vendor models incl. GLM; audit screener)
+      DASHSCOPE_CODING_API_KEY: ${DASHSCOPE_CODING_API_KEY:-}
+      # This key is a China-mainland DashScope key → use the CN endpoint.
+      # (The configured model qwen3.5-plus-2026-04-20 exists on this endpoint.)
+      DASHSCOPE_OPENAI_BASE_URL: https://dashscope.aliyuncs.com/compatible-mode/v1
+      LATEXMLC_PATH: latexmlc
+      LATEXMLPOST_PATH: latexmlpost
+      MAGICK_PATH: convert
+    volumes:
+      # persist downloaded sources + rendered output back to the host
+      - ./static:/app/static
+      - ./workspace:/app/workspace
+      # mount source so code edits take effect without a rebuild
+      - ./xinda:/app/xinda
+      # external term-bank caches (Jiqizhixin / Microsoft TBX) for grounding
+      - ./data:/app/data
+      # corpus manifests + screening outputs (paper_ids.txt, corpus.csv, ok_ids.txt)
+      - ./corpus:/app/corpus
+      # benchmark exports (results.csv / results.tex / cost_summary.csv)
+      - ./results:/app/results
+
+  # GPU service for neural QE (COMET-Kiwi + xCOMET-XL). Run on demand:
+  #   docker compose run --rm qe python -m xinda.cli.neural_qe 6
+  qe:
+    build:
+      context: .
+      dockerfile: Dockerfile.qe
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:root@db:5432/arxiv_translation_hub
+      # gated-model download credentials (read token); accept the two model
+      # licenses on huggingface.co with the same account.
+      HF_TOKEN: ${HF_TOKEN:-}
+      HUGGING_FACE_HUB_TOKEN: ${HF_TOKEN:-}
+      XCOMET_MODEL: Unbabel/XCOMET-XL
+    gpus: all
+    volumes:
+      - ./xinda:/app/xinda
+      - ./workspace:/app/workspace
+      # cache downloaded HF checkpoints across runs (~3.5GB xCOMET-XL)
+      - hfcache:/root/.cache/huggingface
+
+volumes:
+  pgdata:
+  hfcache:

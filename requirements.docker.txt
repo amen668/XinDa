@@ -1,0 +1,17 @@
+# Lean runtime for the Acquire→Convert→Extract pipeline path inside Docker.
+# Excludes the heavy evaluation ML stack (unbabel-comet / torch) and other
+# stage-specific extras; add them back when running translate/evaluate stages.
+fastapi~=0.115.12
+httpx~=0.27.0
+pydantic~=2.9.0
+pydantic-settings~=2.5.0
+sqlalchemy~=2.0.40
+asyncpg
+lxml~=5.4.0
+jinja2~=3.1.6
+openai~=1.50.0
+arxiv~=4.0.0
+requests~=2.32.3
+numpy
+scipy
+krippendorff

@@ -1,0 +1,23 @@
+# GPU image for neural QE (COMET-Kiwi + xCOMET-XL). Separate from the lean app
+# image so torch/CUDA (~6GB) only lands here. Needs Docker GPU passthrough
+# (nvidia runtime) + an HF_TOKEN env with the two gated models accepted.
+#
+# Base = torch 2.7 / CUDA 12.8: REQUIRED for Blackwell GPUs (RTX 50-series,
+# sm_120). The older 2.4/cu124 wheels lack sm_120 kernels → "no kernel image
+# is available for execution on the device".
+FROM pytorch/pytorch:2.7.1-cuda12.8-cudnn9-runtime
+
+WORKDIR /app
+
+# Install comet WITHOUT letting it downgrade the cu128 torch from the base
+# image (a PyPI torch would be cu124 and lose Blackwell support).
+RUN pip install --no-cache-dir \
+    "unbabel-comet>=2.2.2" \
+    "sqlalchemy[asyncio]>=2.0" \
+    asyncpg \
+    pydantic \
+    pydantic-settings \
+ && python -c "import torch; print('torch', torch.__version__, 'cuda', torch.version.cuda)"
+
+# code is bind-mounted via compose; nothing to COPY.
+CMD ["python", "-m", "xinda.cli.neural_qe", "6"]

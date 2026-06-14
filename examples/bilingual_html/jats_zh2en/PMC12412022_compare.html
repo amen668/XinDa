@@ -1,0 +1,1524 @@
+<!DOCTYPE html><html lang="zh"><head><meta charset="utf-8">
+<title>PMC12412022 双语对照</title><style>
+ html,body{margin:0;height:100%;font-family:"Microsoft YaHei",sans-serif}
+ .bar{background:#222;color:#fff;padding:8px 16px;font-size:13px;height:22px}
+ .bar a{color:#7fd;text-decoration:none}
+ .cols{display:flex;height:calc(100vh - 38px)}
+ .col{flex:1;overflow-y:auto;padding:0 20px 60px;border-right:1px solid #ccc}
+ .lab{position:sticky;top:0;background:#f0f3f6;padding:4px 0;font-weight:bold;font-size:13px;
+       border-bottom:1px solid #ddd;z-index:5}
+ .col img{max-width:100%;height:auto;border:1px solid #eee}
+ .col h1{font-size:18px} .col h2{font-size:15px} .col{font-size:14px;line-height:1.6}
+ table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:3px 6px}
+ img[data-missing]{}
+</style></head><body>
+<div class="bar"><a href="index.html">← 目录</a> &nbsp; Chinese Journal of Chromatography ·
+ PMC12412022 · 公式147 · 引用96 · 图见下 &nbsp;
+ 基于GeoGebra的交互式色谱初学者学习工具开发与实践——以塔板理论为例</div>
+<div class="cols">
+ <div class="col" id="L"><div class="lab">源（中文）</div><p>当前仪器分析课程教学存在着两个相互交织的困境<sup>［<span
+class="citation"
+data-cites="R1">1</span>］</sup>：其一，单向知识传输模式主导课堂，使学生陷入被动接受式的学习范式，严重制约了学习者主体性的发挥，导致高阶思维能力培养目标达成度偏低；其二，现代信息技术与课程体系的有机整合滞后，数字化教学资源开发不足。色谱分析是仪器分析课程的重要组成部分，其教学过程也存在上述问题。近年来，交互式模拟工具的出现为解决这些问题带来了新希望，能显著提升学生对抽象科学概念的理解<sup>［<span
+class="citation" data-cites="R2">2</span>，<span class="citation"
+data-cites="R3">3</span>］</sup>，但色谱法的交互式教学工具仍相对匮乏，尤其在兼顾理论深度与初学者友好性方面存在明显缺口。</p>
+<p>已有研究报道了面向高阶学习者（包括专业化学从业人员）的色谱分离优化模拟软件<sup>［<span
+class="citation" data-cites="R4">4</span>‒<span class="citation"
+data-cites="R6">6</span>］</sup>，但这些软件因复杂性、操作专业性以及与学习者认知水平匹配度不足等原因，还难以适配本科生色谱分析入门课程的教学需求。Jordheim等<sup>［<span
+class="citation"
+data-cites="R7">7</span>］</sup>使用JavaScript编写代码开发了基于交互式网页的色谱教学工具，服务于塔板理论与基础色谱原理入门学习，但它发布在Github平台，不方便在我们国内课堂教学中使用。</p>
+<p>在色谱分析的教学体系中，塔板理论常安排在教材和课堂讲授靠前位置。该理论由色谱技术的先驱Martin与Synge提出，已成为色谱界广泛接受的理论。尽管某些动力学模型（如速率理论）在理论上更为精准，但塔板理论仍然是色谱学教育的基石。GeoGebra作为一款优异的云端计算平台，在教学中发挥着越来越重要的作用。在总结了2010‒2020年有关GeoGebra教学应用期刊论文基础上，Yohannes等<sup>［<span
+class="citation"
+data-cites="R8">8</span>］</sup>得出这样的结论：利用GeoGebra的可视化功能可降低学习认知负荷。Kostic等<sup>［<span
+class="citation"
+data-cites="R9">9</span>］</sup>的工作证实，使用GeoGebra能有效提升学生解决溶液定量组成问题的学习成效。Lossjew等<sup>［<span
+class="citation"
+data-cites="R10">10</span>］</sup>将数字工具的基本教学功能与化学研究过程相结合，利用GeoGebra辅助探索了化学反应进程。冷却曲线及其数学模型为相变过程中的潜热、热传递、吉布斯相规则和质量传递动力学提供了丰富的信息。Shi等<sup>［<span
+class="citation"
+data-cites="R11">11</span>］</sup>通过将冷却曲线模型与GeoGebra绘图相结合的教学方法，加深了高年级本科生对复杂相变过程的理解，并有效增强了学生的数学建模、计算和解决问题的能力。我们<sup>［<span
+class="citation" data-cites="R12">12</span>，<span class="citation"
+data-cites="R13">13</span>］</sup>曾介绍过GeoGebra云端计算平台开展化学分析教学的应用案例。本文以塔板理论教学为切入点，以GeoGebra云端计算平台为教学环境，创建了相互衔接、渐次升级的3个学生活动模块（单组分色谱流出曲线模拟、多组分色谱流出曲线模拟和色谱保留时间方程），形成了“理论模型-问题案例-数字工具-可视化模拟”有机结合的教学链和学习链，提高了学生课堂教学中的参与度。本文所开发的塔板理论色谱图模拟过程具有如下突出优点：（1）工具开源和免费；（2）适用于手机、电脑等多终端，可在课堂教学中便捷运用；（3）可支持学生调节参数自主学习（如化合物数量、流动相流速、死时间、相比和塔板数等），增加学生课堂参与度和获得感。</p>
+<h1 id="s1">1 理论模型的整合与重构</h1>
+<p>在大多数仪器分析课程的色谱教学体系中，教材内容和授课安排通常以塔板理论作为教学起点。教材中普遍会给出塔板理论数学模型，但较少将描述色谱过程的其他参数（如体积流速、死体积、死时间、相比和保留时间等）引入。本文将上述参数引入到塔板理论数学模型中建立了以流动相运行时间为自变量的综合模型，为构建交互式塔板理论教学工具奠定了化学基础。</p>
+<h2 id="s1a">1.1 塔板理论常见模型</h2>
+<p>若色谱柱有<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>块理论塔板，则色谱柱出口处流动相中的溶质浓度由<a
+href="#DF1" data-ref-type="disp-formula">式（1）</a>给出<sup>［<span
+class="citation" data-cites="R7">7</span>］</sup>。<a href="#DF1"
+data-ref-type="disp-formula">式（1）</a>是塔板理论的泊松函数，当塔板数<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>足够大时，非常接近于高斯分布函数。</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo>=</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><mi>K</mi></mrow></mfrac><msub><mi>C</mi><mn>0</mn></msub><mfrac><mn>1</mn><mrow><mi>n</mi><mi>!</mi></mrow></mfrac><msup><mi>e</mi><mrow><mi>−</mi><mi>v</mi></mrow></msup><msup><mi>v</mi><mi>n</mi></msup></mrow><annotation encoding="application/x-tex">C = \frac{1}{1 + K}C_{0}\frac{1}{n!}e^{- v}v^{n}</annotation></semantics></math></p>
+<p>式中，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>和<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>C</mi><mn>0</mn></msub><annotation encoding="application/x-tex">C_{0}</annotation></semantics></math>分别是溶质在色谱柱出口的浓度及初始浓度，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>是分配系数。<a
+href="#DF2"
+data-ref-type="disp-formula">式（2）</a>给出<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>的定义<sup>［<span
+class="citation"
+data-cites="R7">7</span>］</sup>，它表示与折合塔板体积有关的物理量，单位是“塔板体积”而非mL。</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mo>=</mo><mfrac><mi>V</mi><mrow><mi>K</mi><msub><mi>v</mi><mi>s</mi></msub><mo>+</mo><msub><mi>v</mi><mi>m</mi></msub></mrow></mfrac></mrow><annotation encoding="application/x-tex">v = \frac{V}{Kv_{s} + v_{m}}</annotation></semantics></math></p>
+<p>式中，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math>是消耗的流动相体积，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>v</mi><mi>s</mi></msub><annotation encoding="application/x-tex">v_{s}</annotation></semantics></math>和<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>v</mi><mi>m</mi></msub><annotation encoding="application/x-tex">v_{m}</annotation></semantics></math>分别是每块塔板中固定相和流动相的体积。</p>
+<h2 id="s1b">1.2 塔板理论模型的近似变换</h2>
+<p>由于<a href="#DF1"
+data-ref-type="disp-formula">式（1）</a>中存在阶乘的计算，运算量较大，不便于后期的模拟，因此要进行近似处理。当<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>&gt;</mo><mn>10</mn></mrow><annotation encoding="application/x-tex">n &gt; 10</annotation></semantics></math>，阶乘运算可以按照Stirling关系式计算：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>!</mi><mo>≈</mo><mroot><mrow><mn>2</mn><mi>π</mi><mi>n</mi></mrow><mrow></mrow></mroot><msup><mrow><mo stretchy="false" form="prefix">(</mo><mfrac><mi>n</mi><mi>e</mi></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><mi>n</mi></msup></mrow><annotation encoding="application/x-tex">n! \approx \sqrt[{}]{2\pi n}{(\frac{n}{e})}^{n}</annotation></semantics></math></p>
+<p>将<a href="#DF3" data-ref-type="disp-formula">式（3）</a>代入<a
+href="#DF1" data-ref-type="disp-formula">式（1）</a>，则有：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo>=</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><mi>K</mi></mrow></mfrac><msub><mi>C</mi><mn>0</mn></msub><mfrac><mn>1</mn><mroot><mrow><mn>2</mn><mi>π</mi><mi>n</mi></mrow><mrow></mrow></mroot></mfrac><msup><mrow><mo stretchy="false" form="prefix">(</mo><mfrac><mi>v</mi><mi>n</mi></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><mi>n</mi></msup><msup><mi>e</mi><mrow><mi>n</mi><mo>−</mo><mi>v</mi></mrow></msup></mrow><annotation encoding="application/x-tex">C = \frac{1}{1 + K}C_{0}\frac{1}{\sqrt[{}]{2\pi n}}{(\frac{v}{n})}^{n}e^{n - v}</annotation></semantics></math></p>
+<h2 id="s1c">1.3 塔板理论模型中时间变量的引入</h2>
+<p>经过上面的处理后，塔板理论模型的数学表达为<a href="#DF4"
+data-ref-type="disp-formula">式（4）</a>所描述的动态方程及<a href="#DF2"
+data-ref-type="disp-formula">式（2）</a>约束条件。若<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
+<strong>、</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>v</mi><mi>s</mi></msub><annotation encoding="application/x-tex">v_{s}</annotation></semantics></math>、<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>v</mi><mi>m</mi></msub><annotation encoding="application/x-tex">v_{m}</annotation></semantics></math>、<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>和<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>C</mi><mn>0</mn></msub><annotation encoding="application/x-tex">C_{0}</annotation></semantics></math>均为定值时，则<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>的函数，此时只能得到<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>图，而不是通常所见的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>色谱图，因此需要将时间变量引入到<a
+href="#DF2" data-ref-type="disp-formula">式（2）</a>约束条件中。</p>
+<p>流动相的消耗体积<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math>等于流动相的体积流速<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>F</mi><annotation encoding="application/x-tex">F</annotation></semantics></math>与运行时间<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>的乘积：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo>=</mo><mi>F</mi><mo>⋅</mo><mi>t</mi></mrow><annotation encoding="application/x-tex">V = F \cdot t</annotation></semantics></math></p>
+<p>同理，死体积<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>V</mi><mi>m</mi></msub><annotation encoding="application/x-tex">V_{m}</annotation></semantics></math>等于流动相的体积流速<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>F</mi><annotation encoding="application/x-tex">F</annotation></semantics></math>与死时间<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>t</mi><mi>m</mi></msub><annotation encoding="application/x-tex">t_{m}</annotation></semantics></math>的乘积：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>V</mi><mi>m</mi></msub><mo>=</mo><mi>F</mi><mo>⋅</mo><msub><mi>t</mi><mi>m</mi></msub></mrow><annotation encoding="application/x-tex">V_{m} = F \cdot t_{m}</annotation></semantics></math></p>
+<p>因为色谱柱由<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>块塔板构成，所以死体积等于每块塔板中流动相体积<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>v</mi><mi>m</mi></msub><annotation encoding="application/x-tex">v_{m}</annotation></semantics></math>与<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>的乘积：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>V</mi><mi>m</mi></msub><mo>=</mo><mi>n</mi><mo>⋅</mo><msub><mi>v</mi><mi>m</mi></msub></mrow><annotation encoding="application/x-tex">V_{m} = n \cdot v_{m}</annotation></semantics></math></p>
+<p>相比<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>存在如下关系：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>β</mi><mo>=</mo><mfrac><msub><mi>V</mi><mi>m</mi></msub><msub><mi>V</mi><mi>s</mi></msub></mfrac><mo>=</mo><mfrac><mrow><mi>n</mi><msub><mi>v</mi><mi>m</mi></msub></mrow><mrow><mi>n</mi><msub><mi>v</mi><mi>s</mi></msub></mrow></mfrac><mo>=</mo><mfrac><msub><mi>v</mi><mi>m</mi></msub><msub><mi>v</mi><mi>s</mi></msub></mfrac></mrow><annotation encoding="application/x-tex">\beta = \frac{V_{m}}{V_{s}} = \frac{nv_{m}}{nv_{s}} = \frac{v_{m}}{v_{s}}</annotation></semantics></math></p>
+<p>将式（<a href="#DF5" data-ref-type="disp-formula">5</a>）~（<a
+href="#DF8" data-ref-type="disp-formula">8</a>）代入到<a href="#DF2"
+data-ref-type="disp-formula">式（2）</a>，得：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mo>=</mo><mfrac><mi>V</mi><mrow><mi>K</mi><msub><mi>v</mi><mi>s</mi></msub><mo>+</mo><msub><mi>v</mi><mi>m</mi></msub></mrow></mfrac><mo>=</mo><mfrac><mrow><mi>F</mi><mi>t</mi></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mi>K</mi><mi>/</mi><mi>β</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><msub><mi>v</mi><mi>m</mi></msub></mrow></mfrac><mo>=</mo><mfrac><mrow><mi>F</mi><mi>t</mi></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mi>K</mi><mi>/</mi><mi>β</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><msub><mi>V</mi><mi>m</mi></msub><mi>/</mi><mi>n</mi></mrow></mfrac><mo>=</mo><mfrac><mrow><mi>t</mi><mi>n</mi></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mi>K</mi><mi>/</mi><mi>β</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><msub><mi>t</mi><mi>m</mi></msub></mrow></mfrac></mrow><annotation encoding="application/x-tex">v = \frac{V}{Kv_{s} + v_{m}} = \frac{Ft}{(K/\beta + 1)v_{m}} = \frac{Ft}{(K/\beta + 1)V_{m}/n} = \frac{tn}{(K/\beta + 1)t_{m}}</annotation></semantics></math></p>
+<p>至此，整合后的塔板理论模型数学表达包括<a href="#DF4"
+data-ref-type="disp-formula">式（4）</a>所描述的动态方程及时间变量参数引入后的<a
+href="#DF9"
+data-ref-type="disp-formula">式（9）</a>约束条件。这样当<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
+<strong>、</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>v</mi><mi>s</mi></msub><annotation encoding="application/x-tex">v_{s}</annotation></semantics></math>、<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>v</mi><mi>m</mi></msub><annotation encoding="application/x-tex">v_{m}</annotation></semantics></math>、<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>和<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>C</mi><mn>0</mn></msub><annotation encoding="application/x-tex">C_{0}</annotation></semantics></math>均为定值时，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>的函数，理论上可以得到符合常规色谱图形状的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>图。</p>
+<h1 id="s2">2 理论模型的教学应用</h1>
+<h2 id="s2a">2.1 软件平台的选择</h2>
+<p>为了使学生在色谱课堂学习时可以获得自己模拟的色谱图，教学软件的选择是重要的环节。为了保证教学活动的顺利开展以及学生正常学习，需要选择一款开源免费软件平台。GeoGebra云端计算平台不仅开源免费，可以在手机、平板电脑和台式电脑等多终端运行，而且编程过程接近自然语言，非常适合在课堂环境下使用<sup>［<span
+class="citation" data-cites="R12">12</span>，<span class="citation"
+data-cites="R13">13</span>］</sup>。在此基础上，我们构建了一种塔板理论教学新模式。该模式依托相互衔接、渐次升级的3个学生活动模块（单组分色谱流出曲线模拟、多组分色谱流出曲线模拟和色谱保留时间方程推导），形成了“理论模型-问题案例-数字工具-可视化模拟”的教学链和学习链，提高了学生在塔板理论学习过程中的课堂参与度，使学生在理论认知深度、数字化建模能力、问题解决思维等方面同步提升。</p>
+<h2 id="s2b">2.2 学生活动模块1——单一组分色谱流出曲线模拟</h2>
+<p>为了使学生完整了解色谱分离流程，设计了色谱分离问题案例1：采用配备UV检测器的液相色谱仪分析组分A，色谱柱是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>100</mn></mrow><annotation encoding="application/x-tex">n = 100</annotation></semantics></math>、<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>V</mi><mi>m</mi></msub><mo>=</mo><mn>3</mn><mspace width="0.222em"></mspace><mi>m</mi><mi>L</mi></mrow><annotation encoding="application/x-tex">V_{m} = 3\ mL</annotation></semantics></math>和<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>β</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">\beta = 2</annotation></semantics></math>的C18柱，流动相为水-甲醇混合液（60∶40，
+v/v），设定流速<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mo>=</mo><mn>1</mn><mspace width="0.222em"></mspace><mi>m</mi><mi>L</mi><mi>/</mi><mi>m</mi><mi>i</mi><mi>n</mi></mrow><annotation encoding="application/x-tex">F = 1\ mL/min</annotation></semantics></math>。已知组分A的初始浓度为1
+mg/L，且它在流动相和固定相中的溶解度分别为 0.2 g/L 和0.6
+g/L。请根据以上条件模拟出组分A的色谱流出曲线。</p>
+<p>要利用<a href="#DF4" data-ref-type="disp-formula">式（4）</a>和<a
+href="#DF9"
+data-ref-type="disp-formula">式（9）</a>模拟色谱图，首先要指导学生结合题意和色谱基本理论，计算出死时间<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>t</mi><mi>m</mi></msub><annotation encoding="application/x-tex">t_{m}</annotation></semantics></math>和分配系数<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>。其次，通过移动终端（手机/平板/笔记本）访问云端计算平台（<a
+href="https://ggb123.cn/calculator">https：//ggb123.cn/calculator</a>）。<a
+href="#T1"
+data-ref-type="table">表1</a>为GeoGebra软件模拟色谱流出曲线的操作流程。参照<a
+href="#T1"
+data-ref-type="table">表1</a>提供的分步操作指南，在云端计算平台完成色谱流出曲线的参数化配置。执行完成这些流程后，系统将自动生成如<a
+href="#F1" data-ref-type="fig">图1</a>所示的组分A色谱流出曲线。</p>
+<div id="T1" class="table-wrap">
+<div class="caption">
+<p>用GeoGebra模拟单组分样品色谱流出曲线的流程</p>
+</div>
+<p>Procedures of operation for simulated chromatographic elution profile
+of single-component sample by GeoGebra</p>
+Table 1
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Line No.</th>
+<th style="text-align: center;">Input</th>
+<th style="text-align: center;">Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">1</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>C</mi><mn>0</mn></msub><annotation encoding="application/x-tex">C_{0}</annotation></semantics></math>=1</td>
+<td style="text-align: center;">initial concentration</td>
+</tr>
+<tr>
+<td style="text-align: center;">2</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mi>m</mi></msub><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">t_{m} = 3</annotation></semantics></math></td>
+<td style="text-align: center;">dead time</td>
+</tr>
+<tr>
+<td style="text-align: center;">3</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>β</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">\beta = 2</annotation></semantics></math></td>
+<td style="text-align: center;">phase ratio</td>
+</tr>
+<tr>
+<td style="text-align: center;">4</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>100</mn></mrow><annotation encoding="application/x-tex">n = 100</annotation></semantics></math></td>
+<td style="text-align: center;">number of plates</td>
+</tr>
+<tr>
+<td style="text-align: center;">5</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">K = 3</annotation></semantics></math></td>
+<td style="text-align: center;">distribution coefficient</td>
+</tr>
+<tr>
+<td style="text-align: center;">6</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mrow><mi>t</mi><mi>n</mi></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mi>K</mi><mi>/</mi><mi>β</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><msub><mi>t</mi><mi>m</mi></msub></mrow></mfrac></mrow><annotation encoding="application/x-tex">v(t) = \frac{tn}{(K/\beta + 1)t_{m}}</annotation></semantics></math></td>
+<td style="text-align: center;"><a href="#DF9"
+data-ref-type="disp-formula">Equation （9）</a> <sup>*</sup></td>
+</tr>
+<tr>
+<td style="text-align: center;">7</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><mi>K</mi></mrow></mfrac><msub><mi>C</mi><mn>0</mn></msub><mfrac><mn>1</mn><mroot><mrow><mn>2</mn><mi>π</mi><mi>n</mi></mrow><mrow></mrow></mroot></mfrac><msup><mrow><mo stretchy="false" form="prefix">(</mo><mfrac><mrow><mi>v</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><mi>n</mi></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><mi>n</mi></msup><mo>⋅</mo><msup><mi>e</mi><mrow><mi>n</mi><mo>−</mo><mi>v</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">f(t) = \frac{1}{1 + K}C_{0}\frac{1}{\sqrt[{}]{2\pi n}}{(\frac{v(t)}{n})}^{n} \cdot e^{n - v(t)}</annotation></semantics></math></td>
+<td style="text-align: center;"><a href="#DF4"
+data-ref-type="disp-formula">Equation （4）</a> <sup>*</sup></td>
+</tr>
+</tbody>
+</table>
+<p>* When typing equations （9） and （4） in GeoGebra， add parentheses
+after function symbols and specify the independent variable.</p>
+</div>
+<figure id="F1">
+<h3>Simulated chromatographic elution profile of single-component sample
+by GeoGebra</h3>
+Fig. 1
+<p><img src="https://cdn.ncbi.nlm.nih.gov/pmc/blobs/98fe/12412022/73a17cc98c0b/CB372E5F-3D49-4d24-A96C-506522AB13D6-F001.jpg" /></p>
+<figcaption>GeoGebra平台上单一组分的色谱流出曲线模拟图</figcaption>
+</figure>
+<p>本方法创新性地设计了一套动态参数调控机制，允许根据具体案例需求，灵活调整<a
+href="#T1"
+data-ref-type="table">表1</a>中第1至5行的核心参数（如初始浓度、死时间、相比、理论塔板数及分配系数等）。这一机制不仅确保了色谱流出曲线与问题背景的高度适配性，而且有效提升了学生的课堂互动参与度和学习获得感，增强学生解决问题的自信心。</p>
+<h2 id="s2c">2.3 学生活动模块2——多组分色谱流出曲线模拟</h2>
+<p>色谱分离案例2：在案例1的基础上，样品中增加另一组分B，其分配系数为1.8，问：组分A和B可以分开吗？</p>
+<p><a href="#T2"
+data-ref-type="table">表2</a>为用GeoGebra模拟分配系数<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mn>3</mn><mi>和</mi><mn>1.8</mn></mrow><annotation encoding="application/x-tex">K = 3和1.8</annotation></semantics></math>的两组分色谱流出曲线的操作流程。比较<a
+href="#T2" data-ref-type="table">表2</a>和<a href="#T1"
+data-ref-type="table">表1</a>会发现一些操作中的差异，其最大的不同在于输入<a
+href="#DF9" data-ref-type="disp-formula">式（9）</a>和<a href="#DF4"
+data-ref-type="disp-formula">式（4）</a>的变量个数有所不同，<a
+href="#T1"
+data-ref-type="table">表1</a>中这两个关系式均为一元函数，只是变量<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>的函数；而<a
+href="#T2"
+data-ref-type="table">表2</a>中这两个关系式均为二元函数，都是变量<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>和<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>的函数。<a
+href="#F2"
+data-ref-type="fig">图2</a>为GeoGebra给出的色谱流出曲线模拟图。启发学生注意观察<a
+href="#F2"
+data-ref-type="fig">图2</a>并与分配系数大小相联系，得到如下猜测：分配系数<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>大小会影响保留时间<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>长短，具体来讲就是<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>越大，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>越大；<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>越小，<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>越小。由案例1的单一组分色谱流出曲线模拟跨越到案例2的两组分色谱流出曲线模拟，让学生在亲自实操的基础上，对GeoGebra云端计算平台的操作技术以及对<a
+href="#DF4" data-ref-type="disp-formula">式（4）</a>和<a href="#DF9"
+data-ref-type="disp-formula">式（9）</a>模型的认知，都上升了一个层次。通过引导学生观察模拟色谱图，提升学生的观察力。</p>
+<div id="T2" class="table-wrap">
+<div class="caption">
+<p>用GeoGebra模拟双组分样品（<em>K</em>=3和1.8）色谱流出曲线的流程</p>
+</div>
+<p>Procedures of operation for simulated chromatographic elution
+profiles of dual-component sample （<em>K</em>=3 and 1.8） by
+GeoGebra</p>
+Table 2
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Line No.</th>
+<th style="text-align: center;">Input</th>
+<th style="text-align: center;">Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">1</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>C</mi><mn>0</mn></msub><annotation encoding="application/x-tex">C_{0}</annotation></semantics></math>=
+1</td>
+<td style="text-align: center;">initial concentration of component
+A</td>
+</tr>
+<tr>
+<td style="text-align: center;">2</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mi>m</mi></msub><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">t_{m} = 3</annotation></semantics></math></td>
+<td style="text-align: center;">dead time</td>
+</tr>
+<tr>
+<td style="text-align: center;">3</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>β</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">\beta = 2</annotation></semantics></math></td>
+<td style="text-align: center;">phase ratio</td>
+</tr>
+<tr>
+<td style="text-align: center;">4</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>100</mn></mrow><annotation encoding="application/x-tex">n = 100</annotation></semantics></math></td>
+<td style="text-align: center;">number of plates</td>
+</tr>
+<tr>
+<td style="text-align: center;">5</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>,</mo><mi>K</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mrow><mi>t</mi><mi>n</mi></mrow><mrow><msub><mi>t</mi><mi>m</mi></msub><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>K</mi><mi>/</mi><mi>β</mi><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">v(t,K) = \frac{tn}{t_{m}(1 + K/\beta)}</annotation></semantics></math></td>
+<td style="text-align: center;"><a href="#DF9"
+data-ref-type="disp-formula">Equation （9）</a> <sup>*</sup></td>
+</tr>
+<tr>
+<td style="text-align: center;">6</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>,</mo><mi>K</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><mi>K</mi></mrow></mfrac><msub><mi>C</mi><mn>0</mn></msub><mfrac><mn>1</mn><mroot><mrow><mn>2</mn><mi>π</mi><mi>n</mi></mrow><mrow></mrow></mroot></mfrac><msup><mrow><mo stretchy="false" form="prefix">(</mo><mfrac><mrow><mi>v</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>,</mo><mi>K</mi><mo stretchy="false" form="postfix">)</mo></mrow><mi>n</mi></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><mi>n</mi></msup><mo>⋅</mo><msup><mi>e</mi><mrow><mi>n</mi><mo>−</mo><mi>v</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>,</mo><mi>K</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">f(t,K) = \frac{1}{1 + K}C_{0}\frac{1}{\sqrt[{}]{2\pi n}}{(\frac{v(t,K)}{n})}^{n} \cdot e^{n - v(t,K)}</annotation></semantics></math></td>
+<td style="text-align: center;"><a href="#DF4"
+data-ref-type="disp-formula">Equation （4）</a> <sup>*</sup></td>
+</tr>
+<tr>
+<td style="text-align: center;">7</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>,</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(t,3)</annotation></semantics></math></td>
+<td style="text-align: center;">simulating profile of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">K = 3</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: center;">8</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>,</mo><mn>1.8</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(t,1.8)</annotation></semantics></math></td>
+<td style="text-align: center;">simulating profile of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mn>1.8</mn></mrow><annotation encoding="application/x-tex">K = 1.8</annotation></semantics></math></td>
+</tr>
+</tbody>
+</table>
+<p>* When typing equations （9） and （4） in GeoGebra， add parentheses
+after function symbols and specify the independent variable.</p>
+</div>
+<figure id="F2">
+<h3>Simulated chromatographic elution profiles of dual-component sample
+by GeoGebra</h3>
+Fig. 2
+<p><img src="https://cdn.ncbi.nlm.nih.gov/pmc/blobs/98fe/12412022/4e5602dd6749/CB372E5F-3D49-4d24-A96C-506522AB13D6-F002.jpg" /></p>
+<figcaption>GeoGebra平台上两组分的色谱流出曲线模拟图</figcaption>
+</figure>
+<p>为了进一步验证从案例2产生的猜测，准备了案例3：在前述案例1的基础上，将样品中的组分数由1种增加到5种，分配系数<em>K</em>分别为1、3、5、7和9。</p>
+<p><a href="#T3"
+data-ref-type="table">表3</a>是处理案例3的操作流程。通过比较<a
+href="#T3" data-ref-type="table">表3</a>和<a href="#T2"
+data-ref-type="table">表2</a>的内容，可以看出它们的处理方法非常相似，表明模拟操作具有很强的延展性，可进行单组分和多组分的模拟。<a
+href="#F3" data-ref-type="fig">图3</a>是按照<a href="#T3"
+data-ref-type="table">表3</a>操作流程由GeoGebra软件得到的5种混合物的色谱流出曲线。从<a
+href="#F3"
+data-ref-type="fig">图3</a>中至少可以挖掘出两个有用的信息：其一，再次印证了前面的猜测——<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>值越大则保留时间越长；其二，在GeoGebra云端计算平台上，用手指点触色谱峰顶，即可方便地得到所对应的保留时间。于是可获得5组关于分配系数和保留时间的数据对，分别记为A=（1，4.5），B=（3，7.5），C=（5，10.5），D=（7，13.5）和E=（9，16.5），并标注在<a
+href="#F3" data-ref-type="fig">图3</a>中。</p>
+<div id="T3" class="table-wrap">
+<div class="caption">
+<p>用GeoGebra模拟不同分配系数（<em>K</em>=1，3，5，7，9）样品色谱流出曲线的流程</p>
+</div>
+<p>Procedures of operation for simulated chromatographic elution
+profiles of five-component sample （<em>K</em>=1，3，5，7，9） by
+GeoGebra</p>
+Table 3
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><p>Line</p>
+<p>No.</p></th>
+<th style="text-align: center;">Input</th>
+<th style="text-align: center;">Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">1</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>C</mi><mn>0</mn></msub><annotation encoding="application/x-tex">C_{0}</annotation></semantics></math>=
+1</td>
+<td style="text-align: center;">initial concentration of the sample</td>
+</tr>
+<tr>
+<td style="text-align: center;">2</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mi>m</mi></msub><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">t_{m} = 3</annotation></semantics></math></td>
+<td style="text-align: center;">dead time</td>
+</tr>
+<tr>
+<td style="text-align: center;">3</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>β</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">\beta = 2</annotation></semantics></math></td>
+<td style="text-align: center;">phase ratio</td>
+</tr>
+<tr>
+<td style="text-align: center;">4</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>100</mn></mrow><annotation encoding="application/x-tex">n = 100</annotation></semantics></math></td>
+<td style="text-align: center;">number of plates</td>
+</tr>
+<tr>
+<td style="text-align: center;">5</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>,</mo><mi>K</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mrow><mi>t</mi><mi>n</mi></mrow><mrow><msub><mi>t</mi><mi>m</mi></msub><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>K</mi><mi>/</mi><mi>β</mi><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">v(t,K) = \frac{tn}{t_{m}(1 + K/\beta)}</annotation></semantics></math></td>
+<td style="text-align: center;"><a href="#DF9"
+data-ref-type="disp-formula">Equation （9）</a> <sup>*</sup></td>
+</tr>
+<tr>
+<td style="text-align: center;">6</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>,</mo><mi>K</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><mi>K</mi></mrow></mfrac><msub><mi>C</mi><mn>0</mn></msub><mfrac><mn>1</mn><mroot><mrow><mn>2</mn><mi>π</mi><mi>n</mi></mrow><mrow></mrow></mroot></mfrac><msup><mrow><mo stretchy="false" form="prefix">(</mo><mfrac><mrow><mi>v</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>,</mo><mi>K</mi><mo stretchy="false" form="postfix">)</mo></mrow><mi>n</mi></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><mi>n</mi></msup><mo>⋅</mo><msup><mi>e</mi><mrow><mi>n</mi><mo>−</mo><mi>v</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>,</mo><mi>K</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">f(t,K) = \frac{1}{1 + K}C_{0}\frac{1}{\sqrt[{}]{2\pi n}}{(\frac{v(t,K)}{n})}^{n} \cdot e^{n - v(t,K)}</annotation></semantics></math></td>
+<td style="text-align: center;"><a href="#DF4"
+data-ref-type="disp-formula">Equation （4）</a> <sup>*</sup></td>
+</tr>
+<tr>
+<td style="text-align: center;">7</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(t,1)</annotation></semantics></math></td>
+<td style="text-align: center;">simulating profile of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">K = 1</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: center;">8</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>,</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(t,3)</annotation></semantics></math></td>
+<td style="text-align: center;">simulating profile of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">K = 3</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: center;">9</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>,</mo><mn>5</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(t,5)</annotation></semantics></math></td>
+<td style="text-align: center;">simulating profile of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">K = 5</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: center;">10</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>,</mo><mn>7</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(t,7)</annotation></semantics></math></td>
+<td style="text-align: center;">simulating profile of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mn>7</mn></mrow><annotation encoding="application/x-tex">K = 7</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: center;">11</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>,</mo><mn>9</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(t,9)</annotation></semantics></math></td>
+<td style="text-align: center;">simulating profile of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mn>9</mn></mrow><annotation encoding="application/x-tex">K = 9</annotation></semantics></math></td>
+</tr>
+</tbody>
+</table>
+<p>* When typing equations （9） and （4） in GeoGebra， add parentheses
+after function symbols and specify the independent variable.</p>
+</div>
+<figure id="F3">
+<h3>Simulated chromatographic elution profile of five-component sample
+by GeoGebra</h3>
+Fig. 3
+<p><img src="https://cdn.ncbi.nlm.nih.gov/pmc/blobs/98fe/12412022/ca6418232f77/CB372E5F-3D49-4d24-A96C-506522AB13D6-F003.jpg" /></p>
+<figcaption>GeoGebra平台上5组分的色谱流出曲线模拟图</figcaption>
+</figure>
+<p>GeoGebra云端平台对仪器分析教学的另一个功能是可以直观地进行线性回归。<a
+href="#T4"
+data-ref-type="table">表4</a>为用GeoGebra进行保留时间与分配系数线性回归分析的详细步骤。从<a
+href="#T4"
+data-ref-type="table">表4</a>可见，利用GeoGebra进行线性回归操作非常直观，适合学生课堂参与探索。保留时间与分配系数存在着很好的线性关系，相关系数等于1，线性方程如下：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>3</mn><mo>+</mo><mn>1.5</mn><mi>K</mi></mrow><annotation encoding="application/x-tex">t = 3 + 1.5K</annotation></semantics></math></p>
+<div id="T4" class="table-wrap">
+<div class="caption">
+<p>用GeoGebra进行保留时间和分配系数线性回归分析的步骤</p>
+</div>
+<p>Operational procedures for linear regression analysis between
+retention time and distribution coefficient with GeoGebra</p>
+Table 4
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><p>Line</p>
+<p>No.</p></th>
+<th style="text-align: center;">Input</th>
+<th style="text-align: center;">Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">A=（1，4.5）</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mn>1</mn><mo>,</mo><mspace width="0.222em"></mspace><mi>t</mi><mo>=</mo><mn>4.5</mn></mrow><annotation encoding="application/x-tex">K = 1,\ t = 4.5</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">B=（3，5，3）</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mn>3</mn><mo>,</mo><mspace width="0.222em"></mspace><mi>t</mi><mo>=</mo><mn>7.5</mn></mrow><annotation encoding="application/x-tex">K = 3,\ t = 7.5</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">C=（5，10.5）</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mn>5</mn><mo>,</mo><mspace width="0.222em"></mspace><mi>t</mi><mo>=</mo><mn>10.5</mn></mrow><annotation encoding="application/x-tex">K = 5,\ t = 10.5</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">D=（7，13.5）</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mspace width="0.222em"></mspace><mi>K</mi><mo>=</mo><mn>7</mn><mo>,</mo><mspace width="0.222em"></mspace><mi>t</mi><mo>=</mo><mn>13.5</mn></mrow><annotation encoding="application/x-tex">\ K = 7,\ t = 13.5</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">E=（9，16.5）</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mspace width="0.222em"></mspace><mi>K</mi><mo>=</mo><mn>9</mn><mo>,</mo><mspace width="0.222em"></mspace><mi>t</mi><mo>=</mo><mn>16.5</mn></mrow><annotation encoding="application/x-tex">\ K = 9,\ t = 16.5</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: center;">6</td>
+<td style="text-align: center;">fitline （｛A，B，C，D，E｝）</td>
+<td style="text-align: center;">conducting linear fitting</td>
+</tr>
+<tr>
+<td style="text-align: center;">7</td>
+<td style="text-align: center;">corresponding coefficient
+（｛A，B，C，D，E｝）</td>
+<td style="text-align: center;">showing correlation coefficient</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><a href="#DF10"
+data-ref-type="disp-formula">式（10）</a>使前面的猜想更加精准，表明保留时间与分配系数间存在着明确的线性依存关系，但线性关系的斜率和截距的化学意义是什么？以此问题引领学生深入思考，进入下一模块。</p>
+<h2 id="s2d">2.4 学生活动模块3——保留时间方程的推导</h2>
+<p>为了探究前述发现的保留时间和分配系数间的线性依存关系，解释<a
+href="#DF10"
+data-ref-type="disp-formula">式（10）</a>中所蕴含的化学意义，引导学生重新审视前面的<a
+href="#DF4" data-ref-type="disp-formula">式（4）</a>和<a href="#DF9"
+data-ref-type="disp-formula">式（9）</a>色谱流出曲线模型。在所模拟的色谱流出曲线中最醒目的部分就是色谱峰，也就意味着<a
+href="#DF4"
+data-ref-type="disp-formula">式（4）</a>中的浓度<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>存在极大值，就是说应有<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>d</mi><mi>C</mi></mrow><mrow><mi>d</mi><mi>t</mi></mrow></mfrac><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\frac{dC}{dt} = 0</annotation></semantics></math>。为了避免学生陷入长时间数学推导过程而影响本课程的进度，决定采用国产AI模型“豆包（版本7.8.0）”（下文简称“豆包”）辅助推导。</p>
+<p>首先，将<a href="#DF9" data-ref-type="disp-formula">式（9）</a>和<a
+href="#DF4" data-ref-type="disp-formula">式（4）</a>放到一起，如下：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mrow><mi>t</mi><mi>n</mi></mrow><mrow><msub><mi>t</mi><mi>m</mi></msub><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>K</mi><mi>/</mi><mi>β</mi><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">v(t) = \frac{tn}{t_{m}(1 + K/\beta)}</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><mi>K</mi></mrow></mfrac><msub><mi>C</mi><mn>0</mn></msub><mfrac><mn>1</mn><mroot><mrow><mn>2</mn><mi>π</mi><mi>n</mi></mrow><mrow></mrow></mroot></mfrac><msup><mrow><mo stretchy="false" form="prefix">(</mo><mfrac><mrow><mi>v</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><mi>n</mi></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><mi>n</mi></msup><mo>⋅</mo><msup><mi>e</mi><mrow><mi>n</mi><mo>−</mo><mi>v</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">f(t) = \frac{1}{1 + K}C_{0}\frac{1}{\sqrt[{}]{2\pi n}}{(\frac{v(t)}{n})}^{n} \cdot e^{n - v(t)}</annotation></semantics></math></p>
+<p>其次，将<a href="#DF9" data-ref-type="disp-formula">式（9）</a>和<a
+href="#DF4"
+data-ref-type="disp-formula">式（4）</a>拍成照片上传到“豆包”中，然后写一句“根据上图的两个式子，求<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(t)</annotation></semantics></math>导数等于零时的条件关系式”。“豆包”接到指令后就会给出以下3个详细步骤：分析<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(t)</annotation></semantics></math>的结构，利用乘积求导法则<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><mi>′</mi></msup><mo>=</mo><msup><mi>u</mi><mi>′</mi></msup><mi>v</mi><mo>+</mo><mi>u</mi><msup><mi>v</mi><mi>′</mi></msup></mrow><annotation encoding="application/x-tex">{(uv)}^{&#39;} = u^{&#39;}v + uv^{&#39;}</annotation></semantics></math>求<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(t)</annotation></semantics></math>的导数，令<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>f</mi><mi>′</mi></msup><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">f^{&#39;}(t) = 0</annotation></semantics></math>求解条件关系式，最终得到：</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><msub><mi>t</mi><mi>m</mi></msub><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>K</mi><mi>/</mi><mi>β</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>t</mi><mi>m</mi></msub><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">t = t_{m}(1 + K/\beta) = t_{m}(1 + k)</annotation></semantics></math></p>
+<p>式中<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>代表着保留因子或分配比。<a
+href="#DF13"
+data-ref-type="disp-formula">式（11）</a>就是常说的保留时间方程，它揭示了影响色谱保留时间的本质。当色谱柱选定和流速确定后，也就意味着相比<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>和死时间<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>t</mi><mi>m</mi></msub><annotation encoding="application/x-tex">t_{m}</annotation></semantics></math>是不变的量，所以<a
+href="#DF13"
+data-ref-type="disp-formula">式（11）</a>表明保留时间<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>就是分配系数<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>的函数，并从本质上证明了分配系数越大则保留时间越长这一前述实验观察和猜测的正确性。由<a
+href="#DF13" data-ref-type="disp-formula">式（11）</a>可推知<a
+href="#DF10"
+data-ref-type="disp-formula">式（10）</a>的初始实验条件为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mi>m</mi></msub><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">t_{m} = 3</annotation></semantics></math>和<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>β</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">\beta = 2</annotation></semantics></math>，与<a
+href="#T2" data-ref-type="table">表2</a>所给初始条件一致。</p>
+<p>目前教材中保留时间方程往往是直接给出的，逻辑上显得比较突兀，不利于学生创新思维的培养。本文从色谱流出曲线方程派生出保留时间方程这种做法，不仅拓宽了色谱流出曲线方程的应用范畴，锻炼了学生的逻辑思维能力和AI工具辅助学习的能力，而且增加了色谱课程的理论完整性。</p>
+<h1 id="s3">3 教学实施和效果</h1>
+<p>数字化工具预学习（课前）：通过预习包（软件链接、操作指南及参考文献）引导学生熟悉GeoGebra云端工具。设置了创意作业：绘制“心”形函数<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><msup><mrow><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo>−</mo><mroot><msup><mi>x</mi><mn>2</mn></msup><mn>3</mn></mroot><mo stretchy="false" form="postfix">)</mo></mrow><mn>2</mn></msup><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">x^{2} + {(y - \sqrt[3]{x^{2}})}^{2} = 1</annotation></semantics></math>图形并标注“我爱色谱课”。为了帮助学生顺利完成预习作业，提供了如下操作指南。第1步：在手机浏览器中键入ggb123.cn，进入<a
+href="#F4"
+data-ref-type="fig">图4a</a>所示GeoGebra界面。点击该界面中的“启动计算器”，进入到工作界面（<a
+href="#F4"
+data-ref-type="fig">图4b</a>）；可以把工作界面分为4个不同的功能区，从上到下依次为图形显示区（A区）、关系式键入区（B区）、键盘操作区（B与C之间的区域）、功能切换区（C区）。除此之外，右上角还有一个齿轮状按钮设置图标，可用于调整横纵坐标等操作，左上角的3条横线状的汉堡菜单，可用于保存文件等操作。第2步：点击C区的键盘操作区，即可在B区的关系式键入区录入：<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><msup><mrow><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo>−</mo><mroot><msup><mi>x</mi><mn>2</mn></msup><mn>3</mn></mroot><mo stretchy="false" form="postfix">)</mo></mrow><mn>2</mn></msup><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">x^{2} + {(y - \sqrt[3]{x^{2}})}^{2} = 1</annotation></semantics></math>，回车后则可在A区的图形显示区上观察到“心”形图案；然后，在C区下面的功能切换区中点击“工具”，从中选择“文本”，就可以录入“我爱色谱课”（如果没有切换成中文，可以直接键入英文）。学生通过“学习通”平台提交作业，预习作业提交率达100%，验证了趣味任务对学习动机的激发效果。</p>
+<figure id="F4">
+<h2>（a） Interface of GeoGebra calculation cloud platform and （b） its
+working interface</h2>
+Fig. 4
+<p><img src="https://cdn.ncbi.nlm.nih.gov/pmc/blobs/98fe/12412022/2010d43ed5d9/CB372E5F-3D49-4d24-A96C-506522AB13D6-F004.jpg" /></p>
+<figcaption>GeoGebra计算云平台的（a）界面和（b）工作界面</figcaption>
+</figure>
+<p>在课上模型建构阶段，我们采用知识迁移式教学。首先对比讲解塔板理论核心方程（泊松函数）与Stirling近似法的应用场景，采用“概念链”教学法，引导学生结合保留时间、死时间和相比等色谱参数，自主完成塔板理论模型约束条件的优化。我们重构了教材框架，构建了知识体系，并且通过知识迁移教学法使课堂互动频次提升了23%。在课上的模型应用阶段，采用三级进阶式模块教学。</p>
+<p>模块1：单组分模拟。针对部分无色谱实验课程的专业（环境专业），为了丰富学生的色谱学习体验，案例1通过设计接近真实条件的色谱实验，提出模拟单一组分色谱流出曲线的任务。通过采用开源免费的云端计算平台并开展课前预热活动，学生在模拟单一组分色谱流出曲线时，实现了云端平台零障碍操作。实时生成模拟图谱，激发了学生自发展示学习成果的热情，94%的学生主动分享屏幕截图。</p>
+<p>模块2：多组分模拟。在案例2模拟中，学生遇到的最棘手操作问题就是如何解决二元函数数值录入问题。教师通过及时微讲授的方式，重点突破学生遇到的二元函数输入技术难点。通过引导学生观察<a
+href="#DF4"
+data-ref-type="disp-formula">式（4）</a>和（9），学生可以发现影响<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>的变量除了时间<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>以外，描述物质在固定相和流动相两相间分配的参数<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>也是重要因素，这样函数<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>和<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+就可看作<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>和<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
+的二元函数了。在模块1中只把函数<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>和<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>当作<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>的一元函数，在直角坐标系中得到了<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+曲线的模拟图，这个经验对二元函数图的绘制有帮助，但还不能完全支撑直角坐标系中二元函数的模拟。二元函数图的模拟主要有两个关键步骤：第一步，键入标注二元变量的通式。按照<a
+href="#T2" data-ref-type="table">表2</a>和<a href="#T3"
+data-ref-type="table">表3</a>第5和6行那样操作，在键入<a href="#DF4"
+data-ref-type="disp-formula">式（4）</a>和（9）通式时，需在函数符号<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>和<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>后的括号内注明二元自变量<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>和<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>。第二步，赋值并调用通式。按照<a
+href="#T2" data-ref-type="table">表2</a>第7行和第8行以及<a href="#T3"
+data-ref-type="table">表3</a>第7~11行那样操作，就可起到调用前述通式和将预设值赋值给自变量<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>的双重作用。回车后，GeoGebra平台接到上述操作指令就可在直角坐标系中完成二元函数的模拟。在实际操作中需要灵活运用一些操作技巧，比如通式中有两个符号含有字母<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>且其中一个还有下角标，为了提高键入速度且避免混淆，可以对<a
+href="#T2" data-ref-type="table">表2</a>中的字母含义作适当调整：可把<a
+href="#T2"
+data-ref-type="table">表2</a>中的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>t</mi><mi>m</mi></msub><annotation encoding="application/x-tex">t_{m}</annotation></semantics></math>均改为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>，把原来的<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+都改为<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>。按照<a
+href="#T2" data-ref-type="table">表2</a>和以上提示内容操作后，就会看到<a
+href="#F5" data-ref-type="fig">图5</a>的结果。<a href="#F5"
+data-ref-type="fig">图5</a>中黑色方框内容就是上面提到的二元变量和自变量<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>的赋值。在大多数学生完成色谱流出曲线模拟后，我们组织学生开展针对色谱峰保留时间规律的小组讨论，引导学生形成有待验证的猜想。在案例3中，教师通过及时微讲授的方式，重点解决从色谱模拟图上读取保留时间的问题。当手指在手机屏幕上触碰色谱图峰顶时，屏幕上就可显示对应的横纵坐标数值。当学生完成系列保留时间-分配系数数据对采集后，教师通过实际操作演示，指导学生进行保留时间与分配系数之间的线性回归分析，最终得到对应的线性方程。线性方程中每一项蕴含着怎样的化学意义呢？借此引导学生展开深层次的思考。</p>
+<figure id="F5">
+<h2>Main input contents and simulated chromatographic elution profiles
+of dual-component sample by GeoGebra</h2>
+Fig. 5
+<p><img src="https://cdn.ncbi.nlm.nih.gov/pmc/blobs/98fe/12412022/f36374c26947/CB372E5F-3D49-4d24-A96C-506522AB13D6-F005.jpg" /></p>
+<figcaption>两组分色谱峰模拟的主要键入内容和流出曲线模拟结果界面</figcaption>
+</figure>
+<p>模块3：保留时间方程模块推导。我们首先将数学极值原理和色谱流出曲线的通式方程相结合，进而对塔板理论导数零点条件进行了推演。其次，开展AI助教辅助教学，运用“豆包”模型推演保留时间方程。最后，通过深入探究保留时间方程中分配系数与保留时间的内在关联，对前述线性方程的化学意义进行了阐释。</p>
+<p>课后，结合学生的知识储备和学习能力，我们提供了一些涉及塔板理论推导的文献，供学生自主选择阅读。相较于传统授课模式，本文所介绍的方法借助“模型化-数字化-可视化”的流程，深度激发了学生在课堂上的参与积极性，显著提高了学生对色谱理论要点的掌握水平。例如，对于溶质在两相间的分配机制、理论塔板概念以及色谱峰生成机制等抽象知识，学生能够更好地理解和掌握。该教学模式具有以下两大优势：其一，可显著提升课堂教学效果。课堂任务完成率达94%，学生的高阶思维能力明显提高，保留时间方程推导正确率达76%。同时，89%的学生认为此教学模式在复杂理论的可视化解析教学方面成效显著。其二，运用GeoGebra解决色谱问题后，学生的长效迁移能力显著增强。例如，在后续的学习和实验中，85%的学生在速率理论最佳流速计算、色谱定量方法学习以及实验操作中，均能主动运用GeoGebra工具。这使得气相色谱程序升温和液相色谱梯度洗脱等高阶问题的解答正确率提升至76%。</p>
+<h1 id="s4">4 结论</h1>
+<p>本研究通过整合GeoGebra平台与AI技术，成功开发了具有动态参数调节功能的三级进阶式色谱教学工具。该工具有效化解了塔板理论教学抽象性难题，使学生课堂任务完成率达94%，保留时间方程推导正确率达76%。实践表明，“数字化建模（‘豆包’AI辅助推导）-参数交互（多项可调色谱参数）-可视化验证（动态色谱流出曲线拟合）”模式可显著增强学生的参与度（85%的学生在实验中自主复用工具），其开源架构为分析化学数字化教学改革提供了可推广的实践范例。</p>
+<h1>参考文献</h1>
+<div id="refs" role="list">
+
+</div>
+</div>
+ <div class="col" id="R"><div class="lab">译（English）</div><p>Contemporary instrumental analysis instruction faces two interrelated
+pedagogical challenges [<span class="citation"
+data-cites="R1">1</span>]: First, unidirectional knowledge transmission
+dominates classroom instruction, confining students to passive reception
+and severely constraining the development of learner agency, thereby
+resulting in low achievement of higher-order thinking objectives;
+second, organic integration of modern information technology with the
+curriculum remains lagging, and the development of digital instructional
+resources is insufficient. Chromatographic analysis constitutes a core
+component of instrumental analysis courses, and its instruction suffers
+from these same issues. In recent years, the emergence of interactive
+simulation tools has offered new promise for resolving such challenges,
+significantly enhancing students’ comprehension of abstract scientific
+concepts [<span class="citation" data-cites="R2">2</span>, <span
+class="citation" data-cites="R3">3</span>]; however, interactive
+teaching tools specifically tailored for chromatography remain
+relatively scarce, particularly those balancing theoretical depth with
+beginner-friendliness.</p>
+<p>Prior research has reported chromatographic separation optimization
+simulation software targeting advanced learners—including professional
+chemists [<span class="citation" data-cites="R4">4</span>–<span
+class="citation" data-cites="R6">6</span>]; however, due to their
+complexity, domain-specific operational requirements, and poor alignment
+with undergraduate cognitive levels, such software remains unsuitable
+for introductory undergraduate chromatography courses. Jordheim et al.
+[<span class="citation" data-cites="R7">7</span>] developed a web-based
+interactive chromatography teaching tool using JavaScript, intended for
+foundational instruction in plate theory and basic chromatographic
+principles; however, it is hosted on GitHub, rendering it inconvenient
+for classroom use in domestic educational settings.</p>
+<p>Within the chromatographic pedagogy framework, plate theory is
+conventionally positioned early in both textbooks and lecture sequences.
+Originally proposed by chromatographic pioneers Martin and Synge, this
+theory has become widely accepted across the chromatographic community.
+Although certain kinetic models (e.g., rate theory) offer greater
+theoretical precision, plate theory remains the cornerstone of
+chromatographic education. GeoGebra—a powerful cloud-based computational
+platform—has assumed an increasingly vital role in pedagogy. Based on a
+synthesis of journal publications concerning GeoGebra applications in
+education between 2010 and 2020, Yohannes et al. [<span class="citation"
+data-cites="R8">8</span>] concluded that GeoGebra’s visualization
+capabilities reduce cognitive load. Kostic et al. [<span
+class="citation" data-cites="R9">9</span>] empirically confirmed that
+GeoGebra usage significantly improves student performance in
+quantitative solution-composition problem solving. Lossjew et al. [<span
+class="citation" data-cites="R10">10</span>] integrated fundamental
+digital-tool functionalities with chemical research processes, employing
+GeoGebra to support exploratory investigation of chemical reaction
+progressions. Cooling curves and their mathematical models provide rich
+information regarding latent heat, heat transfer, Gibbs phase rule, and
+mass-transfer kinetics during phase transitions. Shi et al. [<span
+class="citation" data-cites="R11">11</span>] enhanced senior
+undergraduates’ understanding of complex phase-transition processes—and
+effectively strengthened their mathematical modeling, computational, and
+problem-solving competencies—by integrating cooling-curve modeling with
+GeoGebra graphing. We [<span class="citation"
+data-cites="R12">12</span>, <span class="citation"
+data-cites="R13">13</span>] previously documented case studies applying
+the GeoGebra cloud-based computational platform to analytical chemistry
+instruction. This paper takes plate-theory instruction as its
+pedagogical entry point and leverages the GeoGebra cloud-based
+computational platform as the instructional environment to develop three
+mutually reinforcing, progressively scaffolded student activity modules:
+(i) single-component chromatographic elution-curve simulation, (ii)
+multi-component chromatographic elution-curve simulation, and (iii)
+chromatographic retention-time equation derivation. This establishes an
+integrated teaching and learning chain—"theoretical model → problem case
+→ digital tool → visual simulation"—that elevates student engagement in
+classroom instruction. The plate-theory chromatogram simulation process
+developed herein exhibits the following salient advantages: (1) the tool
+is open-source and freely available; (2) it supports multi-terminal
+deployment (mobile phones, computers, etc.) and enables convenient
+in-class application; (3) it permits students to autonomously adjust
+parameters (e.g., number of compounds, mobile-phase flow rate, dead
+time, phase ratio, and number of theoretical plates), thereby increasing
+classroom participation and learning efficacy.</p>
+<h1 id="s1">1 Integration and Reconstruction of Theoretical Models</h1>
+<p>In most instrumental analysis curricula, chromatographic instruction
+typically commences with plate theory. While standard textbooks commonly
+present the mathematical model of plate theory, they rarely incorporate
+other parameters describing chromatographic processes—such as volumetric
+flow rate, dead volume, dead time, phase ratio, and retention time. This
+study integrates these parameters into the plate-theory mathematical
+model to establish a comprehensive model with mobile-phase runtime as
+the independent variable, thereby laying the chemical foundation for
+constructing an interactive plate-theory teaching tool.</p>
+<h2 id="s1a">1.1 Common Models of Plate Theory</h2>
+<p>If a chromatographic column comprises
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+theoretical plates, then the solute concentration in the mobile phase at
+the column outlet is given by <a href="#DF1"
+data-ref-type="disp-formula">式（1）</a> [<span class="citation"
+data-cites="R7">7</span>]. <a href="#DF1"
+data-ref-type="disp-formula">式（1）</a> is the Poisson function of
+plate theory; when the number of plates
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+is sufficiently large, it closely approximates a Gaussian distribution
+function.</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo>=</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><mi>K</mi></mrow></mfrac><msub><mi>C</mi><mn>0</mn></msub><mfrac><mn>1</mn><mrow><mi>n</mi><mi>!</mi></mrow></mfrac><msup><mi>e</mi><mrow><mi>−</mi><mi>v</mi></mrow></msup><msup><mi>v</mi><mi>n</mi></msup></mrow><annotation encoding="application/x-tex">C = \frac{1}{1 + K}C_{0}\frac{1}{n!}e^{- v}v^{n}</annotation></semantics></math></p>
+<p>In this expression,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>C</mi><mn>0</mn></msub><annotation encoding="application/x-tex">C_{0}</annotation></semantics></math>
+denote the solute concentration at the column outlet and the initial
+concentration, respectively, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
+is the distribution coefficient. <a href="#DF2"
+data-ref-type="disp-formula">式（2）</a> defines
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+[<span class="citation" data-cites="R7">7</span>], representing a
+physical quantity related to the reduced plate volume, expressed in
+units of "plate volume" rather than mL.</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mo>=</mo><mfrac><mi>V</mi><mrow><mi>K</mi><msub><mi>v</mi><mi>s</mi></msub><mo>+</mo><msub><mi>v</mi><mi>m</mi></msub></mrow></mfrac></mrow><annotation encoding="application/x-tex">v = \frac{V}{Kv_{s} + v_{m}}</annotation></semantics></math></p>
+<p>In this expression,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math>
+is the consumed mobile-phase volume, while
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>v</mi><mi>s</mi></msub><annotation encoding="application/x-tex">v_{s}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>v</mi><mi>m</mi></msub><annotation encoding="application/x-tex">v_{m}</annotation></semantics></math>
+denote the volumes of stationary and mobile phases per theoretical
+plate, respectively.</p>
+<h2 id="s1b">1.2 Approximate Transformation of the Plate-Theory
+Model</h2>
+<p>Because <a href="#DF1" data-ref-type="disp-formula">式（1）</a>
+involves factorial computation—which entails substantial computational
+overhead and hinders subsequent simulation—it requires approximation.
+When
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>&gt;</mo><mn>10</mn></mrow><annotation encoding="application/x-tex">n &gt; 10</annotation></semantics></math>,
+the factorial may be computed via Stirling’s approximation:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>!</mi><mo>≈</mo><mroot><mrow><mn>2</mn><mi>π</mi><mi>n</mi></mrow><mrow></mrow></mroot><msup><mrow><mo stretchy="false" form="prefix">(</mo><mfrac><mi>n</mi><mi>e</mi></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><mi>n</mi></msup></mrow><annotation encoding="application/x-tex">n! \approx \sqrt[{}]{2\pi n}{(\frac{n}{e})}^{n}</annotation></semantics></math></p>
+<p>Substituting <a href="#DF3" data-ref-type="disp-formula">式（3）</a>
+into <a href="#DF1" data-ref-type="disp-formula">式（1）</a> yields:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo>=</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><mi>K</mi></mrow></mfrac><msub><mi>C</mi><mn>0</mn></msub><mfrac><mn>1</mn><mroot><mrow><mn>2</mn><mi>π</mi><mi>n</mi></mrow><mrow></mrow></mroot></mfrac><msup><mrow><mo stretchy="false" form="prefix">(</mo><mfrac><mi>v</mi><mi>n</mi></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><mi>n</mi></msup><msup><mi>e</mi><mrow><mi>n</mi><mo>−</mo><mi>v</mi></mrow></msup></mrow><annotation encoding="application/x-tex">C = \frac{1}{1 + K}C_{0}\frac{1}{\sqrt[{}]{2\pi n}}{(\frac{v}{n})}^{n}e^{n - v}</annotation></semantics></math></p>
+<h2 id="s1c">1.3 Introduction of the Time Variable into the Plate-Theory
+Model</h2>
+<p>After the above transformations, the plate-theory model is
+mathematically expressed by the dynamic equation described in <a
+href="#DF4" data-ref-type="disp-formula">式（4）</a> and the constraint
+condition in <a href="#DF2" data-ref-type="disp-formula">式（2）</a>. If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
+,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>v</mi><mi>s</mi></msub><annotation encoding="application/x-tex">v_{s}</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>v</mi><mi>m</mi></msub><annotation encoding="application/x-tex">v_{m}</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>,
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>C</mi><mn>0</mn></msub><annotation encoding="application/x-tex">C_{0}</annotation></semantics></math>
+are all constants, then
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>
+becomes a function of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>,
+yielding only a
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>–<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+plot rather than the conventional
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>–<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+chromatogram; therefore, the time variable must be introduced into the
+constraint condition <a href="#DF2"
+data-ref-type="disp-formula">式（2）</a>.</p>
+<p>The consumed mobile-phase volume
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math>
+equals the product of the mobile-phase volumetric flow rate
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>F</mi><annotation encoding="application/x-tex">F</annotation></semantics></math>
+and the runtime
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo>=</mo><mi>F</mi><mo>⋅</mo><mi>t</mi></mrow><annotation encoding="application/x-tex">V = F \cdot t</annotation></semantics></math></p>
+<p>Similarly, the dead volume
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>V</mi><mi>m</mi></msub><annotation encoding="application/x-tex">V_{m}</annotation></semantics></math>
+equals the product of the mobile-phase volumetric flow rate
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>F</mi><annotation encoding="application/x-tex">F</annotation></semantics></math>
+and the dead time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>t</mi><mi>m</mi></msub><annotation encoding="application/x-tex">t_{m}</annotation></semantics></math>:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>V</mi><mi>m</mi></msub><mo>=</mo><mi>F</mi><mo>⋅</mo><msub><mi>t</mi><mi>m</mi></msub></mrow><annotation encoding="application/x-tex">V_{m} = F \cdot t_{m}</annotation></semantics></math></p>
+<p>Because the chromatographic column consists of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+theoretical plates, the dead volume equals the product of the
+mobile-phase volume per plate
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>v</mi><mi>m</mi></msub><annotation encoding="application/x-tex">v_{m}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>V</mi><mi>m</mi></msub><mo>=</mo><mi>n</mi><mo>⋅</mo><msub><mi>v</mi><mi>m</mi></msub></mrow><annotation encoding="application/x-tex">V_{m} = n \cdot v_{m}</annotation></semantics></math></p>
+<p>The phase ratio
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
+satisfies the following relationship:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>β</mi><mo>=</mo><mfrac><msub><mi>V</mi><mi>m</mi></msub><msub><mi>V</mi><mi>s</mi></msub></mfrac><mo>=</mo><mfrac><mrow><mi>n</mi><msub><mi>v</mi><mi>m</mi></msub></mrow><mrow><mi>n</mi><msub><mi>v</mi><mi>s</mi></msub></mrow></mfrac><mo>=</mo><mfrac><msub><mi>v</mi><mi>m</mi></msub><msub><mi>v</mi><mi>s</mi></msub></mfrac></mrow><annotation encoding="application/x-tex">\beta = \frac{V_{m}}{V_{s}} = \frac{nv_{m}}{nv_{s}} = \frac{v_{m}}{v_{s}}</annotation></semantics></math></p>
+<p>Substituting Equations (<a href="#DF5"
+data-ref-type="disp-formula">5</a>)–(<a href="#DF8"
+data-ref-type="disp-formula">8</a>) into <a href="#DF2"
+data-ref-type="disp-formula">式（2）</a> yields:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mo>=</mo><mfrac><mi>V</mi><mrow><mi>K</mi><msub><mi>v</mi><mi>s</mi></msub><mo>+</mo><msub><mi>v</mi><mi>m</mi></msub></mrow></mfrac><mo>=</mo><mfrac><mrow><mi>F</mi><mi>t</mi></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mi>K</mi><mi>/</mi><mi>β</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><msub><mi>v</mi><mi>m</mi></msub></mrow></mfrac><mo>=</mo><mfrac><mrow><mi>F</mi><mi>t</mi></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mi>K</mi><mi>/</mi><mi>β</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><msub><mi>V</mi><mi>m</mi></msub><mi>/</mi><mi>n</mi></mrow></mfrac><mo>=</mo><mfrac><mrow><mi>t</mi><mi>n</mi></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mi>K</mi><mi>/</mi><mi>β</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><msub><mi>t</mi><mi>m</mi></msub></mrow></mfrac></mrow><annotation encoding="application/x-tex">v = \frac{V}{Kv_{s} + v_{m}} = \frac{Ft}{(K/\beta + 1)v_{m}} = \frac{Ft}{(K/\beta + 1)V_{m}/n} = \frac{tn}{(K/\beta + 1)t_{m}}</annotation></semantics></math></p>
+<p>Thus, the integrated plate-theory model comprises the dynamic
+equation described in <a href="#DF4"
+data-ref-type="disp-formula">式（4）</a> and the
+time-variable-integrated constraint condition in <a href="#DF9"
+data-ref-type="disp-formula">式（9）</a>. Consequently, when
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
+,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>v</mi><mi>s</mi></msub><annotation encoding="application/x-tex">v_{s}</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>v</mi><mi>m</mi></msub><annotation encoding="application/x-tex">v_{m}</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>,
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>C</mi><mn>0</mn></msub><annotation encoding="application/x-tex">C_{0}</annotation></semantics></math>
+are all constants,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>
+becomes a function of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>,
+theoretically enabling generation of a
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>–<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+plot conforming to the typical shape of a chromatogram.</p>
+<h1 id="s2">2 Pedagogical Application of the Theoretical Model</h1>
+<h2 id="s2a">2.1 Selection of Software Platform</h2>
+<p>To enable students to generate their own chromatograms during
+chromatography instruction, selection of appropriate instructional
+software is critical. To ensure smooth implementation of teaching
+activities and uninterrupted student learning, an open-source, free
+software platform must be selected. The GeoGebra cloud-based
+computational platform not only satisfies these criteria but also
+supports multi-terminal operation (mobile phones, tablets, desktop
+computers) and features programming syntax closely resembling natural
+language—making it exceptionally well-suited for classroom use [<span
+class="citation" data-cites="R12">12</span>, <span class="citation"
+data-cites="R13">13</span>]. Building upon this, we have constructed a
+novel pedagogical paradigm for plate-theory instruction. This paradigm
+relies on three mutually reinforcing, progressively scaffolded student
+activity modules—(i) single-component chromatographic elution-curve
+simulation, (ii) multi-component chromatographic elution-curve
+simulation, and (iii) chromatographic retention-time-equation
+derivation—to form an integrated teaching and learning
+chain—"theoretical model → problem case → digital tool → visual
+simulation"—which enhances student engagement in plate-theory
+instruction and simultaneously advances students’ theoretical conceptual
+depth, digital modeling competence, and problem-solving reasoning.</p>
+<h2 id="s2b">2.2 Student Activity Module 1—Simulation of
+Single-Component Chromatographic Elution Profiles</h2>
+<p>To ensure students gain comprehensive insight into the
+chromatographic separation process, Chromatographic Separation Case 1 is
+designed as follows: Analyze component A using a liquid chromatograph
+equipped with a UV detector. The column is a C18 column characterized by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>100</mn></mrow><annotation encoding="application/x-tex">n = 100</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>V</mi><mi>m</mi></msub><mo>=</mo><mn>3</mn><mspace width="0.222em"></mspace><mi>m</mi><mi>L</mi></mrow><annotation encoding="application/x-tex">V_{m} = 3\ mL</annotation></semantics></math>,
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>β</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">\beta = 2</annotation></semantics></math>.
+The mobile phase is a water–methanol mixture (60:40, v/v), with a set
+flow rate of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mo>=</mo><mn>1</mn><mspace width="0.222em"></mspace><mi>m</mi><mi>L</mi><mi>/</mi><mi>m</mi><mi>i</mi><mi>n</mi></mrow><annotation encoding="application/x-tex">F = 1\ mL/min</annotation></semantics></math>.
+Given that the initial concentration of component A is 1 mg/L, and its
+solubilities in the mobile and stationary phases are 0.2 g/L and 0.6
+g/L, respectively, simulate the chromatographic elution profile of
+component A under these conditions.</p>
+<p>To simulate chromatograms using <a href="#DF4"
+data-ref-type="disp-formula">式（4）</a> and <a href="#DF9"
+data-ref-type="disp-formula">式（9）</a>, instructors must first guide
+students to compute the dead time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>t</mi><mi>m</mi></msub><annotation encoding="application/x-tex">t_{m}</annotation></semantics></math>
+and distribution coefficient
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
+by integrating problem context with fundamental chromatographic theory.
+Second, students access the cloud-based computational platform (<a
+href="https://ggb123.cn/calculator">https：//ggb123.cn/calculator</a>)
+via mobile terminals (smartphones/tablets/laptops). <a href="#T1"
+data-ref-type="table">表1</a> outlines the operational procedure for
+simulating chromatographic elution profiles using GeoGebra software.
+Following the step-by-step instructions provided in <a href="#T1"
+data-ref-type="table">表1</a>, students complete parametric
+configuration of the chromatographic elution profile on the cloud-based
+platform. Upon execution of these procedures, the system automatically
+generates the chromatographic elution profile of component A shown in <a
+href="#F1" data-ref-type="fig">图1</a>.</p>
+<div id="T1" class="table-wrap">
+<div class="caption">
+<p>Procedures of operation for simulated chromatographic elution profile
+of single-component sample by GeoGebra</p>
+</div>
+<p>Procedures of operation for simulated chromatographic elution profile
+of single-component sample by GeoGebra</p>
+Table 1
+<table>
+<thead>
+<tr>
+<th>Line No.</th>
+<th>Input</th>
+<th>Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">1</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>C</mi><mn>0</mn></msub><annotation encoding="application/x-tex">C_{0}</annotation></semantics></math>=1</td>
+<td>initial concentration</td>
+</tr>
+<tr>
+<td style="text-align: center;">2</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mi>m</mi></msub><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">t_{m} = 3</annotation></semantics></math></td>
+<td>dead time</td>
+</tr>
+<tr>
+<td style="text-align: center;">3</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>β</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">\beta = 2</annotation></semantics></math></td>
+<td>phase ratio</td>
+</tr>
+<tr>
+<td style="text-align: center;">4</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>100</mn></mrow><annotation encoding="application/x-tex">n = 100</annotation></semantics></math></td>
+<td>number of plates</td>
+</tr>
+<tr>
+<td style="text-align: center;">5</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">K = 3</annotation></semantics></math></td>
+<td>distribution coefficient</td>
+</tr>
+<tr>
+<td style="text-align: center;">6</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mrow><mi>t</mi><mi>n</mi></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mi>K</mi><mi>/</mi><mi>β</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><msub><mi>t</mi><mi>m</mi></msub></mrow></mfrac></mrow><annotation encoding="application/x-tex">v(t) = \frac{tn}{(K/\beta + 1)t_{m}}</annotation></semantics></math></td>
+<td style="text-align: center;"><a href="#DF9"
+data-ref-type="disp-formula">Equation （9）</a> <sup>*</sup></td>
+</tr>
+<tr>
+<td style="text-align: center;">7</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><mi>K</mi></mrow></mfrac><msub><mi>C</mi><mn>0</mn></msub><mfrac><mn>1</mn><mroot><mrow><mn>2</mn><mi>π</mi><mi>n</mi></mrow><mrow></mrow></mroot></mfrac><msup><mrow><mo stretchy="false" form="prefix">(</mo><mfrac><mrow><mi>v</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><mi>n</mi></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><mi>n</mi></msup><mo>⋅</mo><msup><mi>e</mi><mrow><mi>n</mi><mo>−</mo><mi>v</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">f(t) = \frac{1}{1 + K}C_{0}\frac{1}{\sqrt[{}]{2\pi n}}{(\frac{v(t)}{n})}^{n} \cdot e^{n - v(t)}</annotation></semantics></math></td>
+<td style="text-align: center;"><a href="#DF4"
+data-ref-type="disp-formula">Equation （4）</a> <sup>*</sup></td>
+</tr>
+</tbody>
+</table>
+<p>* When typing equations (9) and (4) in GeoGebra, add parentheses
+after function symbols and specify the independent variable.</p>
+</div>
+<figure id="F1">
+<h3>Simulated chromatographic elution profile of single-component sample
+by GeoGebra</h3>
+Fig. 1
+<p><img src="https://cdn.ncbi.nlm.nih.gov/pmc/blobs/98fe/12412022/73a17cc98c0b/CB372E5F-3D49-4d24-A96C-506522AB13D6-F001.jpg" /></p>
+<figcaption>Simulated chromatographic elution profile of
+single-component sample on the GeoGebra platform</figcaption>
+</figure>
+<p>This method innovatively designs a dynamic parameter control
+mechanism, enabling flexible adjustment of the core parameters (e.g.,
+initial concentration, dead time, phase ratio, number of theoretical
+plates, and distribution coefficient) in lines 1–5 of <a href="#T1"
+data-ref-type="table">表1</a>, according to specific case requirements.
+This mechanism not only ensures high fidelity between the simulated
+chromatographic elution profiles and the problem context but also
+effectively enhances students’ classroom interaction, learning获得感,
+and self-confidence in problem solving.</p>
+<h2 id="s2c">2.3 Student Activity Module 2—Simulation of Chromatographic
+Elution Profiles for Multi-Component Samples</h2>
+<p>Chromatographic separation case 2: Based on case 1, another component
+B is added to the sample, with a distribution coefficient of 1.8.
+Question: Can components A and B be separated?</p>
+<p><a href="#T2" data-ref-type="table">表2</a> presents the operational
+procedure for simulating dual-component chromatographic elution profiles
+with distribution coefficients
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mn>3</mn><mi>和</mi><mn>1.8</mn></mrow><annotation encoding="application/x-tex">K = 3和1.8</annotation></semantics></math>
+using GeoGebra. Comparing <a href="#T2" data-ref-type="table">表2</a>
+and <a href="#T1" data-ref-type="table">表1</a> reveals certain
+procedural differences—the most prominent being the differing numbers of
+input variables in <a href="#DF9"
+data-ref-type="disp-formula">式（9）</a> and <a href="#DF4"
+data-ref-type="disp-formula">式（4）</a>. In <a href="#T1"
+data-ref-type="table">表1</a>, both relationships are univariate
+functions—specifically, functions of variable
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>;
+whereas in <a href="#T2" data-ref-type="table">表2</a>, both
+relationships are bivariate functions—functions of variables
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>.
+<a href="#F2" data-ref-type="fig">图2</a> shows the simulated
+chromatographic elution profiles generated by GeoGebra. Students are
+prompted to observe <a href="#F2" data-ref-type="fig">图2</a> and
+correlate peak positions with distribution coefficient magnitudes,
+leading to the following hypothesis: the magnitude of the distribution
+coefficient
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
+influences the length of retention time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>—specifically,
+the larger
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
+is, the larger
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+becomes; conversely, the smaller
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
+is, the smaller
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+becomes. The transition from simulating a single-component
+chromatographic elution profile (case 1) to a dual-component one (case
+2) elevates students’ hands-on proficiency with the GeoGebra cloud
+computing platform and deepens their conceptual understanding of the <a
+href="#DF4" data-ref-type="disp-formula">式（4）</a> and <a href="#DF9"
+data-ref-type="disp-formula">式（9）</a> models. Guiding students to
+observe simulated chromatograms thereby enhances their observational
+skills.</p>
+<div id="T2" class="table-wrap">
+<div class="caption">
+<p>Procedures of operation for simulated chromatographic elution
+profiles of dual-component sample (K = 3 and 1.8) by GeoGebra</p>
+</div>
+<p>Procedures of operation for simulated chromatographic elution
+profiles of dual-component sample (K = 3 and 1.8) by GeoGebra</p>
+Table 2
+<table>
+<thead>
+<tr>
+<th>Line No.</th>
+<th>Input</th>
+<th>Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">1</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>C</mi><mn>0</mn></msub><annotation encoding="application/x-tex">C_{0}</annotation></semantics></math>=
+1</td>
+<td>initial concentration of component A</td>
+</tr>
+<tr>
+<td style="text-align: center;">2</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mi>m</mi></msub><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">t_{m} = 3</annotation></semantics></math></td>
+<td>dead time</td>
+</tr>
+<tr>
+<td style="text-align: center;">3</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>β</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">\beta = 2</annotation></semantics></math></td>
+<td>phase ratio</td>
+</tr>
+<tr>
+<td style="text-align: center;">4</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>100</mn></mrow><annotation encoding="application/x-tex">n = 100</annotation></semantics></math></td>
+<td>number of plates</td>
+</tr>
+<tr>
+<td style="text-align: center;">5</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>,</mo><mi>K</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mrow><mi>t</mi><mi>n</mi></mrow><mrow><msub><mi>t</mi><mi>m</mi></msub><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>K</mi><mi>/</mi><mi>β</mi><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">v(t,K) = \frac{tn}{t_{m}(1 + K/\beta)}</annotation></semantics></math></td>
+<td style="text-align: center;"><a href="#DF9"
+data-ref-type="disp-formula">Equation （9）</a> <sup>*</sup></td>
+</tr>
+<tr>
+<td style="text-align: center;">6</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>,</mo><mi>K</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><mi>K</mi></mrow></mfrac><msub><mi>C</mi><mn>0</mn></msub><mfrac><mn>1</mn><mroot><mrow><mn>2</mn><mi>π</mi><mi>n</mi></mrow><mrow></mrow></mroot></mfrac><msup><mrow><mo stretchy="false" form="prefix">(</mo><mfrac><mrow><mi>v</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>,</mo><mi>K</mi><mo stretchy="false" form="postfix">)</mo></mrow><mi>n</mi></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><mi>n</mi></msup><mo>⋅</mo><msup><mi>e</mi><mrow><mi>n</mi><mo>−</mo><mi>v</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>,</mo><mi>K</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">f(t,K) = \frac{1}{1 + K}C_{0}\frac{1}{\sqrt[{}]{2\pi n}}{(\frac{v(t,K)}{n})}^{n} \cdot e^{n - v(t,K)}</annotation></semantics></math></td>
+<td style="text-align: center;"><a href="#DF4"
+data-ref-type="disp-formula">Equation （4）</a> <sup>*</sup></td>
+</tr>
+<tr>
+<td style="text-align: center;">7</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>,</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(t,3)</annotation></semantics></math></td>
+<td>simulating profile of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">K = 3</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: center;">8</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>,</mo><mn>1.8</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(t,1.8)</annotation></semantics></math></td>
+<td>simulating profile of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mn>1.8</mn></mrow><annotation encoding="application/x-tex">K = 1.8</annotation></semantics></math></td>
+</tr>
+</tbody>
+</table>
+<p>* When typing equations (9) and (4) in GeoGebra, add parentheses
+after function symbols and specify the independent variable.</p>
+</div>
+<figure id="F2">
+<h3>Simulated chromatographic elution profiles of dual-component sample
+by GeoGebra</h3>
+Fig. 2
+<p><img src="https://cdn.ncbi.nlm.nih.gov/pmc/blobs/98fe/12412022/4e5602dd6749/CB372E5F-3D49-4d24-A96C-506522AB13D6-F002.jpg" /></p>
+<figcaption>Simulated chromatographic elution profiles of dual-component
+sample on the GeoGebra platform</figcaption>
+</figure>
+<p>To further validate the hypothesis generated from Case 2, Case 3 was
+prepared: building upon Case 1, the number of components in the sample
+was increased from one to five, with distribution coefficients K equal
+to 1, 3, 5, 7, and 9, respectively.</p>
+<p><a href="#T3" data-ref-type="table">表3</a> outlines the operational
+procedure for Case 3. By comparing the content of <a href="#T3"
+data-ref-type="table">表3</a> and <a href="#T2"
+data-ref-type="table">表2</a>, it is evident that their processing
+methodologies are highly similar, indicating strong scalability of the
+simulation—applicable to both single-component and multi-component
+chromatographic systems. <a href="#F3" data-ref-type="fig">图3</a>
+presents the simulated chromatographic elution profiles of the
+five-component mixture, generated using GeoGebra according to the
+operational workflow specified in <a href="#T3"
+data-ref-type="table">表3</a>. At least two useful insights can be
+extracted from <a href="#F3" data-ref-type="fig">图3</a>: first, it
+reaffirms the earlier hypothesis—that a larger
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
+value corresponds to a longer retention time; second, on the GeoGebra
+cloud computing platform, tapping the apex of a chromatographic peak
+with a finger conveniently yields its corresponding retention time.
+Thus, five data pairs relating distribution coefficient to retention
+time are obtained: A = (1, 4.5), B = (3, 7.5), C = (5, 10.5), D = (7,
+13.5), and E = (9, 16.5), all annotated in <a href="#F3"
+data-ref-type="fig">图3</a>.</p>
+<div id="T3" class="table-wrap">
+<div class="caption">
+<p>Procedure for simulating chromatographic elution profiles of samples
+with varying distribution coefficients (K = 1, 3, 5, 7, 9) using
+GeoGebra</p>
+</div>
+<p>Procedures of operation for simulated chromatographic elution
+profiles of five-component sample (K = 1, 3, 5, 7, 9) by GeoGebra</p>
+Table 3
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><p>Line</p>
+<p>No.</p></th>
+<th>Input</th>
+<th>Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">1</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>C</mi><mn>0</mn></msub><annotation encoding="application/x-tex">C_{0}</annotation></semantics></math>=
+1</td>
+<td>initial concentration of the sample</td>
+</tr>
+<tr>
+<td style="text-align: center;">2</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mi>m</mi></msub><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">t_{m} = 3</annotation></semantics></math></td>
+<td>dead time</td>
+</tr>
+<tr>
+<td style="text-align: center;">3</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>β</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">\beta = 2</annotation></semantics></math></td>
+<td>phase ratio</td>
+</tr>
+<tr>
+<td style="text-align: center;">4</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>100</mn></mrow><annotation encoding="application/x-tex">n = 100</annotation></semantics></math></td>
+<td>number of plates</td>
+</tr>
+<tr>
+<td style="text-align: center;">5</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>,</mo><mi>K</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mrow><mi>t</mi><mi>n</mi></mrow><mrow><msub><mi>t</mi><mi>m</mi></msub><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>K</mi><mi>/</mi><mi>β</mi><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">v(t,K) = \frac{tn}{t_{m}(1 + K/\beta)}</annotation></semantics></math></td>
+<td style="text-align: center;"><a href="#DF9"
+data-ref-type="disp-formula">Equation （9）</a> <sup>*</sup></td>
+</tr>
+<tr>
+<td style="text-align: center;">6</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>,</mo><mi>K</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><mi>K</mi></mrow></mfrac><msub><mi>C</mi><mn>0</mn></msub><mfrac><mn>1</mn><mroot><mrow><mn>2</mn><mi>π</mi><mi>n</mi></mrow><mrow></mrow></mroot></mfrac><msup><mrow><mo stretchy="false" form="prefix">(</mo><mfrac><mrow><mi>v</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>,</mo><mi>K</mi><mo stretchy="false" form="postfix">)</mo></mrow><mi>n</mi></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><mi>n</mi></msup><mo>⋅</mo><msup><mi>e</mi><mrow><mi>n</mi><mo>−</mo><mi>v</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>,</mo><mi>K</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">f(t,K) = \frac{1}{1 + K}C_{0}\frac{1}{\sqrt[{}]{2\pi n}}{(\frac{v(t,K)}{n})}^{n} \cdot e^{n - v(t,K)}</annotation></semantics></math></td>
+<td style="text-align: center;"><a href="#DF4"
+data-ref-type="disp-formula">Equation （4）</a> <sup>*</sup></td>
+</tr>
+<tr>
+<td style="text-align: center;">7</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(t,1)</annotation></semantics></math></td>
+<td>simulating profile of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">K = 1</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: center;">8</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>,</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(t,3)</annotation></semantics></math></td>
+<td>simulating profile of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">K = 3</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: center;">9</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>,</mo><mn>5</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(t,5)</annotation></semantics></math></td>
+<td>simulating profile of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">K = 5</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: center;">10</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>,</mo><mn>7</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(t,7)</annotation></semantics></math></td>
+<td>simulating profile of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mn>7</mn></mrow><annotation encoding="application/x-tex">K = 7</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: center;">11</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo>,</mo><mn>9</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(t,9)</annotation></semantics></math></td>
+<td>simulating profile of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mn>9</mn></mrow><annotation encoding="application/x-tex">K = 9</annotation></semantics></math></td>
+</tr>
+</tbody>
+</table>
+<p>* When typing equations (9) and (4) in GeoGebra, add parentheses
+after function symbols and specify the independent variable.</p>
+</div>
+<figure id="F3">
+<h3>Simulated chromatographic elution profile of five-component sample
+by GeoGebra</h3>
+Fig. 3
+<p><img src="https://cdn.ncbi.nlm.nih.gov/pmc/blobs/98fe/12412022/ca6418232f77/CB372E5F-3D49-4d24-A96C-506522AB13D6-F003.jpg" /></p>
+<figcaption>Simulated chromatographic elution profiles of a
+five-component mixture on the GeoGebra platform</figcaption>
+</figure>
+<p>Another pedagogical functionality of the GeoGebra cloud platform in
+instrumental analysis instruction is intuitive linear regression. <a
+href="#T4" data-ref-type="table">表4</a> details the step-by-step
+procedure for performing linear regression between retention time and
+distribution coefficient using GeoGebra. As shown in <a href="#T4"
+data-ref-type="table">表4</a>, conducting linear regression in GeoGebra
+is highly intuitive and well-suited for student engagement and
+exploratory learning in class. Retention time and distribution
+coefficient exhibit an excellent linear relationship, with a correlation
+coefficient of exactly 1; the resulting linear equation is as
+follows:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>3</mn><mo>+</mo><mn>1.5</mn><mi>K</mi></mrow><annotation encoding="application/x-tex">t = 3 + 1.5K</annotation></semantics></math></p>
+<div id="T4" class="table-wrap">
+<div class="caption">
+<p>Step-by-step procedure for linear regression analysis between
+retention time and distribution coefficient using GeoGebra</p>
+</div>
+<p>Operational procedures for linear regression analysis between
+retention time and distribution coefficient with GeoGebra</p>
+Table 4
+<table>
+<thead>
+<tr>
+<th style="text-align: center;"><p>Line</p>
+<p>No.</p></th>
+<th>Input</th>
+<th>Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">A=（1，4.5）</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mn>1</mn><mo>,</mo><mspace width="0.222em"></mspace><mi>t</mi><mo>=</mo><mn>4.5</mn></mrow><annotation encoding="application/x-tex">K = 1,\ t = 4.5</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">B=（3，5，3）</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mn>3</mn><mo>,</mo><mspace width="0.222em"></mspace><mi>t</mi><mo>=</mo><mn>7.5</mn></mrow><annotation encoding="application/x-tex">K = 3,\ t = 7.5</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">C=（5，10.5）</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo>=</mo><mn>5</mn><mo>,</mo><mspace width="0.222em"></mspace><mi>t</mi><mo>=</mo><mn>10.5</mn></mrow><annotation encoding="application/x-tex">K = 5,\ t = 10.5</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">D=（7，13.5）</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mspace width="0.222em"></mspace><mi>K</mi><mo>=</mo><mn>7</mn><mo>,</mo><mspace width="0.222em"></mspace><mi>t</mi><mo>=</mo><mn>13.5</mn></mrow><annotation encoding="application/x-tex">\ K = 7,\ t = 13.5</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">E=（9，16.5）</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mspace width="0.222em"></mspace><mi>K</mi><mo>=</mo><mn>9</mn><mo>,</mo><mspace width="0.222em"></mspace><mi>t</mi><mo>=</mo><mn>16.5</mn></mrow><annotation encoding="application/x-tex">\ K = 9,\ t = 16.5</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: center;">6</td>
+<td>fitline({A, B, C, D, E})</td>
+<td>conducting linear fitting</td>
+</tr>
+<tr>
+<td style="text-align: center;">7</td>
+<td>corresponding coefficient({A, B, C, D, E})</td>
+<td>showing correlation coefficient</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><a href="#DF10" data-ref-type="disp-formula">式（10）</a> refines the
+earlier hypothesis more precisely, confirming an explicit linear
+dependence between retention time and distribution coefficient. However,
+what are the chemical meanings of the slope and intercept of this linear
+relationship? This question serves as a conceptual bridge to guide
+students into the next module.</p>
+<h2 id="s2d">2.4 Student Activity Module 3—Derivation of the Retention
+Time Equation</h2>
+<p>To investigate the linear dependence between retention time and
+distribution coefficient identified earlier and to interpret the
+chemical significance embedded in <a href="#DF10"
+data-ref-type="disp-formula">式（10）</a>, students are guided to
+revisit the previously introduced chromatographic elution curve models
+<a href="#DF4" data-ref-type="disp-formula">式（4）</a> and <a
+href="#DF9" data-ref-type="disp-formula">式（9）</a>. The most prominent
+feature of the simulated chromatographic elution profile is the
+chromatographic peak, implying that the concentration
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>
+in <a href="#DF4" data-ref-type="disp-formula">式（4）</a> attains a
+maximum value; i.e.,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>d</mi><mi>C</mi></mrow><mrow><mi>d</mi><mi>t</mi></mrow></mfrac><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\frac{dC}{dt} = 0</annotation></semantics></math>
+must hold. To prevent students from becoming bogged down in lengthy
+mathematical derivations—which would impede course progress—we adopted
+the domestic AI model "Doubao" (Version 7.8.0) (hereinafter referred to
+as "Doubao") to assist with the derivation.</p>
+<p>First, <a href="#DF9" data-ref-type="disp-formula">式（9）</a> and <a
+href="#DF4" data-ref-type="disp-formula">式（4）</a> are placed side by
+side as follows:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mrow><mi>t</mi><mi>n</mi></mrow><mrow><msub><mi>t</mi><mi>m</mi></msub><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>K</mi><mi>/</mi><mi>β</mi><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">v(t) = \frac{tn}{t_{m}(1 + K/\beta)}</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><mi>K</mi></mrow></mfrac><msub><mi>C</mi><mn>0</mn></msub><mfrac><mn>1</mn><mroot><mrow><mn>2</mn><mi>π</mi><mi>n</mi></mrow><mrow></mrow></mroot></mfrac><msup><mrow><mo stretchy="false" form="prefix">(</mo><mfrac><mrow><mi>v</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><mi>n</mi></mfrac><mo stretchy="false" form="postfix">)</mo></mrow><mi>n</mi></msup><mo>⋅</mo><msup><mi>e</mi><mrow><mi>n</mi><mo>−</mo><mi>v</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow></msup></mrow><annotation encoding="application/x-tex">f(t) = \frac{1}{1 + K}C_{0}\frac{1}{\sqrt[{}]{2\pi n}}{(\frac{v(t)}{n})}^{n} \cdot e^{n - v(t)}</annotation></semantics></math></p>
+<p>Second, photographs of <a href="#DF9"
+data-ref-type="disp-formula">式（9）</a> and <a href="#DF4"
+data-ref-type="disp-formula">式（4）</a> are uploaded to "Doubao",
+followed by the instruction: "Based on the two equations shown above,
+derive the condition under which the derivative of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(t)</annotation></semantics></math>
+equals zero." Upon receiving this instruction, "Doubao" outputs the
+following three detailed steps: analyze the structure of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(t)</annotation></semantics></math>,
+apply the product rule of differentiation
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><mi>′</mi></msup><mo>=</mo><msup><mi>u</mi><mi>′</mi></msup><mi>v</mi><mo>+</mo><mi>u</mi><msup><mi>v</mi><mi>′</mi></msup></mrow><annotation encoding="application/x-tex">{(uv)}^{&#39;} = u^{&#39;}v + uv^{&#39;}</annotation></semantics></math>
+to compute the derivative of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(t)</annotation></semantics></math>,
+set
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>f</mi><mi>′</mi></msup><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">f^{&#39;}(t) = 0</annotation></semantics></math>
+to zero and solve for the condition, ultimately yielding:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><msub><mi>t</mi><mi>m</mi></msub><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>K</mi><mi>/</mi><mi>β</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>t</mi><mi>m</mi></msub><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">t = t_{m}(1 + K/\beta) = t_{m}(1 + k)</annotation></semantics></math></p>
+<p>In this equation,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+represents the retention factor (or capacity factor). <a href="#DF13"
+data-ref-type="disp-formula">式（11）</a> is the well-known retention
+time equation, which reveals the fundamental determinants of
+chromatographic retention time. Once the chromatographic column and
+mobile-phase flow rate are fixed, the phase ratio
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
+and dead time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>t</mi><mi>m</mi></msub><annotation encoding="application/x-tex">t_{m}</annotation></semantics></math>
+become constants; thus, <a href="#DF13"
+data-ref-type="disp-formula">式（11）</a> indicates that retention time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+is a function of the distribution coefficient
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>,
+thereby fundamentally validating the prior experimental observation and
+hypothesis—that a larger distribution coefficient leads to a longer
+retention time. From <a href="#DF13"
+data-ref-type="disp-formula">式（11）</a>, it follows that the initial
+experimental conditions for <a href="#DF10"
+data-ref-type="disp-formula">式（10）</a> are
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mi>m</mi></msub><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">t_{m} = 3</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>β</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">\beta = 2</annotation></semantics></math>,
+consistent with those specified in <a href="#T2"
+data-ref-type="table">表2</a>.</p>
+<p>Currently, textbooks typically present the retention time equation
+directly, rendering its logical derivation abrupt and hindering the
+cultivation of students’ innovative thinking. In contrast, deriving the
+retention time equation from the chromatographic elution curve
+equation—as undertaken herein—not only extends the applicability of the
+elution curve equation but also strengthens students’ logical reasoning
+skills and their ability to leverage AI tools for learning, while
+enhancing the theoretical completeness of chromatography
+instruction.</p>
+<h1 id="s3">3 Teaching Implementation and Outcomes</h1>
+<p>Pre-class digital tool familiarization: Students are guided to become
+acquainted with the GeoGebra cloud platform via a pre-class package
+(including software links, operational guidelines, and reference
+materials). A creative assignment is assigned: plotting the
+"heart-shaped" function
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><msup><mrow><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo>−</mo><mroot><msup><mi>x</mi><mn>2</mn></msup><mn>3</mn></mroot><mo stretchy="false" form="postfix">)</mo></mrow><mn>2</mn></msup><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">x^{2} + {(y - \sqrt[3]{x^{2}})}^{2} = 1</annotation></semantics></math>
+and annotating it with the text "I love chromatography class." To
+support successful completion of this pre-class task, the following
+step-by-step operational guidelines are provided. Step 1: Enter
+"ggb123.cn" into a mobile browser to access the GeoGebra interface shown
+in <a href="#F4" data-ref-type="fig">图4a</a>. Click "Launch Calculator"
+on this interface to enter the working environment (<a href="#F4"
+data-ref-type="fig">图4b</a>). This working interface can be divided
+into four functional zones, arranged top-to-bottom as follows: (A)
+graphical display area, (B) expression input area, (C) keyboard
+operation zone (located between B and C), and (D) function toggle zone
+(C zone). Additionally, a gear-shaped settings icon in the upper-right
+corner enables adjustments to axes scaling and other parameters; the
+hamburger-menu icon (three horizontal lines) in the upper-left corner
+supports file saving and related operations. Step 2: Click the keyboard
+operation zone (C zone) to activate the expression input area (B zone),
+then enter:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><msup><mrow><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo>−</mo><mroot><msup><mi>x</mi><mn>2</mn></msup><mn>3</mn></mroot><mo stretchy="false" form="postfix">)</mo></mrow><mn>2</mn></msup><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">x^{2} + {(y - \sqrt[3]{x^{2}})}^{2} = 1</annotation></semantics></math>.
+Pressing Enter renders the "heart-shaped" plot in the graphical display
+area (A zone). Next, click "Tools" in the function toggle zone (C zone)
+below, select "Text", and input "I love chromatography class" (if
+Chinese input is unavailable, English may be entered directly). Students
+submit assignments via the "Learning Through" platform; the pre-class
+assignment submission rate reached 100%, confirming the motivational
+effect of engaging, creative tasks.</p>
+<figure id="F4">
+<h2>(a) Interface of GeoGebra calculation cloud platform and (b) its
+working interface</h2>
+Fig. 4
+<p><img src="https://cdn.ncbi.nlm.nih.gov/pmc/blobs/98fe/12412022/2010d43ed5d9/CB372E5F-3D49-4d24-A96C-506522AB13D6-F004.jpg" /></p>
+<figcaption>Interface (a) and working interface (b) of the GeoGebra
+calculation cloud platform</figcaption>
+</figure>
+<p>During the in-class model construction phase, we employed
+knowledge-transfer pedagogy. First, we comparatively explained the core
+equation of plate theory (the Poisson function) and the application
+scenarios of Stirling’s approximation. Using the "concept-chain"
+teaching method, students were guided to integrate chromatographic
+parameters—including retention time, dead time, and phase ratio—to
+autonomously optimize the constraints of the plate theory model. We
+restructured the textbook framework, built a coherent knowledge system,
+and increased classroom interaction frequency by 23% through
+knowledge-transfer pedagogy. During the in-class model application
+phase, we implemented a three-tier progressive module-based
+instruction.</p>
+<p>Module 1: Single-component simulation. For disciplines lacking
+hands-on chromatography laboratory courses (e.g., environmental
+science), Case 1 enriches students’ chromatographic learning experience
+by designing a near-realistic chromatographic experiment and assigning
+the task of simulating a single-component chromatographic elution
+profile. Leveraging an open-source, free cloud computing platform and
+conducting pre-class warm-up activities, students achieved barrier-free
+operation of the cloud platform when simulating single-component elution
+profiles. Real-time generation of simulated chromatograms stimulated
+students’ intrinsic motivation to showcase their learning outcomes; 94%
+voluntarily shared screenshots of their results.</p>
+<p>Module 2: Multi-component simulation. In Case 2, students encountered
+the most challenging operational issue: how to input numerical values
+for bivariate functions. The instructor addressed this technical
+bottleneck via timely micro-lectures. By guiding students to observe <a
+href="#DF4" data-ref-type="disp-formula">式（4）</a> and Equation (9),
+they recognize that, besides time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>,
+the parameter
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>—which
+describes solute partitioning between stationary and mobile phases—is
+another critical variable influencing
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>.
+Consequently, functions
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+can be regarded as bivariate functions of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>.
+In Module 1, functions
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+were treated solely as univariate functions of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>,
+yielding simulated
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>–<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+curves in the Cartesian coordinate system—a foundational experience
+helpful but insufficient for simulating bivariate functions in Cartesian
+coordinates. Simulating bivariate functions involves two key steps: Step
+1: Input the general form annotated with bivariate variables. As
+instructed in Lines 5 and 6 of <a href="#T2"
+data-ref-type="table">表2</a> and <a href="#T3"
+data-ref-type="table">表3</a>, when entering the general forms of <a
+href="#DF4" data-ref-type="disp-formula">式（4）</a> and Equation (9),
+the bivariate independent variables
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>
+must be explicitly declared within the parentheses following the
+function symbols
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>.
+Step 2: Assign values and invoke the general form. As demonstrated in
+Line 7 and Line 8 of <a href="#T2" data-ref-type="table">表2</a> and
+Lines 7–11 of <a href="#T3" data-ref-type="table">表3</a>, this step
+simultaneously invokes the previously defined general form and assigns
+preset values to the independent variable
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>.
+Upon pressing Enter, the GeoGebra platform executes these instructions
+to complete bivariate-function simulation in the Cartesian coordinate
+system. In practice, certain operational refinements are required—for
+instance, when the general form contains two symbols involving the
+letter
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>,
+one bearing a subscript, renaming conventions can enhance typing speed
+and reduce ambiguity: in <a href="#T2" data-ref-type="table">表2</a>,
+all instances of <a href="#T2" data-ref-type="table">表2</a>'s
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>t</mi><mi>m</mi></msub><annotation encoding="application/x-tex">t_{m}</annotation></semantics></math>
+may be replaced with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>,
+and all original
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+replaced with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>.
+Following the instructions in <a href="#T2"
+data-ref-type="table">表2</a> and the above tips yields the result shown
+in <a href="#F5" data-ref-type="fig">图5</a>. The black-box content in
+<a href="#F5" data-ref-type="fig">图5</a> corresponds precisely to the
+aforementioned bivariate variables and the assignment of values to
+independent variable
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>.
+After most students successfully simulate chromatographic elution
+profiles, we organize small-group discussions focused on retention-time
+patterns of chromatographic peaks, guiding students to formulate
+testable hypotheses. In Case 3, the instructor again employs timely
+micro-lectures to address the challenge of reading retention times
+directly from simulated chromatograms. When a student touches the peak
+apex on a mobile screen, the corresponding abscissa and ordinate values
+appear instantly. After students collect a series of
+retention-time–distribution-coefficient data pairs, the instructor
+demonstrates linear regression analysis between retention time and
+distribution coefficient, yielding the corresponding linear equation.
+What chemical meanings do each term in this linear equation convey? This
+question prompts deeper conceptual reflection.</p>
+<figure id="F5">
+<h2>Main input contents and simulated chromatographic elution profiles
+of dual-component sample by GeoGebra</h2>
+Fig. 5
+<p><img src="https://cdn.ncbi.nlm.nih.gov/pmc/blobs/98fe/12412022/f36374c26947/CB372E5F-3D49-4d24-A96C-506522AB13D6-F005.jpg" /></p>
+<figcaption>Primary input contents and simulated chromatographic elution
+profiles for a dual-component sample</figcaption>
+</figure>
+<p>Module 3: Derivation of the retention time equation. First, we
+integrated the mathematical extremum principle with the general-form
+equation of the chromatographic elution curve to deduce the
+zero-derivative condition of plate theory. Second, we implemented
+AI-assisted instruction using the "Doubao" model to derive the retention
+time equation. Finally, by deeply probing the intrinsic relationship
+between distribution coefficient and retention time embedded in the
+retention time equation, we interpreted the chemical significance of the
+preceding linear equation.</p>
+<p>Post-class, considering students’ existing knowledge base and
+learning capacity, we provided optional scholarly literature on
+plate-theory derivations for self-directed reading. Compared with
+traditional lecture-based instruction, the methodology described
+herein—leveraging a "modeling–digitization–visualization"
+workflow—significantly heightened students’ in-class engagement and
+markedly improved their mastery of core chromatographic concepts. For
+instance, abstract topics such as solute partitioning mechanisms between
+two phases, the theoretical plate concept, and chromatographic peak
+formation mechanisms became more accessible and comprehensible. This
+pedagogical model offers two principal advantages: First, it
+substantially enhances classroom teaching effectiveness. Task completion
+rate reached 94%; students’ higher-order thinking skills improved
+notably; and accuracy in deriving the retention time equation reached
+76%. Moreover, 89% of students rated this model highly effective for
+visualizing and explicating complex theoretical concepts. Second, after
+applying GeoGebra to solve chromatographic problems, students’ long-term
+transfer capability significantly strengthened: e.g., in subsequent
+coursework and experiments, 85% proactively applied GeoGebra to
+calculate optimal flow rates under rate theory, learn chromatographic
+quantification methods, and perform experimental operations—raising
+correct-answer rates for advanced problems (e.g., gas-chromatographic
+programmed temperature ramping and liquid-chromatographic gradient
+elution) to 76%.</p>
+<h1 id="s4">4 Conclusion</h1>
+<p>This study successfully developed a three-tier progressive
+chromatographic teaching tool featuring dynamic parameter adjustment by
+integrating the GeoGebra platform with AI technologies. The tool
+effectively mitigates the abstraction inherent in plate-theory
+instruction, achieving a 94% classroom task completion rate and a 76%
+accuracy rate in retention time equation derivation. Practice confirms
+that the "digital modeling (AI-assisted derivation via
+'Doubao')–parameter interaction (multiple adjustable chromatographic
+parameters)–visual verification (dynamic fitting of chromatographic
+elution profiles)" paradigm significantly boosts student engagement (85%
+of students independently reused the tool in experiments) and, owing to
+its open-source architecture, provides a scalable, replicable exemplar
+for digital pedagogical reform in analytical chemistry.</p>
+<h1>References</h1>
+<div id="refs" role="list">
+
+</div>
+</div>
+</div>
+<script>
+ const L=document.getElementById('L'),R=document.getElementById('R');let lock=false;
+ function sync(a,b){if(lock)return;lock=true;
+   const ra=a.scrollTop/((a.scrollHeight-a.clientHeight)||1);
+   b.scrollTop=ra*((b.scrollHeight-b.clientHeight)||1);
+   requestAnimationFrame(()=>lock=false);}
+ L.addEventListener('scroll',()=>sync(L,R));
+ R.addEventListener('scroll',()=>sync(R,L));
+</script></body></html>

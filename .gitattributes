@@ -1,0 +1,11 @@
+# Normalize all text to LF in the repo (working tree had CRLF churn on the
+# Windows/WSL boundary). `text=auto` stores LF; binaries are left untouched.
+* text=auto
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.tbx binary
+*.ckpt binary
