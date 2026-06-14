@@ -1,0 +1,14 @@
+{
+ "lang": "zh",
+ "n": 40,
+ "rcs_good": 0.804,
+ "rcs_bad": 0.671,
+ "rcs_delta": 0.133,
+ "fid_flipped_caught": "34/40",
+ "fid_faithful_passed": "34/40",
+ "kiwi_good_mean": 0.7807,
+ "kiwi_bad_mean": 0.7715,
+ "kiwi_delta_mean": 0.0092,
+ "kiwi_delta_median": 0.0056,
+ "kiwi_bad_scored_higher": "9/40"
+}

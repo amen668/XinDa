@@ -1,0 +1,2241 @@
+<!DOCTYPE html><html lang="zh"><head><meta charset="utf-8">
+<title>1711.08195 bilingual</title><link rel="stylesheet" href="LaTeXML.css"><link rel="stylesheet" href="ltx-article.css"><style>
+ html,body{margin:0;height:100%;font-family:"Microsoft YaHei",sans-serif}
+ .bar{background:#222;color:#fff;padding:8px 16px;font-size:13px}
+ .bar a{color:#7fd;text-decoration:none}
+ .cols{display:flex;height:calc(100vh - 38px)}
+ .col{flex:1;overflow-y:auto;padding:0 20px 60px;border-right:1px solid #ccc;font-size:14px;line-height:1.6}
+ .lab{position:sticky;top:0;background:#f0f3f6;padding:4px 0;font-weight:bold;font-size:13px;border-bottom:1px solid #ddd}
+ .col img{max-width:100%;height:auto;border:1px solid #eee}
+ .col h1{font-size:18px} .col h2{font-size:15px}
+ table{border-collapse:collapse} td,th{border:1px solid #ccc;padding:3px 6px}
+</style></head><body>
+<div class="bar"><a href="index.html">← index</a> &nbsp; arXiv:1711.08195 · qwen-plus · contract &nbsp; </div>
+<div class="cols">
+ <div class="col" id="L"><div class="lab">源（English）</div><div class="ltx_page_content">
+<article class="ltx_document ltx_authors_1line">
+<h1 class="ltx_title ltx_title_document">On the Automatic Generation of Medical Imaging Reports</h1>
+<div class="ltx_authors">
+<span class="ltx_creator ltx_role_author">
+<span class="ltx_personname">Baoyu Jing<sup class="ltx_sup"><math id="m1" class="ltx_Math" alttext="{\dagger}" display="inline"><mo>†</mo></math>*</sup>  Pengtao Xie<sup class="ltx_sup"><math id="m2" class="ltx_Math" alttext="{\dagger}" display="inline"><mo>†</mo></math>*</sup>  Eric P. Xing<sup class="ltx_sup"><math id="m3" class="ltx_Math" alttext="{\dagger}" display="inline"><mo>†</mo></math></sup>
+<br class="ltx_break"><sup class="ltx_sup"><math id="m4" class="ltx_Math" alttext="{\dagger}" display="inline"><mo>†</mo></math></sup>Petuum Inc, USA 
+<br class="ltx_break"><sup class="ltx_sup">*</sup>School of Computer Science, Carnegie Mellon University, USA
+<br class="ltx_break"><span class="ltx_text ltx_font_typewriter">{baoyu.jing, pengtao.xie, eric.xing}@petuum.com</span> 
+<br class="ltx_break">
+</span></span>
+</div>
+
+<div class="ltx_abstract">
+<h6 class="ltx_title ltx_title_abstract">Abstract</h6>
+    
+<p class="ltx_p">Medical imaging is widely used in clinical practice for diagnosis and treatment. Report-writing can be error-prone for unexperienced physicians, and time-consuming and tedious for experienced physicians. To address these issues, we study the automatic generation of medical imaging reports. This task presents several challenges. First, a complete report contains multiple heterogeneous forms of information, including <em class="ltx_emph ltx_font_italic">findings</em> and <em class="ltx_emph ltx_font_italic">tags</em>. Second, abnormal regions in medical images are difficult to identify. Third, the reports are typically long, containing multiple sentences. To cope with these challenges, we (1) build a multi-task learning framework which jointly performs the prediction of tags and the generation of paragraphs, (2) propose a co-attention mechanism to localize regions containing abnormalities and generate narrations for them, (3) develop a hierarchical LSTM model to generate long paragraphs. We demonstrate the effectiveness of the proposed methods on two publicly available datasets.</p>
+  
+</div>
+<section id="S1" class="ltx_section">
+<h2 class="ltx_title ltx_title_section">
+<span class="ltx_tag ltx_tag_section">1 </span>Introduction</h2>
+
+<div id="S1.p1" class="ltx_para">
+<p class="ltx_p">Medical images, such as radiology and pathology images, are widely used in hospitals for the diagnosis and treatment of many diseases, such as pneumonia and pneumothorax. The reading and interpretation of medical images are usually conducted by specialized medical professionals. For example, radiology images are read by radiologists. They write textual reports (Figure <a href="#S1.F1" title="Figure 1 ‣ 1 Introduction ‣ On the Automatic Generation of Medical Imaging Reports" class="ltx_ref"><span class="ltx_text ltx_ref_tag">1</span></a>) to narrate the findings regarding each area of the body examined in the imaging study, specifically whether each area was found to be normal, abnormal or potentially abnormal.</p>
+</div>
+<figure id="S1.F1" class="ltx_figure"><img src="assets/1711.08195/x1.png" id="S1.F1.g1" class="ltx_graphics ltx_centering ltx_img_landscape" width="314" height="150" alt="Refer to caption">
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure">Figure 1: </span>An exemplar chest x-ray report. In the <em class="ltx_emph ltx_font_italic">impression</em> section, the radiologist provides a diagnosis. The <em class="ltx_emph ltx_font_italic">findings</em> section lists the radiology observations regarding each area of the body examined in the imaging study. The <em class="ltx_emph ltx_font_italic">tags</em> section lists the keywords which represent the critical information in the findings. These keywords are identified using the Medical Text Indexer (MTI).
+</figcaption>
+</figure>
+<div id="S1.p2" class="ltx_para">
+<p class="ltx_p">For less-experienced radiologists and pathologists, especially those working in the rural area where the quality of healthcare is relatively low, writing medical-imaging reports is demanding. For instance, to correctly read a chest x-ray image, the following skills are needed <cite class="ltx_cite ltx_citemacro_cite">Delrue et al. (<a href="#bib.bib1" title="" class="ltx_ref">2011</a>)</cite>: (1) thorough knowledge of the normal anatomy of the thorax, and the basic physiology of chest diseases; (2) skills of analyzing the radiograph through a fixed pattern; (3) ability of evaluating the evolution over time; (4) knowledge of clinical presentation and history; (5) knowledge of the correlation with other diagnostic results (laboratory results, electrocardiogram, and respiratory function tests).</p>
+</div>
+<div id="S1.p3" class="ltx_para">
+<p class="ltx_p">For experienced radiologists and pathologists, writing imaging reports is tedious and time-consuming. In nations with large population such as China, a radiologist may need to read hundreds of radiology images per day. Typing the findings of each image into computer takes about 5-10 minutes, which occupies most of their working time. In sum, for both unexperienced and experienced medical professionals, writing imaging reports is unpleasant.</p>
+</div>
+<div id="S1.p4" class="ltx_para">
+<p class="ltx_p">This motivates us to investigate whether it is possible to automatically generate medical image reports. Several challenges need to be addressed. First, a complete diagnostic report is comprised of multiple heterogeneous forms of information. As shown in Figure <a href="#S1.F1" title="Figure 1 ‣ 1 Introduction ‣ On the Automatic Generation of Medical Imaging Reports" class="ltx_ref"><span class="ltx_text ltx_ref_tag">1</span></a>, the report for a chest x-ray contains <em class="ltx_emph ltx_font_italic">impression</em> which is a sentence, <em class="ltx_emph ltx_font_italic">findings</em> which are a paragraph, and <em class="ltx_emph ltx_font_italic">tags</em> which are a list of keywords. Generating this heterogeneous information in a unified framework is technically demanding. We address this problem by building a multi-task framework, which treats the prediction of tags as a multi-label classification task, and treats the generation of long descriptions as a text generation task.</p>
+</div>
+<div id="S1.p5" class="ltx_para">
+<p class="ltx_p">Second, how to localize image-regions and attach the right description to them are challenging. We solve these problems by introducing a co-attention mechanism, which simultaneously attends to images and predicted tags and explores the synergistic effects of visual and semantic information.</p>
+</div>
+<div id="S1.p6" class="ltx_para">
+<p class="ltx_p">Third, the descriptions in imaging reports are usually long, containing multiple sentences. Generating such long text is highly nontrivial. Rather than adopting a single-layer LSTM <cite class="ltx_cite ltx_citemacro_cite">Hochreiter and Schmidhuber (<a href="#bib.bib2" title="" class="ltx_ref">1997</a>)</cite>, which is less capable of modeling long word sequences, we leverage the compositional nature of the report and adopt a hierarchical LSTM to produce long texts. Combined with the co-attention mechanism, the hierarchical LSTM first generates high-level topics, and then produces fine-grained descriptions according to the topics.</p>
+</div>
+<div id="S1.p7" class="ltx_para">
+<p class="ltx_p">Overall, the main contributions of our work are:</p>
+<ul id="S1.I1" class="ltx_itemize">
+<li id="S1.I1.i1" class="ltx_item" style="list-style-type:none;">
+<span class="ltx_tag ltx_tag_item">•</span> 
+<div id="S1.I1.i1.p1" class="ltx_para">
+<p class="ltx_p">We propose a multi-task learning framework which can simultaneously predict the tags and generate the text descriptions.</p>
+</div>
+</li>
+<li id="S1.I1.i2" class="ltx_item" style="list-style-type:none;">
+<span class="ltx_tag ltx_tag_item">•</span> 
+<div id="S1.I1.i2.p1" class="ltx_para">
+<p class="ltx_p">We introduce a co-attention mechanism for localizing sub-regions in the image and generating the corresponding descriptions.</p>
+</div>
+</li>
+<li id="S1.I1.i3" class="ltx_item" style="list-style-type:none;">
+<span class="ltx_tag ltx_tag_item">•</span> 
+<div id="S1.I1.i3.p1" class="ltx_para">
+<p class="ltx_p">We build a hierarchical LSTM to generate long paragraphs.</p>
+</div>
+</li>
+<li id="S1.I1.i4" class="ltx_item" style="list-style-type:none;">
+<span class="ltx_tag ltx_tag_item">•</span> 
+<div id="S1.I1.i4.p1" class="ltx_para">
+<p class="ltx_p">We perform extensive experiments to show the effectiveness of the proposed methods.</p>
+</div>
+</li>
+</ul>
+</div>
+<div id="S1.p8" class="ltx_para">
+<p class="ltx_p">The rest of the paper is organized as follows. Section <a href="#S2" title="2 Related Works ‣ On the Automatic Generation of Medical Imaging Reports" class="ltx_ref"><span class="ltx_text ltx_ref_tag">2</span></a> reviews related works. Section <a href="#S3" title="3 Methods ‣ On the Automatic Generation of Medical Imaging Reports" class="ltx_ref"><span class="ltx_text ltx_ref_tag">3</span></a> introduces the method. Section <a href="#S4" title="4 Experiments ‣ On the Automatic Generation of Medical Imaging Reports" class="ltx_ref"><span class="ltx_text ltx_ref_tag">4</span></a> present the experimental results and Section <a href="#S5" title="5 Conclusion ‣ On the Automatic Generation of Medical Imaging Reports" class="ltx_ref"><span class="ltx_text ltx_ref_tag">5</span></a> concludes the paper.</p>
+</div>
+<figure id="S1.F2" class="ltx_figure"><img src="assets/1711.08195/x2.png" id="S1.F2.g1" class="ltx_graphics ltx_centering ltx_img_landscape" width="628" height="141" alt="Refer to caption">
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure">Figure 2: </span>Illustration of the proposed model. MLC denotes a <span class="ltx_text ltx_font_italic">multi-label classification</span> network. Semantic features are the word embeddings of the predicted tags. The boldfaced tags “calcified granuloma” and “granuloma” are attended by the co-attention network.</figcaption>
+</figure>
+</section>
+<section id="S2" class="ltx_section">
+<h2 class="ltx_title ltx_title_section">
+<span class="ltx_tag ltx_tag_section">2 </span>Related Works</h2>
+
+<section id="S2.SS0.SSS0.Px1" class="ltx_paragraph">
+<h5 class="ltx_title ltx_title_paragraph">Textual labeling of medical images</h5>
+
+<div id="S2.SS0.SSS0.Px1.p1" class="ltx_para">
+<p class="ltx_p">There have been several works aiming at attaching “texts” to medical images. In their settings, the target “texts” are either fully-structured or semi-structured (e.g. tags, templates), rather than natural texts. <cite class="ltx_cite ltx_citemacro_citet">Kisilev et al. (<a href="#bib.bib3" title="" class="ltx_ref">2015</a>)</cite> build a pipeline to predict the attributes of medical images. <cite class="ltx_cite ltx_citemacro_citet">Shin et al. (<a href="#bib.bib4" title="" class="ltx_ref">2016</a>)</cite> adopt a CNN-RNN based framework to predict tags (e.g. locations, severities) of chest x-ray images. The work closest to ours is recently contributed by <cite class="ltx_cite ltx_citemacro_cite">Zhang et al. (<a href="#bib.bib5" title="" class="ltx_ref">2017</a>)</cite>, which aims at generating semi-structured pathology reports, whose contents are restricted to 5 predefined topics.</p>
+</div>
+<div id="S2.SS0.SSS0.Px1.p2" class="ltx_para">
+<p class="ltx_p">However, in the real-world, different physicians usually have different writing habits and different x-ray images will represent different abnormalities. Therefore, collecting semi-structured reports is less practical and thus it is important to build models to learn from natural reports. To the best of our knowledge, our work represents the first one that generates truly natural reports written by physicians, which are usually long and cover diverse topics.</p>
+</div>
+</section>
+<section id="S2.SS0.SSS0.Px2" class="ltx_paragraph">
+<h5 class="ltx_title ltx_title_paragraph">Image captioning with deep learning</h5>
+
+<div id="S2.SS0.SSS0.Px2.p1" class="ltx_para">
+<p class="ltx_p">Image captioning aims at automatically generating text descriptions for given images. Most recent image captioning models are based on a CNN-RNN framework <cite class="ltx_cite ltx_citemacro_cite">Vinyals et al. (<a href="#bib.bib6" title="" class="ltx_ref">2015</a>); Fang et al. (<a href="#bib.bib7" title="" class="ltx_ref">2015</a>); Karpathy and Fei-Fei (<a href="#bib.bib8" title="" class="ltx_ref">2015</a>); Xu et al. (<a href="#bib.bib9" title="" class="ltx_ref">2015</a>); You et al. (<a href="#bib.bib10" title="" class="ltx_ref">2016</a>); Krause et al. (<a href="#bib.bib11" title="" class="ltx_ref">2017</a>)</cite>.</p>
+</div>
+<div id="S2.SS0.SSS0.Px2.p2" class="ltx_para">
+<p class="ltx_p">Recently, attention mechanisms have been shown to be useful for image captioning <cite class="ltx_cite ltx_citemacro_cite">Xu et al. (<a href="#bib.bib9" title="" class="ltx_ref">2015</a>); You et al. (<a href="#bib.bib10" title="" class="ltx_ref">2016</a>)</cite>. <cite class="ltx_cite ltx_citemacro_citet">Xu et al. (<a href="#bib.bib9" title="" class="ltx_ref">2015</a>)</cite> introduce a spatial-visual attention mechanism over image features extracted from intermediate layers of the CNN. <cite class="ltx_cite ltx_citemacro_citet">You et al. (<a href="#bib.bib10" title="" class="ltx_ref">2016</a>)</cite> propose a semantic attention mechanism over tags of given images. To better leverage both the visual features and semantic tags, we propose a co-attention mechanism for report generation.</p>
+</div>
+<div id="S2.SS0.SSS0.Px2.p3" class="ltx_para">
+<p class="ltx_p">Instead of only generating one-sentence caption for images, <cite class="ltx_cite ltx_citemacro_citet">Krause et al. (<a href="#bib.bib11" title="" class="ltx_ref">2017</a>)</cite> and <cite class="ltx_cite ltx_citemacro_citet">Liang et al. (<a href="#bib.bib12" title="" class="ltx_ref">2017</a>)</cite> generate paragraph captions using a hierarchical LSTM. Our method also adopts a hierarchical LSTM for paragraph generation, but unlike <cite class="ltx_cite ltx_citemacro_citet">Krause et al. (<a href="#bib.bib11" title="" class="ltx_ref">2017</a>)</cite>, we use a co-attention network to generate topics.</p>
+</div>
+</section>
+</section>
+<section id="S3" class="ltx_section">
+<h2 class="ltx_title ltx_title_section">
+<span class="ltx_tag ltx_tag_section">3 </span>Methods</h2>
+
+<section id="S3.SS1" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">3.1 </span>Overview</h3>
+
+<div id="S3.SS1.p1" class="ltx_para">
+<p class="ltx_p">A complete diagnostic report for a medical image is comprised of both text descriptions (long paragraphs) and lists of tags, as shown in Figure <a href="#S1.F1" title="Figure 1 ‣ 1 Introduction ‣ On the Automatic Generation of Medical Imaging Reports" class="ltx_ref"><span class="ltx_text ltx_ref_tag">1</span></a>. We propose a <span class="ltx_text ltx_font_italic">multi-task hierarchical model with co-attention</span> for automatically predicting keywords and generating long paragraphs. Given an image which is divided into regions, we use a CNN to learn visual features for these patches. Then these visual features are fed into a <span class="ltx_text ltx_font_italic">multi-label classification</span> (MLC) network to predict the relevant tags. In the tag vocabulary, each tag is represented by a word-embedding vector. Given the predicted tags for a specific image, their word-embedding vectors serve as the semantic features of this image. Then the visual features and semantic features are fed into a <span class="ltx_text ltx_font_italic">co-attention</span> model to generate a context vector that simultaneously captures the visual and semantic information of this image. As of now, the encoding process is completed.</p>
+</div>
+<div id="S3.SS1.p2" class="ltx_para">
+<p class="ltx_p">Next, starting from the context vector, the decoding process generates the text descriptions. The description of a medical image usually contains multiple sentences, and each sentence focuses on one specific topic. Our model leverages this compositional structure to generate reports in a hierarchical way: it first generates a sequence of high-level topic vectors representing sentences, then generates a sentence from each topic vector. Specifically, the context vector is inputted into a <span class="ltx_text ltx_font_italic">sentence LSTM</span>, which unrolls for a few steps and produces a topic vector at each step. A topic vector represents the semantics of a sentence to be generated. Given a topic vector, the <span class="ltx_text ltx_font_italic">word LSTM</span> takes it as input and generates a sequence of words to form a sentence. The termination of the unrolling process is controlled by the sentence LSTM.</p>
+</div>
+</section>
+<section id="S3.SS2" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">3.2 </span>Tag Prediction</h3>
+
+<div id="S3.SS2.p1" class="ltx_para">
+<p class="ltx_p">The first task of our model is predicting the tags of the given image. We treat the tag prediction task as a multi-label classification task. Specifically, given an image <math id="S3.SS2.p1.m1" class="ltx_Math" alttext="I" display="inline"><mi>I</mi></math>, we first extract its features <math id="S3.SS2.p1.m2" class="ltx_Math" alttext="\{\mathbf{v}_{n}\}_{n=1}^{N}\in\mathbb{R}^{D}" display="inline"><mrow><msubsup><mrow><mo stretchy="false">{</mo><msub><mi>𝐯</mi><mi>n</mi></msub><mo stretchy="false">}</mo></mrow><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></msubsup><mo>∈</mo><msup><mi>ℝ</mi><mi>D</mi></msup></mrow></math> from an intermediate layer of a CNN, and then feed <math id="S3.SS2.p1.m3" class="ltx_Math" alttext="\{\mathbf{v}_{n}\}_{n=1}^{N}" display="inline"><msubsup><mrow><mo stretchy="false">{</mo><msub><mi>𝐯</mi><mi>n</mi></msub><mo stretchy="false">}</mo></mrow><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></msubsup></math> into a <em class="ltx_emph ltx_font_italic">multi-label classification</em> (MLC) network to generate a distribution over all of the <math id="S3.SS2.p1.m4" class="ltx_Math" alttext="L" display="inline"><mi>L</mi></math> tags:</p>
+</div>
+<div id="S3.SS2.p2" class="ltx_para">
+<table id="S3.E1" class="ltx_equation ltx_eqn_table">
+
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math id="S3.E1.m1" class="ltx_Math" alttext="\mathbf{p}_{\mathbf{l},pred}(\mathbf{l}_{i}=1|\{\mathbf{v}_{n}\}_{n=1}^{N})%
+\propto\exp(\text{MLC}_{i}(\{\mathbf{v}_{n}\}_{n=1}^{N}))" display="block"><mrow><mrow><msub><mi>𝐩</mi><mrow><mi>𝐥</mi><mo>,</mo><mrow><mi>p</mi><mo>⁢</mo><mi>r</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>d</mi></mrow></mrow></msub><mo>⁢</mo><mrow><mo stretchy="false">(</mo><mrow><msub><mi>𝐥</mi><mi>i</mi></msub><mo>=</mo><mrow><mn>1</mn><mo fence="false">|</mo><msubsup><mrow><mo stretchy="false">{</mo><msub><mi>𝐯</mi><mi>n</mi></msub><mo stretchy="false">}</mo></mrow><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></msubsup></mrow></mrow><mo stretchy="false">)</mo></mrow></mrow><mo>∝</mo><mrow><mi>exp</mi><mo>⁡</mo><mrow><mo stretchy="false">(</mo><mrow><msub><mtext>MLC</mtext><mi>i</mi></msub><mo>⁢</mo><mrow><mo stretchy="false">(</mo><msubsup><mrow><mo stretchy="false">{</mo><msub><mi>𝐯</mi><mi>n</mi></msub><mo stretchy="false">}</mo></mrow><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></msubsup><mo stretchy="false">)</mo></mrow></mrow><mo stretchy="false">)</mo></mrow></mrow></mrow></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td rowspan="1" class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right"><span class="ltx_tag ltx_tag_equation ltx_align_right">(1)</span></td>
+</tr></tbody>
+</table>
+</div>
+<div id="S3.SS2.p3" class="ltx_para ltx_noindent">
+<p class="ltx_p">where <math id="S3.SS2.p3.m1" class="ltx_Math" alttext="\mathbf{l}\in\mathbb{R}^{L}" display="inline"><mrow><mi>𝐥</mi><mo>∈</mo><msup><mi>ℝ</mi><mi>L</mi></msup></mrow></math> is a tag vector, <math id="S3.SS2.p3.m2" class="ltx_Math" alttext="\mathbf{l}_{i}=1/0" display="inline"><mrow><msub><mi>𝐥</mi><mi>i</mi></msub><mo>=</mo><mrow><mn>1</mn><mo>/</mo><mn>0</mn></mrow></mrow></math> denote the presence and absence of the <math id="S3.SS2.p3.m3" class="ltx_Math" alttext="i" display="inline"><mi>i</mi></math>-th tag respectively, and MLC<sub class="ltx_sub"><span class="ltx_text ltx_font_italic">i</span></sub> means the <math id="S3.SS2.p3.m5" class="ltx_Math" alttext="i" display="inline"><mi>i</mi></math>-th output of the MLC network.</p>
+</div>
+<div id="S3.SS2.p4" class="ltx_para">
+<p class="ltx_p">For simplicity, we extract visual features from the last convolutional layer of the VGG-19 model <cite class="ltx_cite ltx_citemacro_cite">Simonyan and Zisserman (<a href="#bib.bib13" title="" class="ltx_ref">2014</a>)</cite> and use the last two fully connected layers of VGG-19 for MLC.</p>
+</div>
+<div id="S3.SS2.p5" class="ltx_para">
+<p class="ltx_p">Finally, the embeddings of the <math id="S3.SS2.p5.m1" class="ltx_Math" alttext="M" display="inline"><mi>M</mi></math> most likely tags <math id="S3.SS2.p5.m2" class="ltx_Math" alttext="\{\mathbf{a}_{m}\}_{m=1}^{M}\in\mathbb{R}^{E}" display="inline"><mrow><msubsup><mrow><mo stretchy="false">{</mo><msub><mi>𝐚</mi><mi>m</mi></msub><mo stretchy="false">}</mo></mrow><mrow><mi>m</mi><mo>=</mo><mn>1</mn></mrow><mi>M</mi></msubsup><mo>∈</mo><msup><mi>ℝ</mi><mi>E</mi></msup></mrow></math> are used as semantic features for topic generation.</p>
+</div>
+</section>
+<section id="S3.SS3" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">3.3 </span>Co-Attention</h3>
+
+<div id="S3.SS3.p1" class="ltx_para">
+<p class="ltx_p">Previous works have shown that visual attention alone can perform fairly well for localizing objects <cite class="ltx_cite ltx_citemacro_cite">Ba et al. (<a href="#bib.bib14" title="" class="ltx_ref">2015</a>)</cite> and aiding caption generation <cite class="ltx_cite ltx_citemacro_cite">Xu et al. (<a href="#bib.bib9" title="" class="ltx_ref">2015</a>)</cite>. However, visual attention does not provide sufficient high level semantic information. For example, only looking at the right lower region of the chest x-ray image (Figure <a href="#S1.F1" title="Figure 1 ‣ 1 Introduction ‣ On the Automatic Generation of Medical Imaging Reports" class="ltx_ref"><span class="ltx_text ltx_ref_tag">1</span></a>) without accounting for other areas, we might not be able to recognize what we are looking at, not to even mention detecting the abnormalities. In contrast, the tags can always provide the needed high level information. To this end, we propose a co-attention mechanism which can simultaneously attend to visual and semantic modalities.</p>
+</div>
+<div id="S3.SS3.p2" class="ltx_para">
+<p class="ltx_p">In the sentence LSTM at time step <math id="S3.SS3.p2.m1" class="ltx_Math" alttext="s" display="inline"><mi>s</mi></math>, the joint context vector <math id="S3.SS3.p2.m2" class="ltx_Math" alttext="\mathbf{ctx}^{(s)}\in\mathbb{R}^{C}" display="inline"><mrow><msup><mi>𝐜𝐭𝐱</mi><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msup><mo>∈</mo><msup><mi>ℝ</mi><mi>C</mi></msup></mrow></math> is generated by a co-attention network <math id="S3.SS3.p2.m3" class="ltx_Math" alttext="f_{co_{att}}" display="inline"><msub><mi>f</mi><mrow><mi>c</mi><mo>⁢</mo><msub><mi>o</mi><mrow><mi>a</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>t</mi></mrow></msub></mrow></msub></math>(<math id="S3.SS3.p2.m4" class="ltx_Math" alttext="\{\mathbf{v}_{n}\}_{n=1}^{N}" display="inline"><msubsup><mrow><mo stretchy="false">{</mo><msub><mi>𝐯</mi><mi>n</mi></msub><mo stretchy="false">}</mo></mrow><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></msubsup></math>, <math id="S3.SS3.p2.m5" class="ltx_Math" alttext="\{\mathbf{a}_{m}\}_{m=1}^{M}" display="inline"><msubsup><mrow><mo stretchy="false">{</mo><msub><mi>𝐚</mi><mi>m</mi></msub><mo stretchy="false">}</mo></mrow><mrow><mi>m</mi><mo>=</mo><mn>1</mn></mrow><mi>M</mi></msubsup></math>, <math id="S3.SS3.p2.m6" class="ltx_Math" alttext="\mathbf{h}_{sent}^{(s-1)}" display="inline"><msubsup><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mrow><mi>s</mi><mo>−</mo><mn>1</mn></mrow><mo stretchy="false">)</mo></mrow></msubsup></math>), where <math id="S3.SS3.p2.m7" class="ltx_Math" alttext="\mathbf{h}_{sent}^{(s-1)}\in\mathbb{R}^{H}" display="inline"><mrow><msubsup><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mrow><mi>s</mi><mo>−</mo><mn>1</mn></mrow><mo stretchy="false">)</mo></mrow></msubsup><mo>∈</mo><msup><mi>ℝ</mi><mi>H</mi></msup></mrow></math> is the sentence LSTM hidden state at time step <math id="S3.SS3.p2.m8" class="ltx_Math" alttext="s-1" display="inline"><mrow><mi>s</mi><mo>−</mo><mn>1</mn></mrow></math>. The co-attention network <math id="S3.SS3.p2.m9" class="ltx_Math" alttext="f_{co_{att}}" display="inline"><msub><mi>f</mi><mrow><mi>c</mi><mo>⁢</mo><msub><mi>o</mi><mrow><mi>a</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>t</mi></mrow></msub></mrow></msub></math> uses a single layer feedforward network to compute the soft visual attentions and soft semantic attentions over input image features and tags:</p>
+</div>
+<div id="S3.SS3.p3" class="ltx_para">
+<table id="S5.EGx1" class="ltx_equationgroup ltx_eqn_align ltx_eqn_table">
+
+<tbody id="S3.E2"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><math id="S3.E2.m1" class="ltx_Math" alttext="\displaystyle\alpha_{\mathbf{v},n}" display="inline"><msub><mi>α</mi><mrow><mi>𝐯</mi><mo>,</mo><mi>n</mi></mrow></msub></math></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><math id="S3.E2.m2" class="ltx_Math" alttext="\displaystyle\propto\exp(\mathbf{W}_{\mathbf{v}_{att}}\tanh(\mathbf{W}_{%
+\mathbf{v}}\mathbf{v}_{n}+\mathbf{W}_{\mathbf{v},\mathbf{h}}\mathbf{h}_{sent}^%
+{(s-1)}))" display="inline"><mrow><mi></mi><mo>∝</mo><mrow><mi>exp</mi><mo>⁡</mo><mrow><mo stretchy="false">(</mo><mrow><msub><mi>𝐖</mi><msub><mi>𝐯</mi><mrow><mi>a</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>t</mi></mrow></msub></msub><mo lspace="0.167em">⁢</mo><mrow><mi>tanh</mi><mo>⁡</mo><mrow><mo stretchy="false">(</mo><mrow><mrow><msub><mi>𝐖</mi><mi>𝐯</mi></msub><mo>⁢</mo><msub><mi>𝐯</mi><mi>n</mi></msub></mrow><mo>+</mo><mrow><msub><mi>𝐖</mi><mrow><mi>𝐯</mi><mo>,</mo><mi>𝐡</mi></mrow></msub><mo>⁢</mo><msubsup><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mrow><mi>s</mi><mo>−</mo><mn>1</mn></mrow><mo stretchy="false">)</mo></mrow></msubsup></mrow></mrow><mo stretchy="false">)</mo></mrow></mrow></mrow><mo stretchy="false">)</mo></mrow></mrow></mrow></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td rowspan="1" class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right"><span class="ltx_tag ltx_tag_equation ltx_align_right">(2)</span></td>
+</tr></tbody>
+<tbody id="S3.E3"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><math id="S3.E3.m1" class="ltx_Math" alttext="\displaystyle\alpha_{\mathbf{a},m}" display="inline"><msub><mi>α</mi><mrow><mi>𝐚</mi><mo>,</mo><mi>m</mi></mrow></msub></math></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><math id="S3.E3.m2" class="ltx_Math" alttext="\displaystyle\propto\exp(\mathbf{W}_{\mathbf{a}_{att}}\tanh(\mathbf{W}_{%
+\mathbf{a}}\mathbf{a}_{m}+\mathbf{W}_{\mathbf{a},\mathbf{h}}\mathbf{h}_{sent}^%
+{(s-1)}))" display="inline"><mrow><mi></mi><mo>∝</mo><mrow><mi>exp</mi><mo>⁡</mo><mrow><mo stretchy="false">(</mo><mrow><msub><mi>𝐖</mi><msub><mi>𝐚</mi><mrow><mi>a</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>t</mi></mrow></msub></msub><mo lspace="0.167em">⁢</mo><mrow><mi>tanh</mi><mo>⁡</mo><mrow><mo stretchy="false">(</mo><mrow><mrow><msub><mi>𝐖</mi><mi>𝐚</mi></msub><mo>⁢</mo><msub><mi>𝐚</mi><mi>m</mi></msub></mrow><mo>+</mo><mrow><msub><mi>𝐖</mi><mrow><mi>𝐚</mi><mo>,</mo><mi>𝐡</mi></mrow></msub><mo>⁢</mo><msubsup><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mrow><mi>s</mi><mo>−</mo><mn>1</mn></mrow><mo stretchy="false">)</mo></mrow></msubsup></mrow></mrow><mo stretchy="false">)</mo></mrow></mrow></mrow><mo stretchy="false">)</mo></mrow></mrow></mrow></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td rowspan="1" class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right"><span class="ltx_tag ltx_tag_equation ltx_align_right">(3)</span></td>
+</tr></tbody>
+</table>
+</div>
+<div id="S3.SS3.p4" class="ltx_para ltx_noindent">
+<p class="ltx_p">where <math id="S3.SS3.p4.m1" class="ltx_Math" alttext="\mathbf{W}_{\mathbf{v}}" display="inline"><msub><mi>𝐖</mi><mi>𝐯</mi></msub></math>, <math id="S3.SS3.p4.m2" class="ltx_Math" alttext="\mathbf{W}_{\mathbf{v},\mathbf{h}}" display="inline"><msub><mi>𝐖</mi><mrow><mi>𝐯</mi><mo>,</mo><mi>𝐡</mi></mrow></msub></math>, and <math id="S3.SS3.p4.m3" class="ltx_Math" alttext="\mathbf{W}_{\mathbf{v}_{att}}" display="inline"><msub><mi>𝐖</mi><msub><mi>𝐯</mi><mrow><mi>a</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>t</mi></mrow></msub></msub></math> are parameter matrices of the visual attention network. <math id="S3.SS3.p4.m4" class="ltx_Math" alttext="\mathbf{W}_{\mathbf{a}}" display="inline"><msub><mi>𝐖</mi><mi>𝐚</mi></msub></math>, <math id="S3.SS3.p4.m5" class="ltx_Math" alttext="\mathbf{W}_{\mathbf{a},\mathbf{h}}" display="inline"><msub><mi>𝐖</mi><mrow><mi>𝐚</mi><mo>,</mo><mi>𝐡</mi></mrow></msub></math>, and <math id="S3.SS3.p4.m6" class="ltx_Math" alttext="\mathbf{W}_{\mathbf{a}_{att}}" display="inline"><msub><mi>𝐖</mi><msub><mi>𝐚</mi><mrow><mi>a</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>t</mi></mrow></msub></msub></math> are parameter matrices of the semantic attention network.</p>
+</div>
+<div id="S3.SS3.p5" class="ltx_para">
+<p class="ltx_p">The visual and semantic context vectors are computed as:</p>
+</div>
+<div id="S3.SS3.p6" class="ltx_para">
+<table id="S3.Ex1" class="ltx_equation ltx_eqn_table">
+
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math id="S3.Ex1.m1" class="ltx_Math" alttext="\mathbf{v}_{att}^{(s)}=\sum_{n=1}^{N}\alpha_{\mathbf{v},n}\mathbf{v}_{n},\quad%
+\mathbf{a}_{att}^{(s)}=\sum_{m=1}^{M}\alpha_{\mathbf{a},m}\mathbf{a}_{m}." display="block"><mrow><mrow><mrow><msubsup><mi>𝐯</mi><mrow><mi>a</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msubsup><mo rspace="0.111em">=</mo><mrow><munderover><mo movablelimits="false">∑</mo><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></munderover><mrow><msub><mi>α</mi><mrow><mi>𝐯</mi><mo>,</mo><mi>n</mi></mrow></msub><mo>⁢</mo><msub><mi>𝐯</mi><mi>n</mi></msub></mrow></mrow></mrow><mo rspace="1.167em">,</mo><mrow><msubsup><mi>𝐚</mi><mrow><mi>a</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msubsup><mo rspace="0.111em">=</mo><mrow><munderover><mo movablelimits="false">∑</mo><mrow><mi>m</mi><mo>=</mo><mn>1</mn></mrow><mi>M</mi></munderover><mrow><msub><mi>α</mi><mrow><mi>𝐚</mi><mo>,</mo><mi>m</mi></mrow></msub><mo>⁢</mo><msub><mi>𝐚</mi><mi>m</mi></msub></mrow></mrow></mrow></mrow><mo lspace="0em">.</mo></mrow></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+</div>
+<div id="S3.SS3.p7" class="ltx_para">
+<p class="ltx_p">There are many ways to combine the visual and semantic context vectors such as concatenation and element-wise operations. In this paper, we first concatenate these two vectors as <math id="S3.SS3.p7.m1" class="ltx_Math" alttext="[\mathbf{v}_{att}^{(s)};\mathbf{a}_{att}^{(s)}]" display="inline"><mrow><mo stretchy="false">[</mo><msubsup><mi>𝐯</mi><mrow><mi>a</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msubsup><mo>;</mo><msubsup><mi>𝐚</mi><mrow><mi>a</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msubsup><mo stretchy="false">]</mo></mrow></math>, and then use a fully connected layer <math id="S3.SS3.p7.m2" class="ltx_Math" alttext="\mathbf{W}_{fc}" display="inline"><msub><mi>𝐖</mi><mrow><mi>f</mi><mo>⁢</mo><mi>c</mi></mrow></msub></math> to obtain a joint context vector:</p>
+</div>
+<div id="S3.SS3.p8" class="ltx_para">
+<table id="S3.E4" class="ltx_equation ltx_eqn_table">
+
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math id="S3.E4.m1" class="ltx_Math" alttext="\mathbf{ctx}^{(s)}=\mathbf{W}_{fc}[\mathbf{v}_{att}^{(s)};\mathbf{a}_{att}^{(s%
+)}]." display="block"><mrow><mrow><msup><mi>𝐜𝐭𝐱</mi><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msup><mo>=</mo><mrow><msub><mi>𝐖</mi><mrow><mi>f</mi><mo>⁢</mo><mi>c</mi></mrow></msub><mo>⁢</mo><mrow><mo stretchy="false">[</mo><msubsup><mi>𝐯</mi><mrow><mi>a</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msubsup><mo>;</mo><msubsup><mi>𝐚</mi><mrow><mi>a</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msubsup><mo stretchy="false">]</mo></mrow></mrow></mrow><mo lspace="0em">.</mo></mrow></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td rowspan="1" class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right"><span class="ltx_tag ltx_tag_equation ltx_align_right">(4)</span></td>
+</tr></tbody>
+</table>
+</div>
+</section>
+<section id="S3.SS4" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">3.4 </span>Sentence LSTM</h3>
+
+<div id="S3.SS4.p1" class="ltx_para">
+<p class="ltx_p">The sentence LSTM is a single-layer LSTM that takes the joint context vector <math id="S3.SS4.p1.m1" class="ltx_Math" alttext="\mathbf{ctx}\in\mathbb{R}^{C}" display="inline"><mrow><mi>𝐜𝐭𝐱</mi><mo>∈</mo><msup><mi>ℝ</mi><mi>C</mi></msup></mrow></math> as its input, and generates topic vector <math id="S3.SS4.p1.m2" class="ltx_Math" alttext="\mathbf{t}\in\mathbb{R}^{K}" display="inline"><mrow><mi>𝐭</mi><mo>∈</mo><msup><mi>ℝ</mi><mi>K</mi></msup></mrow></math> for word LSTM through topic generator and determines whether to continue or stop generating captions by a stop control component.</p>
+</div>
+<section id="S3.SS4.SSS0.Px1" class="ltx_paragraph">
+<h5 class="ltx_title ltx_title_paragraph">Topic generator</h5>
+
+<div id="S3.SS4.SSS0.Px1.p1" class="ltx_para">
+<p class="ltx_p">We use a deep output layer <cite class="ltx_cite ltx_citemacro_cite">Pascanu et al. (<a href="#bib.bib15" title="" class="ltx_ref">2014</a>)</cite> to strengthen the context information in topic vector <math id="S3.SS4.SSS0.Px1.p1.m1" class="ltx_Math" alttext="\mathbf{t}^{(s)}" display="inline"><msup><mi>𝐭</mi><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msup></math>, by combining the hidden state <math id="S3.SS4.SSS0.Px1.p1.m2" class="ltx_Math" alttext="\mathbf{h}_{sent}^{(s)}" display="inline"><msubsup><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msubsup></math> and the joint context vector <math id="S3.SS4.SSS0.Px1.p1.m3" class="ltx_Math" alttext="\mathbf{ctx}^{(s)}" display="inline"><msup><mi>𝐜𝐭𝐱</mi><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msup></math> of the current step:</p>
+<table id="S3.E5" class="ltx_equation ltx_eqn_table">
+
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math id="S3.E5.m1" class="ltx_Math" alttext="\mathbf{t}^{(s)}=\tanh(\mathbf{W}_{\mathbf{t},\mathbf{h}_{sent}}\mathbf{h}_{%
+sent}^{(s)}+\mathbf{W}_{\mathbf{t},\mathbf{ctx}}\mathbf{ctx}^{(s)})" display="block"><mrow><msup><mi>𝐭</mi><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msup><mo>=</mo><mrow><mi>tanh</mi><mo>⁡</mo><mrow><mo stretchy="false">(</mo><mrow><mrow><msub><mi>𝐖</mi><mrow><mi>𝐭</mi><mo>,</mo><msub><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow></msub></mrow></msub><mo>⁢</mo><msubsup><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msubsup></mrow><mo>+</mo><mrow><msub><mi>𝐖</mi><mrow><mi>𝐭</mi><mo>,</mo><mi>𝐜𝐭𝐱</mi></mrow></msub><mo>⁢</mo><msup><mi>𝐜𝐭𝐱</mi><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msup></mrow></mrow><mo stretchy="false">)</mo></mrow></mrow></mrow></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td rowspan="1" class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right"><span class="ltx_tag ltx_tag_equation ltx_align_right">(5)</span></td>
+</tr></tbody>
+</table>
+</div>
+<div id="S3.SS4.SSS0.Px1.p2" class="ltx_para ltx_noindent">
+<p class="ltx_p">where <math id="S3.SS4.SSS0.Px1.p2.m1" class="ltx_Math" alttext="\mathbf{W}_{\mathbf{t},\mathbf{h}_{sent}}" display="inline"><msub><mi>𝐖</mi><mrow><mi>𝐭</mi><mo>,</mo><msub><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow></msub></mrow></msub></math> and <math id="S3.SS4.SSS0.Px1.p2.m2" class="ltx_Math" alttext="\mathbf{W}_{\mathbf{t},\mathbf{ctx}}" display="inline"><msub><mi>𝐖</mi><mrow><mi>𝐭</mi><mo>,</mo><mi>𝐜𝐭𝐱</mi></mrow></msub></math> are weight parameters.</p>
+</div>
+</section>
+<section id="S3.SS4.SSS0.Px2" class="ltx_paragraph">
+<h5 class="ltx_title ltx_title_paragraph">Stop control</h5>
+
+<div id="S3.SS4.SSS0.Px2.p1" class="ltx_para">
+<p class="ltx_p">We also apply a deep output layer to control the continuation of the sentence LSTM. The layer takes the previous and current hidden state <math id="S3.SS4.SSS0.Px2.p1.m1" class="ltx_Math" alttext="\mathbf{h}_{sent}^{(s-1)}" display="inline"><msubsup><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mrow><mi>s</mi><mo>−</mo><mn>1</mn></mrow><mo stretchy="false">)</mo></mrow></msubsup></math>, <math id="S3.SS4.SSS0.Px2.p1.m2" class="ltx_Math" alttext="\mathbf{h}_{sent}^{(s)}" display="inline"><msubsup><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msubsup></math> as input and produces a distribution over {<em class="ltx_emph ltx_font_italic">STOP</em>=1, <em class="ltx_emph ltx_font_italic">CONTINUE</em>=0}:</p>
+</div>
+<div id="S3.SS4.SSS0.Px2.p2" class="ltx_para">
+<table id="S3.E6" class="ltx_equation ltx_eqn_table">
+
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math id="S3.E6.m1" class="ltx_Math" alttext="\begin{split}&amp;p(STOP|\mathbf{h}_{sent}^{(s-1)},\mathbf{h}_{sent}^{(s)})\propto%
+\\
+&amp;\exp\{\mathbf{W}_{stop}\tanh(\mathbf{W}_{stop,s-1}\mathbf{h}_{sent}^{(s-1)}+%
+\mathbf{W}_{stop,s}\mathbf{h}_{sent}^{(s)})\}\end{split}" display="block"><mtable columnspacing="0pt" displaystyle="true" rowspacing="0pt"><mtr><mtd></mtd><mtd class="ltx_align_left" columnalign="left"><mrow><mrow><mi>p</mi><mo>⁢</mo><mrow><mo stretchy="false">(</mo><mrow><mrow><mi>S</mi><mo>⁢</mo><mi>T</mi><mo>⁢</mo><mi>O</mi><mo>⁢</mo><mi>P</mi></mrow><mo fence="false">|</mo><mrow><msubsup><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mrow><mi>s</mi><mo>−</mo><mn>1</mn></mrow><mo stretchy="false">)</mo></mrow></msubsup><mo>,</mo><msubsup><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msubsup></mrow></mrow><mo stretchy="false">)</mo></mrow></mrow><mo>∝</mo><mi></mi></mrow></mtd></mtr><mtr><mtd></mtd><mtd class="ltx_align_left" columnalign="left"><mrow><mi>exp</mi><mo>⁡</mo><mrow><mo stretchy="false">{</mo><mrow><msub><mi>𝐖</mi><mrow><mi>s</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>p</mi></mrow></msub><mo lspace="0.167em">⁢</mo><mrow><mi>tanh</mi><mo>⁡</mo><mrow><mo stretchy="false">(</mo><mrow><mrow><msub><mi>𝐖</mi><mrow><mrow><mi>s</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>p</mi></mrow><mo>,</mo><mrow><mi>s</mi><mo>−</mo><mn>1</mn></mrow></mrow></msub><mo>⁢</mo><msubsup><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mrow><mi>s</mi><mo>−</mo><mn>1</mn></mrow><mo stretchy="false">)</mo></mrow></msubsup></mrow><mo>+</mo><mrow><msub><mi>𝐖</mi><mrow><mrow><mi>s</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>p</mi></mrow><mo>,</mo><mi>s</mi></mrow></msub><mo>⁢</mo><msubsup><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msubsup></mrow></mrow><mo stretchy="false">)</mo></mrow></mrow></mrow><mo stretchy="false">}</mo></mrow></mrow></mtd></mtr></mtable></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td rowspan="1" class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right"><span class="ltx_tag ltx_tag_equation ltx_align_right">(6)</span></td>
+</tr></tbody>
+</table>
+</div>
+<div id="S3.SS4.SSS0.Px2.p3" class="ltx_para ltx_noindent">
+<p class="ltx_p">where <math id="S3.SS4.SSS0.Px2.p3.m1" class="ltx_Math" alttext="\mathbf{W}_{stop}" display="inline"><msub><mi>𝐖</mi><mrow><mi>s</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>p</mi></mrow></msub></math>, <math id="S3.SS4.SSS0.Px2.p3.m2" class="ltx_Math" alttext="\mathbf{W}_{stop,s-1}" display="inline"><msub><mi>𝐖</mi><mrow><mrow><mi>s</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>p</mi></mrow><mo>,</mo><mrow><mi>s</mi><mo>−</mo><mn>1</mn></mrow></mrow></msub></math> and <math id="S3.SS4.SSS0.Px2.p3.m3" class="ltx_Math" alttext="\mathbf{W}_{stop,s}" display="inline"><msub><mi>𝐖</mi><mrow><mrow><mi>s</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>p</mi></mrow><mo>,</mo><mi>s</mi></mrow></msub></math> are parameter matrices. If <math id="S3.SS4.SSS0.Px2.p3.m4" class="ltx_Math" alttext="p(STOP|\mathbf{h}_{sent}^{(s-1)},\mathbf{h}_{sent}^{(s)})" display="inline"><mrow><mi>p</mi><mo>⁢</mo><mrow><mo stretchy="false">(</mo><mrow><mrow><mi>S</mi><mo>⁢</mo><mi>T</mi><mo>⁢</mo><mi>O</mi><mo>⁢</mo><mi>P</mi></mrow><mo fence="false">|</mo><mrow><msubsup><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mrow><mi>s</mi><mo>−</mo><mn>1</mn></mrow><mo stretchy="false">)</mo></mrow></msubsup><mo>,</mo><msubsup><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msubsup></mrow></mrow><mo stretchy="false">)</mo></mrow></mrow></math> is greater than a predefined threshold (e.g. 0.5), then the sentence LSTM will stop producing new topic vectors and the word LSTM will also stop producing words.</p>
+</div>
+</section>
+</section>
+<section id="S3.SS5" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">3.5 </span>Word LSTM</h3>
+
+<div id="S3.SS5.p1" class="ltx_para">
+<p class="ltx_p">The words of each sentence are generated by a word LSTM. Similar to <cite class="ltx_cite ltx_citemacro_cite">Krause et al. (<a href="#bib.bib11" title="" class="ltx_ref">2017</a>)</cite>, the topic vector <math id="S3.SS5.p1.m1" class="ltx_Math" alttext="\mathbf{t}" display="inline"><mi>𝐭</mi></math> produced by the sentence LSTM and the special <em class="ltx_emph ltx_font_italic">START</em> token are used as the first and second input of the word LSTM, and the subsequent inputs are the word sequence.</p>
+</div>
+<div id="S3.SS5.p2" class="ltx_para">
+<p class="ltx_p">The hidden state <math id="S3.SS5.p2.m1" class="ltx_Math" alttext="\mathbf{h}_{word}\in\mathbb{R}^{H}" display="inline"><mrow><msub><mi>𝐡</mi><mrow><mi>w</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>r</mi><mo>⁢</mo><mi>d</mi></mrow></msub><mo>∈</mo><msup><mi>ℝ</mi><mi>H</mi></msup></mrow></math> of the word LSTM is directly used to predict the distribution over words:</p>
+</div>
+<div id="S3.SS5.p3" class="ltx_para">
+<table id="S3.E7" class="ltx_equation ltx_eqn_table">
+
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math id="S3.E7.m1" class="ltx_Math" alttext="p(word|\mathbf{h}_{word})\propto\exp(\mathbf{W}_{out}\mathbf{h}_{word})" display="block"><mrow><mrow><mi>p</mi><mo>⁢</mo><mrow><mo stretchy="false">(</mo><mrow><mrow><mi>w</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>r</mi><mo>⁢</mo><mi>d</mi></mrow><mo fence="false">|</mo><msub><mi>𝐡</mi><mrow><mi>w</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>r</mi><mo>⁢</mo><mi>d</mi></mrow></msub></mrow><mo stretchy="false">)</mo></mrow></mrow><mo>∝</mo><mrow><mi>exp</mi><mo>⁡</mo><mrow><mo stretchy="false">(</mo><mrow><msub><mi>𝐖</mi><mrow><mi>o</mi><mo>⁢</mo><mi>u</mi><mo>⁢</mo><mi>t</mi></mrow></msub><mo>⁢</mo><msub><mi>𝐡</mi><mrow><mi>w</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>r</mi><mo>⁢</mo><mi>d</mi></mrow></msub></mrow><mo stretchy="false">)</mo></mrow></mrow></mrow></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td rowspan="1" class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right"><span class="ltx_tag ltx_tag_equation ltx_align_right">(7)</span></td>
+</tr></tbody>
+</table>
+</div>
+<div id="S3.SS5.p4" class="ltx_para ltx_noindent">
+<p class="ltx_p">where <math id="S3.SS5.p4.m1" class="ltx_Math" alttext="\mathbf{W}_{out}" display="inline"><msub><mi>𝐖</mi><mrow><mi>o</mi><mo>⁢</mo><mi>u</mi><mo>⁢</mo><mi>t</mi></mrow></msub></math> is the parameter matrix. After each word-LSTM has generated its word sequences, the final report is simply the concatenation of all the generated sequences.</p>
+</div>
+</section>
+<section id="S3.SS6" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">3.6 </span>Parameter Learning</h3>
+
+<div id="S3.SS6.p1" class="ltx_para">
+<p class="ltx_p">Each training example is a tuple (<math id="S3.SS6.p1.m1" class="ltx_Math" alttext="I" display="inline"><mi>I</mi></math>, <math id="S3.SS6.p1.m2" class="ltx_Math" alttext="\mathbf{l}" display="inline"><mi>𝐥</mi></math>, <math id="S3.SS6.p1.m3" class="ltx_Math" alttext="\mathbf{w}" display="inline"><mi>𝐰</mi></math>) where <math id="S3.SS6.p1.m4" class="ltx_Math" alttext="I" display="inline"><mi>I</mi></math> is an image, <math id="S3.SS6.p1.m5" class="ltx_Math" alttext="\mathbf{l}" display="inline"><mi>𝐥</mi></math> denotes the ground-truth tag vector, and <math id="S3.SS6.p1.m6" class="ltx_Math" alttext="\mathbf{w}" display="inline"><mi>𝐰</mi></math> is the diagnostic paragraph, which is comprised of <math id="S3.SS6.p1.m7" class="ltx_Math" alttext="S" display="inline"><mi>S</mi></math> sentences and each sentence consists of <math id="S3.SS6.p1.m8" class="ltx_Math" alttext="T_{s}" display="inline"><msub><mi>T</mi><mi>s</mi></msub></math> words.</p>
+</div>
+<div id="S3.SS6.p2" class="ltx_para">
+<p class="ltx_p">Given a training example (<math id="S3.SS6.p2.m1" class="ltx_Math" alttext="I" display="inline"><mi>I</mi></math>, <math id="S3.SS6.p2.m2" class="ltx_Math" alttext="\mathbf{l}" display="inline"><mi>𝐥</mi></math>, <math id="S3.SS6.p2.m3" class="ltx_Math" alttext="\mathbf{w}" display="inline"><mi>𝐰</mi></math>), our model first performs multi-label classification on <math id="S3.SS6.p2.m4" class="ltx_Math" alttext="I" display="inline"><mi>I</mi></math> and produces a distribution <math id="S3.SS6.p2.m5" class="ltx_Math" alttext="\mathbf{p}_{\mathbf{l},pred}" display="inline"><msub><mi>𝐩</mi><mrow><mi>𝐥</mi><mo>,</mo><mrow><mi>p</mi><mo>⁢</mo><mi>r</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>d</mi></mrow></mrow></msub></math> over all tags. Note that <math id="S3.SS6.p2.m6" class="ltx_Math" alttext="\mathbf{l}" display="inline"><mi>𝐥</mi></math> is a binary vector which encodes the presence and absence of tags. We can obtain the ground-truth tag distribution by normalizing <math id="S3.SS6.p2.m7" class="ltx_Math" alttext="\mathbf{l}" display="inline"><mi>𝐥</mi></math>: <math id="S3.SS6.p2.m8" class="ltx_Math" alttext="\mathbf{p_{\mathbf{l}}}=\mathbf{l}/||\mathbf{l}||_{1}" display="inline"><mrow><msub><mi>𝐩</mi><mi>𝐥</mi></msub><mo>=</mo><mrow><mi>𝐥</mi><mo>/</mo><msub><mrow><mo stretchy="false">‖</mo><mi>𝐥</mi><mo stretchy="false">‖</mo></mrow><mn>1</mn></msub></mrow></mrow></math>. The training loss of this step is a cross-entropy loss <math id="S3.SS6.p2.m9" class="ltx_Math" alttext="\ell_{tag}" display="inline"><msub><mi mathvariant="normal">ℓ</mi><mrow><mi>t</mi><mo>⁢</mo><mi>a</mi><mo>⁢</mo><mi>g</mi></mrow></msub></math> between <math id="S3.SS6.p2.m10" class="ltx_Math" alttext="\mathbf{p_{\mathbf{l}}}" display="inline"><msub><mi>𝐩</mi><mi>𝐥</mi></msub></math> and <math id="S3.SS6.p2.m11" class="ltx_Math" alttext="\mathbf{p}_{\mathbf{l},pred}" display="inline"><msub><mi>𝐩</mi><mrow><mi>𝐥</mi><mo>,</mo><mrow><mi>p</mi><mo>⁢</mo><mi>r</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>d</mi></mrow></mrow></msub></math>.</p>
+</div>
+<div id="S3.SS6.p3" class="ltx_para">
+<p class="ltx_p">Next, the sentence LSTM is unrolled for <math id="S3.SS6.p3.m1" class="ltx_Math" alttext="S" display="inline"><mi>S</mi></math> steps to produce topic vectors and also distributions over {<em class="ltx_emph ltx_font_italic">STOP</em>, <em class="ltx_emph ltx_font_italic">CONTINUE</em>}: <math id="S3.SS6.p3.m2" class="ltx_Math" alttext="p_{stop}^{s}" display="inline"><msubsup><mi>p</mi><mrow><mi>s</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>p</mi></mrow><mi>s</mi></msubsup></math>. Finally, the <math id="S3.SS6.p3.m3" class="ltx_Math" alttext="S" display="inline"><mi>S</mi></math> topic vectors are fed into the word LSTM to generate words <math id="S3.SS6.p3.m4" class="ltx_Math" alttext="\mathbf{w}_{s,t}" display="inline"><msub><mi>𝐰</mi><mrow><mi>s</mi><mo>,</mo><mi>t</mi></mrow></msub></math>. The training loss of caption generation is the combination of two cross-entropy losses: <math id="S3.SS6.p3.m5" class="ltx_Math" alttext="\ell_{sent}" display="inline"><msub><mi mathvariant="normal">ℓ</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow></msub></math> over stop distributions <math id="S3.SS6.p3.m6" class="ltx_Math" alttext="p_{stop}^{s}" display="inline"><msubsup><mi>p</mi><mrow><mi>s</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>p</mi></mrow><mi>s</mi></msubsup></math> and <math id="S3.SS6.p3.m7" class="ltx_Math" alttext="\ell_{word}" display="inline"><msub><mi mathvariant="normal">ℓ</mi><mrow><mi>w</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>r</mi><mo>⁢</mo><mi>d</mi></mrow></msub></math> over word distributions <math id="S3.SS6.p3.m8" class="ltx_Math" alttext="p_{s,t}" display="inline"><msub><mi>p</mi><mrow><mi>s</mi><mo>,</mo><mi>t</mi></mrow></msub></math>. Combining the pieces together, we obtain the overall training loss:</p>
+</div>
+<div id="S3.SS6.p4" class="ltx_para">
+<table id="S3.E8" class="ltx_equation ltx_eqn_table">
+
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math id="S3.E8.m1" class="ltx_Math" alttext="\begin{split}\ell(I,\mathbf{l},\mathbf{w})&amp;=\lambda_{tag}\ell_{tag}\\
+&amp;+\lambda_{sent}\sum_{s=1}^{S}\ell_{sent}(p_{stop}^{s},I\{s=S\})\\
+&amp;+\lambda_{word}\sum_{s=1}^{S}\sum_{t=1}^{T_{s}}\ell_{word}(p_{s,t},w_{s,t})%
+\end{split}" display="block"><mtable columnspacing="0pt" displaystyle="true" rowspacing="0pt"><mtr><mtd class="ltx_align_right" columnalign="right"><mrow><mi mathvariant="normal">ℓ</mi><mo>⁢</mo><mrow><mo stretchy="false">(</mo><mi>I</mi><mo>,</mo><mi>𝐥</mi><mo>,</mo><mi>𝐰</mi><mo stretchy="false">)</mo></mrow></mrow></mtd><mtd class="ltx_align_left" columnalign="left"><mrow><mi></mi><mo>=</mo><mrow><msub><mi>λ</mi><mrow><mi>t</mi><mo>⁢</mo><mi>a</mi><mo>⁢</mo><mi>g</mi></mrow></msub><mo>⁢</mo><msub><mi mathvariant="normal">ℓ</mi><mrow><mi>t</mi><mo>⁢</mo><mi>a</mi><mo>⁢</mo><mi>g</mi></mrow></msub></mrow></mrow></mtd></mtr><mtr><mtd></mtd><mtd class="ltx_align_left" columnalign="left"><mrow><mo>+</mo><mrow><msub><mi>λ</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow></msub><mo>⁢</mo><mrow><munderover><mo movablelimits="false">∑</mo><mrow><mi>s</mi><mo>=</mo><mn>1</mn></mrow><mi>S</mi></munderover><mrow><msub><mi mathvariant="normal">ℓ</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow></msub><mo>⁢</mo><mrow><mo stretchy="false">(</mo><msubsup><mi>p</mi><mrow><mi>s</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>p</mi></mrow><mi>s</mi></msubsup><mo>,</mo><mrow><mi>I</mi><mo>⁢</mo><mrow><mo stretchy="false">{</mo><mrow><mi>s</mi><mo>=</mo><mi>S</mi></mrow><mo stretchy="false">}</mo></mrow></mrow><mo stretchy="false">)</mo></mrow></mrow></mrow></mrow></mrow></mtd></mtr><mtr><mtd></mtd><mtd class="ltx_align_left" columnalign="left"><mrow><mo>+</mo><mrow><msub><mi>λ</mi><mrow><mi>w</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>r</mi><mo>⁢</mo><mi>d</mi></mrow></msub><mo>⁢</mo><mrow><munderover><mo movablelimits="false" rspace="0em">∑</mo><mrow><mi>s</mi><mo>=</mo><mn>1</mn></mrow><mi>S</mi></munderover><mrow><munderover><mo movablelimits="false">∑</mo><mrow><mi>t</mi><mo>=</mo><mn>1</mn></mrow><msub><mi>T</mi><mi>s</mi></msub></munderover><mrow><msub><mi mathvariant="normal">ℓ</mi><mrow><mi>w</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>r</mi><mo>⁢</mo><mi>d</mi></mrow></msub><mo>⁢</mo><mrow><mo stretchy="false">(</mo><msub><mi>p</mi><mrow><mi>s</mi><mo>,</mo><mi>t</mi></mrow></msub><mo>,</mo><msub><mi>w</mi><mrow><mi>s</mi><mo>,</mo><mi>t</mi></mrow></msub><mo stretchy="false">)</mo></mrow></mrow></mrow></mrow></mrow></mrow></mtd></mtr></mtable></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td rowspan="1" class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right"><span class="ltx_tag ltx_tag_equation ltx_align_right">(8)</span></td>
+</tr></tbody>
+</table>
+</div>
+<div id="S3.SS6.p5" class="ltx_para">
+<p class="ltx_p">In addition to the above training loss, there is also a regularization term for visual and semantic attentions. Similar to <cite class="ltx_cite ltx_citemacro_cite">Xu et al. (<a href="#bib.bib9" title="" class="ltx_ref">2015</a>)</cite>, let <math id="S3.SS6.p5.m1" class="ltx_Math" alttext="\boldsymbol{\alpha}\in\mathbb{R}^{N\times S}" display="inline"><mrow><mi>𝜶</mi><mo>∈</mo><msup><mi>ℝ</mi><mrow><mi>N</mi><mo lspace="0.222em" rspace="0.222em">×</mo><mi>S</mi></mrow></msup></mrow></math> and <math id="S3.SS6.p5.m2" class="ltx_Math" alttext="\boldsymbol{\beta}\in\mathbb{R}^{M\times S}" display="inline"><mrow><mi>𝜷</mi><mo>∈</mo><msup><mi>ℝ</mi><mrow><mi>M</mi><mo lspace="0.222em" rspace="0.222em">×</mo><mi>S</mi></mrow></msup></mrow></math> be the matrices of visual and semantic attentions respectively, then the regularization loss over <math id="S3.SS6.p5.m3" class="ltx_Math" alttext="\boldsymbol{\alpha}" display="inline"><mi>𝜶</mi></math> and <math id="S3.SS6.p5.m4" class="ltx_Math" alttext="\boldsymbol{\beta}" display="inline"><mi>𝜷</mi></math> is:</p>
+</div>
+<div id="S3.SS6.p6" class="ltx_para">
+<table id="S3.E9" class="ltx_equation ltx_eqn_table">
+
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math id="S3.E9.m1" class="ltx_Math" alttext="\ell_{reg}=\lambda_{reg}[\sum_{n}^{N}(1-\sum_{s}^{S}\alpha_{n,s})^{2}+\sum_{m}%
+^{M}(1-\sum_{s}^{S}\beta_{m,s})^{2}]" display="block"><mrow><msub><mi mathvariant="normal">ℓ</mi><mrow><mi>r</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>g</mi></mrow></msub><mo>=</mo><mrow><msub><mi>λ</mi><mrow><mi>r</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>g</mi></mrow></msub><mo>⁢</mo><mrow><mo stretchy="false">[</mo><mrow><mrow><munderover><mo lspace="0em" movablelimits="false" rspace="0em">∑</mo><mi>n</mi><mi>N</mi></munderover><msup><mrow><mo stretchy="false">(</mo><mrow><mn>1</mn><mo rspace="0.055em">−</mo><mrow><munderover><mo movablelimits="false">∑</mo><mi>s</mi><mi>S</mi></munderover><msub><mi>α</mi><mrow><mi>n</mi><mo>,</mo><mi>s</mi></mrow></msub></mrow></mrow><mo stretchy="false">)</mo></mrow><mn>2</mn></msup></mrow><mo rspace="0.055em">+</mo><mrow><munderover><mo movablelimits="false" rspace="0em">∑</mo><mi>m</mi><mi>M</mi></munderover><msup><mrow><mo stretchy="false">(</mo><mrow><mn>1</mn><mo rspace="0.055em">−</mo><mrow><munderover><mo movablelimits="false">∑</mo><mi>s</mi><mi>S</mi></munderover><msub><mi>β</mi><mrow><mi>m</mi><mo>,</mo><mi>s</mi></mrow></msub></mrow></mrow><mo stretchy="false">)</mo></mrow><mn>2</mn></msup></mrow></mrow><mo stretchy="false">]</mo></mrow></mrow></mrow></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td rowspan="1" class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right"><span class="ltx_tag ltx_tag_equation ltx_align_right">(9)</span></td>
+</tr></tbody>
+</table>
+</div>
+<div id="S3.SS6.p7" class="ltx_para ltx_noindent">
+<p class="ltx_p">Such regularization encourages the model to pay equal attention over different image regions and different tags.</p>
+</div>
+</section>
+</section>
+<section id="S4" class="ltx_section">
+<h2 class="ltx_title ltx_title_section">
+<span class="ltx_tag ltx_tag_section">4 </span>Experiments</h2>
+
+<div id="S4.p1" class="ltx_para">
+<p class="ltx_p">In this section, we evaluate the proposed model with extensive quantitative and qualitative experiments.</p>
+</div>
+<section id="S4.SS1" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">4.1 </span>Datasets</h3>
+
+<div id="S4.SS1.p1" class="ltx_para">
+<p class="ltx_p">We used two publicly available medical image datasets to evaluate our proposed model.</p>
+</div>
+<section id="S4.SS1.SSS0.Px1" class="ltx_paragraph">
+<h5 class="ltx_title ltx_title_paragraph">IU X-Ray</h5>
+
+<div id="S4.SS1.SSS0.Px1.p1" class="ltx_para">
+<p class="ltx_p">The Indiana University Chest X-Ray Collection (IU X-Ray) <cite class="ltx_cite ltx_citemacro_cite">Demner-Fushman et al. (<a href="#bib.bib16" title="" class="ltx_ref">2015</a>)</cite> is a set of chest x-ray images paired with their corresponding diagnostic reports. The dataset contains 7,470 pairs of images and reports. Each report consists of the following sections: <em class="ltx_emph ltx_font_italic">impression</em>, <em class="ltx_emph ltx_font_italic">findings</em>, <em class="ltx_emph ltx_font_italic">tags</em><span id="footnote1" class="ltx_note ltx_role_footnote"><sup class="ltx_note_mark">1</sup><span class="ltx_note_outer"><span class="ltx_note_content"><sup class="ltx_note_mark">1</sup>
+                <span class="ltx_tag ltx_tag_note">1</span>
+                
+                
+                
+              There are two types of tags: manually generated (MeSH) and Medical Text Indexer (MTI) generated.</span></span></span>, <em class="ltx_emph ltx_font_italic">comparison</em>, and <em class="ltx_emph ltx_font_italic">indication</em>. In this paper, we treat the contents in <em class="ltx_emph ltx_font_italic">impression</em> and <em class="ltx_emph ltx_font_italic">findings</em> as the target captions<span id="footnote2" class="ltx_note ltx_role_footnote"><sup class="ltx_note_mark">2</sup><span class="ltx_note_outer"><span class="ltx_note_content"><sup class="ltx_note_mark">2</sup>
+                <span class="ltx_tag ltx_tag_note">2</span>
+                
+                
+                
+              The <em class="ltx_emph ltx_font_italic">impression</em> and <em class="ltx_emph ltx_font_italic">findings</em> sections are concatenated together as a long paragraph, since <em class="ltx_emph ltx_font_italic">impression</em> can be viewed as a conclusion or topic sentence of the report.</span></span></span> to be generated and the Medical Text Indexer (MTI) annotated tags as the target tags to be predicted (Figure <a href="#S1.F1" title="Figure 1 ‣ 1 Introduction ‣ On the Automatic Generation of Medical Imaging Reports" class="ltx_ref"><span class="ltx_text ltx_ref_tag">1</span></a> provides an example).</p>
+</div>
+<div id="S4.SS1.SSS0.Px1.p2" class="ltx_para">
+<p class="ltx_p">We preprocessed the data by converting all tokens to lowercases, removing all of non-alpha tokens, which resulting in 572 unique tags and 1915 unique words. On average, each image is associated with 2.2 tags, 5.7 sentences, and each sentence contains 6.5 words. Besides, we find that top 1,000 words cover 99.0% word occurrences in the dataset, therefore we only included top 1,000 words in the dictionary. Finally, we randomly selected 500 images for validation and 500 images for testing.</p>
+</div>
+</section>
+<section id="S4.SS1.SSS0.Px2" class="ltx_paragraph">
+<h5 class="ltx_title ltx_title_paragraph">PEIR Gross</h5>
+
+<div id="S4.SS1.SSS0.Px2.p1" class="ltx_para">
+<p class="ltx_p">The Pathology Education Informational Resource (PEIR) digital library<span id="footnote3" class="ltx_note ltx_role_footnote"><sup class="ltx_note_mark">3</sup><span class="ltx_note_outer"><span class="ltx_note_content"><sup class="ltx_note_mark">3</sup>
+                <span class="ltx_tag ltx_tag_note">3</span>
+                
+                
+                
+              PEIR is ©University of Alabama at Birmingham, Department of Pathology. (http://peir.path.uab.edu/library/)</span></span></span> is a public medical image library for medical education. We collected the images together with their descriptions in the Gross sub-collection, resulting in the PEIR Gross dataset that contains 7,442 image-caption pairs from 21 different sub-categories. Different from the IU X-Ray dataset, each caption in PEIR Gross contains only one sentence. We used this dataset to evaluate our model’s ability of generating single-sentence report.</p>
+</div>
+<div id="S4.SS1.SSS0.Px2.p2" class="ltx_para">
+<p class="ltx_p">For PEIR Gross, we applied the same preprocessing as IU X-Ray, which yields 4,452 unique words. On average, each image contains 12.0 words. Besides, for each caption, we selected 5 words with the highest tf-idf scores as tags.</p>
+</div>
+<figure id="S4.T1" class="ltx_table">
+<table class="ltx_tabular ltx_centering ltx_guessed_headers ltx_align_middle">
+<thead class="ltx_thead">
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_center ltx_th ltx_th_column ltx_th_row ltx_border_r ltx_border_t">Dataset</th>
+<th class="ltx_td ltx_align_left ltx_th ltx_th_column ltx_th_row ltx_border_r ltx_border_t">Methods</th>
+<th class="ltx_td ltx_align_center ltx_th ltx_th_column ltx_border_t">BLEU-1</th>
+<th class="ltx_td ltx_align_center ltx_th ltx_th_column ltx_border_t">BLEU-2</th>
+<th class="ltx_td ltx_align_center ltx_th ltx_th_column ltx_border_t">BLEU-3</th>
+<th class="ltx_td ltx_align_center ltx_th ltx_th_column ltx_border_t">BLEU-4</th>
+<th class="ltx_td ltx_align_center ltx_th ltx_th_column ltx_border_t">METEOR</th>
+<th class="ltx_td ltx_align_center ltx_th ltx_th_column ltx_border_t">ROUGE</th>
+<th class="ltx_td ltx_align_center ltx_th ltx_th_column ltx_border_t">CIDER</th>
+</tr>
+</thead>
+<tbody class="ltx_tbody">
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_center ltx_th ltx_th_row ltx_border_r ltx_border_t" rowspan="8">IU X-Ray</th>
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_r ltx_border_t">CNN-RNN <cite class="ltx_cite ltx_citemacro_cite">Vinyals et al. (<a href="#bib.bib6" title="" class="ltx_ref">2015</a>)</cite>
+</th>
+<td class="ltx_td ltx_align_center ltx_border_t">0.316</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.211</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.140</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.095</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.159</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.267</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.111</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_r">LRCN <cite class="ltx_cite ltx_citemacro_cite">Donahue et al. (<a href="#bib.bib17" title="" class="ltx_ref">2015</a>)</cite>
+</th>
+<td class="ltx_td ltx_align_center">0.369</td>
+<td class="ltx_td ltx_align_center">0.229</td>
+<td class="ltx_td ltx_align_center">0.149</td>
+<td class="ltx_td ltx_align_center">0.099</td>
+<td class="ltx_td ltx_align_center">0.155</td>
+<td class="ltx_td ltx_align_center">0.278</td>
+<td class="ltx_td ltx_align_center">0.190</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_r">Soft ATT <cite class="ltx_cite ltx_citemacro_cite">Xu et al. (<a href="#bib.bib9" title="" class="ltx_ref">2015</a>)</cite>
+</th>
+<td class="ltx_td ltx_align_center">0.399</td>
+<td class="ltx_td ltx_align_center">0.251</td>
+<td class="ltx_td ltx_align_center">0.168</td>
+<td class="ltx_td ltx_align_center">0.118</td>
+<td class="ltx_td ltx_align_center">0.167</td>
+<td class="ltx_td ltx_align_center">0.323</td>
+<td class="ltx_td ltx_align_center">0.302</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_r">ATT-RK <cite class="ltx_cite ltx_citemacro_cite">You et al. (<a href="#bib.bib10" title="" class="ltx_ref">2016</a>)</cite>
+</th>
+<td class="ltx_td ltx_align_center">0.369</td>
+<td class="ltx_td ltx_align_center">0.226</td>
+<td class="ltx_td ltx_align_center">0.151</td>
+<td class="ltx_td ltx_align_center">0.108</td>
+<td class="ltx_td ltx_align_center">0.171</td>
+<td class="ltx_td ltx_align_center">0.323</td>
+<td class="ltx_td ltx_align_center">0.155</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_r ltx_border_t">Ours-no-Attention</th>
+<td class="ltx_td ltx_align_center ltx_border_t">0.505</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.383</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.290</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.224</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.200</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.420</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.259</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_r">Ours-Semantic-only</th>
+<td class="ltx_td ltx_align_center">0.504</td>
+<td class="ltx_td ltx_align_center">0.371</td>
+<td class="ltx_td ltx_align_center">0.291</td>
+<td class="ltx_td ltx_align_center">0.230</td>
+<td class="ltx_td ltx_align_center">0.207</td>
+<td class="ltx_td ltx_align_center">0.418</td>
+<td class="ltx_td ltx_align_center">0.286</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_r">Ours-Visual-only</th>
+<td class="ltx_td ltx_align_center">0.507</td>
+<td class="ltx_td ltx_align_center">0.373</td>
+<td class="ltx_td ltx_align_center">0.297</td>
+<td class="ltx_td ltx_align_center">0.238</td>
+<td class="ltx_td ltx_align_center">0.211</td>
+<td class="ltx_td ltx_align_center">0.426</td>
+<td class="ltx_td ltx_align_center">0.300</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_r">Ours-CoAttention</th>
+<td class="ltx_td ltx_align_center"><span class="ltx_text ltx_font_bold">0.517</span></td>
+<td class="ltx_td ltx_align_center"><span class="ltx_text ltx_font_bold">0.386</span></td>
+<td class="ltx_td ltx_align_center"><span class="ltx_text ltx_font_bold">0.306</span></td>
+<td class="ltx_td ltx_align_center"><span class="ltx_text ltx_font_bold">0.247</span></td>
+<td class="ltx_td ltx_align_center"><span class="ltx_text ltx_font_bold">0.217</span></td>
+<td class="ltx_td ltx_align_center"><span class="ltx_text ltx_font_bold">0.447</span></td>
+<td class="ltx_td ltx_align_center"><span class="ltx_text ltx_font_bold">0.327</span></td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_center ltx_th ltx_th_row ltx_border_r ltx_border_tt" rowspan="7">PEIR Gross</th>
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_r ltx_border_tt">CNN-RNN <cite class="ltx_cite ltx_citemacro_cite">Vinyals et al. (<a href="#bib.bib6" title="" class="ltx_ref">2015</a>)</cite>
+</th>
+<td class="ltx_td ltx_align_center ltx_border_tt">0.247</td>
+<td class="ltx_td ltx_align_center ltx_border_tt">0.178</td>
+<td class="ltx_td ltx_align_center ltx_border_tt">0.134</td>
+<td class="ltx_td ltx_align_center ltx_border_tt">0.092</td>
+<td class="ltx_td ltx_align_center ltx_border_tt">0.129</td>
+<td class="ltx_td ltx_align_center ltx_border_tt">0.247</td>
+<td class="ltx_td ltx_align_center ltx_border_tt">0.205</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_r">LRCN <cite class="ltx_cite ltx_citemacro_cite">Donahue et al. (<a href="#bib.bib17" title="" class="ltx_ref">2015</a>)</cite>
+</th>
+<td class="ltx_td ltx_align_center">0.261</td>
+<td class="ltx_td ltx_align_center">0.184</td>
+<td class="ltx_td ltx_align_center">0.136</td>
+<td class="ltx_td ltx_align_center">0.088</td>
+<td class="ltx_td ltx_align_center">0.135</td>
+<td class="ltx_td ltx_align_center">0.254</td>
+<td class="ltx_td ltx_align_center">0.203</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_r">Soft ATT <cite class="ltx_cite ltx_citemacro_cite">Xu et al. (<a href="#bib.bib9" title="" class="ltx_ref">2015</a>)</cite>
+</th>
+<td class="ltx_td ltx_align_center">0.283</td>
+<td class="ltx_td ltx_align_center">0.212</td>
+<td class="ltx_td ltx_align_center">0.163</td>
+<td class="ltx_td ltx_align_center">0.113</td>
+<td class="ltx_td ltx_align_center">0.147</td>
+<td class="ltx_td ltx_align_center">0.271</td>
+<td class="ltx_td ltx_align_center">0.276</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_r">ATT-RK <cite class="ltx_cite ltx_citemacro_cite">You et al. (<a href="#bib.bib10" title="" class="ltx_ref">2016</a>)</cite>
+</th>
+<td class="ltx_td ltx_align_center">0.274</td>
+<td class="ltx_td ltx_align_center">0.201</td>
+<td class="ltx_td ltx_align_center">0.154</td>
+<td class="ltx_td ltx_align_center">0.104</td>
+<td class="ltx_td ltx_align_center">0.141</td>
+<td class="ltx_td ltx_align_center">0.264</td>
+<td class="ltx_td ltx_align_center">0.279</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_r ltx_border_t">Ours-No-Attention</th>
+<td class="ltx_td ltx_align_center ltx_border_t">0.248</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.180</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.133</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.093</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.131</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.242</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.206</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_r">Ours-Semantic-only</th>
+<td class="ltx_td ltx_align_center">0.263</td>
+<td class="ltx_td ltx_align_center">0.191</td>
+<td class="ltx_td ltx_align_center">0.145</td>
+<td class="ltx_td ltx_align_center">0.098</td>
+<td class="ltx_td ltx_align_center">0.138</td>
+<td class="ltx_td ltx_align_center">0.261</td>
+<td class="ltx_td ltx_align_center">0.274</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_r">Ours-Visual-only</th>
+<td class="ltx_td ltx_align_center">0.284</td>
+<td class="ltx_td ltx_align_center">0.209</td>
+<td class="ltx_td ltx_align_center">0.156</td>
+<td class="ltx_td ltx_align_center">0.105</td>
+<td class="ltx_td ltx_align_center"><span class="ltx_text ltx_font_bold">0.149</span></td>
+<td class="ltx_td ltx_align_center">0.274</td>
+<td class="ltx_td ltx_align_center">0.280</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_th ltx_th_row ltx_border_b ltx_border_r"></th>
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_b ltx_border_r">Ours-CoAttention</th>
+<td class="ltx_td ltx_align_center ltx_border_b"><span class="ltx_text ltx_font_bold">0.300</span></td>
+<td class="ltx_td ltx_align_center ltx_border_b"><span class="ltx_text ltx_font_bold">0.218</span></td>
+<td class="ltx_td ltx_align_center ltx_border_b"><span class="ltx_text ltx_font_bold">0.165</span></td>
+<td class="ltx_td ltx_align_center ltx_border_b"><span class="ltx_text ltx_font_bold">0.113</span></td>
+<td class="ltx_td ltx_align_center ltx_border_b"><span class="ltx_text ltx_font_bold">0.149</span></td>
+<td class="ltx_td ltx_align_center ltx_border_b"><span class="ltx_text ltx_font_bold">0.279</span></td>
+<td class="ltx_td ltx_align_center ltx_border_b"><span class="ltx_text ltx_font_bold">0.329</span></td>
+</tr>
+</tbody>
+</table>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_table">Table 1: </span>Main results for paragraph generation on the IU X-Ray dataset (upper part), and single sentence generation on the PEIR Gross dataset (lower part). BLUE-n denotes the BLEU score that uses up to n-grams.</figcaption>
+</figure>
+</section>
+</section>
+<section id="S4.SS2" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">4.2 </span>Implementation Details</h3>
+
+<div id="S4.SS2.p1" class="ltx_para">
+<p class="ltx_p">We used the full VGG-19 model <cite class="ltx_cite ltx_citemacro_cite">Simonyan and Zisserman (<a href="#bib.bib13" title="" class="ltx_ref">2014</a>)</cite> for tag prediction. As for the training loss of the multi-label classification (MLC) task, since the number of tags for semantic attention is fixed as 10, we treat MLC as a multi-label retrieval task and adopt a softmax cross-entropy loss (a multi-label ranking loss), similar to <cite class="ltx_cite ltx_citemacro_cite">Gong et al. (<a href="#bib.bib18" title="" class="ltx_ref">2013</a>); Guillaumin et al. (<a href="#bib.bib19" title="" class="ltx_ref">2009</a>)</cite>.</p>
+</div>
+<div id="S4.SS2.p2" class="ltx_para">
+<p class="ltx_p">In paragraph generation, we set the dimensions of all hidden states and word embeddings as 512. For words and tags, different embedding matrices were used since a tag might contain multiple words. We utilized the embeddings of the 10 most likely tags as the semantic feature vectors <math id="S4.SS2.p2.m1" class="ltx_Math" alttext="\{\mathbf{a}_{m}\}_{m=1}^{M=10}" display="inline"><msubsup><mrow><mo stretchy="false">{</mo><msub><mi>𝐚</mi><mi>m</mi></msub><mo stretchy="false">}</mo></mrow><mrow><mi>m</mi><mo>=</mo><mn>1</mn></mrow><mrow><mi>M</mi><mo>=</mo><mn>10</mn></mrow></msubsup></math>. We extracted the visual features from the last convolutional layer of the VGG-19 network, which yields a <math id="S4.SS2.p2.m2" class="ltx_Math" alttext="14\times 14\times 512" display="inline"><mrow><mn>14</mn><mo lspace="0.222em" rspace="0.222em">×</mo><mn>14</mn><mo lspace="0.222em" rspace="0.222em">×</mo><mn>512</mn></mrow></math> feature map.</p>
+</div>
+<div id="S4.SS2.p3" class="ltx_para">
+<p class="ltx_p">We used the Adam <cite class="ltx_cite ltx_citemacro_cite">Kingma and Ba (<a href="#bib.bib20" title="" class="ltx_ref">2014</a>)</cite> optimizer for parameter learning. The learning rates for the CNN (VGG-19) and the hierarchical LSTM were 1e-5 and 5e-4 respectively. The weights (<math id="S4.SS2.p3.m1" class="ltx_Math" alttext="\lambda_{tag}" display="inline"><msub><mi>λ</mi><mrow><mi>t</mi><mo>⁢</mo><mi>a</mi><mo>⁢</mo><mi>g</mi></mrow></msub></math>, <math id="S4.SS2.p3.m2" class="ltx_Math" alttext="\lambda_{sent}" display="inline"><msub><mi>λ</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow></msub></math>, <math id="S4.SS2.p3.m3" class="ltx_Math" alttext="\lambda_{word}" display="inline"><msub><mi>λ</mi><mrow><mi>w</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>r</mi><mo>⁢</mo><mi>d</mi></mrow></msub></math> and <math id="S4.SS2.p3.m4" class="ltx_Math" alttext="\lambda_{reg}" display="inline"><msub><mi>λ</mi><mrow><mi>r</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>g</mi></mrow></msub></math>) of different losses were set to 1.0. The threshold for stop control was 0.5. Early stopping was used to prevent over-fitting.</p>
+</div>
+</section>
+<section id="S4.SS3" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">4.3 </span>Baselines</h3>
+
+<div id="S4.SS3.p1" class="ltx_para">
+<p class="ltx_p">We compared our method with several state-of-the-art image captioning models: CNN-RNN <cite class="ltx_cite ltx_citemacro_cite">Vinyals et al. (<a href="#bib.bib6" title="" class="ltx_ref">2015</a>)</cite>, LRCN <cite class="ltx_cite ltx_citemacro_cite">Donahue et al. (<a href="#bib.bib17" title="" class="ltx_ref">2015</a>)</cite>, Soft ATT <cite class="ltx_cite ltx_citemacro_cite">Xu et al. (<a href="#bib.bib9" title="" class="ltx_ref">2015</a>)</cite>, and ATT-RK <cite class="ltx_cite ltx_citemacro_cite">You et al. (<a href="#bib.bib10" title="" class="ltx_ref">2016</a>)</cite>. We re-implemented all of these models and adopt VGG-19 <cite class="ltx_cite ltx_citemacro_cite">Simonyan and Zisserman (<a href="#bib.bib13" title="" class="ltx_ref">2014</a>)</cite> as the CNN encoder. Considering these models are built for single sentence captions and to better show the effectiveness of the hierarchical LSTM and the attention mechanism for paragraph generation, we also implemented a hierarchical model without any attention: Ours-no-Attention. The input of Ours-no-Attention is the overall image feature of VGG-19, which has a dimension of 4096. Ours-no-Attention can be viewed as a CNN-RNN <cite class="ltx_cite ltx_citemacro_cite">Vinyals et al. (<a href="#bib.bib6" title="" class="ltx_ref">2015</a>)</cite> equipped with a hierarchical LSTM decoder. To further show the effectiveness of the proposed co-attention mechanism, we also implemented two ablated versions of our model: Ours-Semantic-only and Ours-Visual-only, which takes solely the semantic attention or visual attention context vector to produce topic vectors.</p>
+</div>
+<figure id="S4.F3" class="ltx_figure"><img src="assets/1711.08195/x3.png" id="S4.F3.g1" class="ltx_graphics ltx_centering ltx_img_landscape" width="628" height="415" alt="Refer to caption">
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure">Figure 3: </span>Illustration of paragraph generated by Ours-CoAttention, Ours-no-Attention, and Soft Attention models. The underlined sentences are the descriptions of detected abnormalities. The second image is a lateral x-ray image. Top two images are positive results, the third one is a partial failure case and the bottom one is failure case. These images are from test dataset.</figcaption>
+</figure>
+</section>
+<section id="S4.SS4" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">4.4 </span>Quantitative Results</h3>
+
+<div id="S4.SS4.p1" class="ltx_para">
+<p class="ltx_p">We report the paragraph generation (upper part of Table <a href="#S4.T1" title="Table 1 ‣ PEIR Gross ‣ 4.1 Datasets ‣ 4 Experiments ‣ On the Automatic Generation of Medical Imaging Reports" class="ltx_ref"><span class="ltx_text ltx_ref_tag">1</span></a>) and one sentence generation (lower part of Table <a href="#S4.T1" title="Table 1 ‣ PEIR Gross ‣ 4.1 Datasets ‣ 4 Experiments ‣ On the Automatic Generation of Medical Imaging Reports" class="ltx_ref"><span class="ltx_text ltx_ref_tag">1</span></a>) results using the standard image captioning evaluation tool <span id="footnote4" class="ltx_note ltx_role_footnote"><sup class="ltx_note_mark">4</sup><span class="ltx_note_outer"><span class="ltx_note_content"><sup class="ltx_note_mark">4</sup>
+              <span class="ltx_tag ltx_tag_note">4</span>
+              
+              
+              
+            https://github.com/tylin/coco-caption</span></span></span> which provides evaluation on the following metrics: BLEU <cite class="ltx_cite ltx_citemacro_cite">Papineni et al. (<a href="#bib.bib21" title="" class="ltx_ref">2002</a>)</cite>, METEOR <cite class="ltx_cite ltx_citemacro_cite">Denkowski and Lavie (<a href="#bib.bib22" title="" class="ltx_ref">2014</a>)</cite>, ROUGE <cite class="ltx_cite ltx_citemacro_cite">Lin (<a href="#bib.bib23" title="" class="ltx_ref">2004</a>)</cite>, and CIDER <cite class="ltx_cite ltx_citemacro_cite">Vedantam et al. (<a href="#bib.bib24" title="" class="ltx_ref">2015</a>)</cite>.</p>
+</div>
+<div id="S4.SS4.p2" class="ltx_para">
+<p class="ltx_p">For paragraph generation, as shown in the upper part of Table <a href="#S4.T1" title="Table 1 ‣ PEIR Gross ‣ 4.1 Datasets ‣ 4 Experiments ‣ On the Automatic Generation of Medical Imaging Reports" class="ltx_ref"><span class="ltx_text ltx_ref_tag">1</span></a>, it is clear that models with a single LSTM decoder perform much worse than those with a hierarchical LSTM decoder. Note that the only difference between Ours-no-Attention and CNN-RNN <cite class="ltx_cite ltx_citemacro_cite">Vinyals et al. (<a href="#bib.bib6" title="" class="ltx_ref">2015</a>)</cite> is that Ours-no-Attention adopts a hierarchical LSTM decoder while CNN-RNN <cite class="ltx_cite ltx_citemacro_cite">Vinyals et al. (<a href="#bib.bib6" title="" class="ltx_ref">2015</a>)</cite> adopts a single-layer LSTM. The comparison between these two models directly demonstrates the effectiveness of the hierarchical LSTM. This result is not surprising since it is well-known that a single-layer LSTM cannot effectively model long sequences <cite class="ltx_cite ltx_citemacro_cite">Liu et al. (<a href="#bib.bib25" title="" class="ltx_ref">2015</a>); Martin and Cundy (<a href="#bib.bib26" title="" class="ltx_ref">2018</a>)</cite>. Additionally, employing semantic attention alone (Ours-Semantic-only) or visual attention alone (Ours-Visual-only) to generate topic vectors does not seem to help caption generation a lot. The potential reason might be that visual attention can only capture the visual information of sub-regions of the image and is unable to correctly capture the semantics of the entire image. Semantic attention is inadequate of localizing small abnormal image-regions. Finally, our full model (Ours-CoAttention) achieves the best results on all of the evaluation metrics, which demonstrates the effectiveness of the proposed co-attention mechanism.</p>
+</div>
+<div id="S4.SS4.p3" class="ltx_para">
+<p class="ltx_p">For the single-sentence generation results (shown in the lower part of Table <a href="#S4.T1" title="Table 1 ‣ PEIR Gross ‣ 4.1 Datasets ‣ 4 Experiments ‣ On the Automatic Generation of Medical Imaging Reports" class="ltx_ref"><span class="ltx_text ltx_ref_tag">1</span></a>), the ablated versions of our model (Ours-Semantic-only and Ours-Visual-only) achieve competitive scores compared with the state-of-the-art methods. Our full model (Ours-CoAttention) outperforms all of the baseline, which indicates the effectiveness of the proposed co-attention mechanism.</p>
+</div>
+<figure id="S4.F4" class="ltx_figure"><img src="assets/1711.08195/x4.png" id="S4.F4.g1" class="ltx_graphics ltx_centering ltx_img_square" width="628" height="553" alt="Refer to caption">
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_figure">Figure 4: </span>Visualization of co-attention for three examples. Each example is comprised of four things: (1) image and visual attentions; (2) ground truth tags and semantic attention on predicted tags; (3) generated descriptions; (4) ground truth descriptions. For the semantic attention, three tags with highest attention scores are highlighted. The underlined tags are those appearing in the ground truth.</figcaption>
+</figure>
+</section>
+<section id="S4.SS5" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">4.5 </span>Qualitative Results</h3>
+
+<section id="S4.SS5.SSS1" class="ltx_subsubsection">
+<h4 class="ltx_title ltx_title_subsubsection">
+<span class="ltx_tag ltx_tag_subsubsection">4.5.1 </span>Paragraph Generation</h4>
+
+<div id="S4.SS5.SSS1.p1" class="ltx_para">
+<p class="ltx_p">An illustration of paragraph generation by three models (Ours-CoAttention, Ours-no-Attention and Soft Attention models) is shown in Figure <a href="#S4.F3" title="Figure 3 ‣ 4.3 Baselines ‣ 4 Experiments ‣ On the Automatic Generation of Medical Imaging Reports" class="ltx_ref"><span class="ltx_text ltx_ref_tag">3</span></a>. We can find that different sentences have different topics. The first sentence is usually a high level description of the image, while each of the following sentences is associated with one area of the image (e.g. “lung”, “heart”). Soft Attention and Ours-no-Attention models detect only a few abnormalities of the images and the detected abnormalities are incorrect. In contrast, Ours-CoAttention model is able to correctly describe many true abnormalities (as shown in top three images). This comparison demonstrates that co-attention is better at capturing abnormalities.</p>
+</div>
+<div id="S4.SS5.SSS1.p2" class="ltx_para">
+<p class="ltx_p">For the third image, Ours-CoAttention model successfully detects the area (“right lower lobe”) which is abnormal (“eventration”), however, it fails to precisely describe this abnormality. In addition, the model also finds abnormalities about “interstitial opacities” and “atheroscalerotic calcification”, which are not considered as true abnormality by human experts. The potential reason for this mis-description might be that this x-ray image is darker (compared with the above images), and our model might be very sensitive to this change.</p>
+</div>
+<div id="S4.SS5.SSS1.p3" class="ltx_para">
+<p class="ltx_p">The image at the bottom is a failure case of Ours-CoAttention. However, even though the model makes the wrong judgment about the major abnormalities in the image, it does find some unusual regions: “lateral lucency” and “left lower lobe”.</p>
+</div>
+<div id="S4.SS5.SSS1.p4" class="ltx_para">
+<p class="ltx_p">To further understand models’ ability of detecting abnormalities, we present the portion of sentences which describe the normalities and abnormalities in Table <a href="#S4.T2" title="Table 2 ‣ 4.5.1 Paragraph Generation ‣ 4.5 Qualitative Results ‣ 4 Experiments ‣ On the Automatic Generation of Medical Imaging Reports" class="ltx_ref"><span class="ltx_text ltx_ref_tag">2</span></a>. We consider sentences which contain “no”, “normal”, “clear”, “stable” as sentences describing normalities. It is clear that Ours-CoAttention best approximates the ground truth distribution over normality and abnormality.</p>
+</div>
+<figure id="S4.T2" class="ltx_table">
+<table class="ltx_tabular ltx_centering ltx_guessed_headers ltx_align_middle">
+<thead class="ltx_thead">
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_center ltx_th ltx_th_column ltx_th_row ltx_border_r ltx_border_t">Method</th>
+<th class="ltx_td ltx_align_center ltx_th ltx_th_column ltx_border_t">Normality</th>
+<th class="ltx_td ltx_align_center ltx_th ltx_th_column ltx_border_t">Abnormality</th>
+<th class="ltx_td ltx_align_center ltx_th ltx_th_column ltx_border_t">Total</th>
+</tr>
+</thead>
+<tbody class="ltx_tbody">
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_center ltx_th ltx_th_row ltx_border_r ltx_border_t">Soft Attention</th>
+<td class="ltx_td ltx_align_center ltx_border_t">0.510</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.490</td>
+<td class="ltx_td ltx_align_center ltx_border_t">1.0</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_center ltx_th ltx_th_row ltx_border_r">Ours-no-Attention</th>
+<td class="ltx_td ltx_align_center">0.753</td>
+<td class="ltx_td ltx_align_center">0.247</td>
+<td class="ltx_td ltx_align_center">1.0</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_center ltx_th ltx_th_row ltx_border_r">Ours-CoAttention</th>
+<td class="ltx_td ltx_align_center">0.471</td>
+<td class="ltx_td ltx_align_center">0.529</td>
+<td class="ltx_td ltx_align_center">1.0</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_center ltx_th ltx_th_row ltx_border_b ltx_border_r ltx_border_t">Ground Truth</th>
+<td class="ltx_td ltx_align_center ltx_border_b ltx_border_t">0.385</td>
+<td class="ltx_td ltx_align_center ltx_border_b ltx_border_t">0.615</td>
+<td class="ltx_td ltx_align_center ltx_border_b ltx_border_t">1.0</td>
+</tr>
+</tbody>
+</table>
+<figcaption class="ltx_caption ltx_centering"><span class="ltx_tag ltx_tag_table">Table 2: </span>Portion of sentences which describe the normalities and abnormalities in the image.</figcaption>
+</figure>
+</section>
+<section id="S4.SS5.SSS2" class="ltx_subsubsection">
+<h4 class="ltx_title ltx_title_subsubsection">
+<span class="ltx_tag ltx_tag_subsubsection">4.5.2 </span>Co-Attention Learning</h4>
+
+<div id="S4.SS5.SSS2.p1" class="ltx_para">
+<p class="ltx_p">Figure <a href="#S4.F4" title="Figure 4 ‣ 4.4 Quantitative Results ‣ 4 Experiments ‣ On the Automatic Generation of Medical Imaging Reports" class="ltx_ref"><span class="ltx_text ltx_ref_tag">4</span></a> presents visualizations of co-attention. The first property shown by Figure <a href="#S4.F4" title="Figure 4 ‣ 4.4 Quantitative Results ‣ 4 Experiments ‣ On the Automatic Generation of Medical Imaging Reports" class="ltx_ref"><span class="ltx_text ltx_ref_tag">4</span></a> is that the sentence LSTM can generate different topics at different time steps since the model focuses on different image regions and tags for different sentences. The next finding is that visual attention can guide our model to concentrate on relevant regions of the image. For example, the third sentence of the first example is about “cardio”, and the visual attention concentrates on regions near the heart. Similar behavior can also be found for semantic attention: for the last sentence in the first example, our model correctly concentrates on “degenerative change” which is the topic of the sentence. Finally, the first sentence of the last example presents a mis-description caused by incorrect semantic attention over tags. Such incorrect attention can be reduced by building a better tag prediction module.</p>
+</div>
+</section>
+</section>
+</section>
+<section id="S5" class="ltx_section">
+<h2 class="ltx_title ltx_title_section">
+<span class="ltx_tag ltx_tag_section">5 </span>Conclusion</h2>
+
+<div id="S5.p1" class="ltx_para">
+<p class="ltx_p">In this paper, we study how to automatically generate textual reports for medical images, with the goal to help medical professionals produce reports more accurately and efficiently. Our proposed methods address three major challenges: (1) how to generate multiple heterogeneous forms of information within a unified framework, (2) how to localize abnormal regions and produce accurate descriptions for them, (3) how to generate long texts that contain multiple sentences or even paragraphs. To cope with these challenges, we propose a multi-task learning framework which jointly predicts tags and generates descriptions. We introduce a co-attention mechanism that can simultaneously explore visual and semantic information to accurately localize and describe abnormal regions. We develop a hierarchical LSTM network that can more effectively capture long-range semantics and produce high quality long texts. On two medical datasets containing radiology and pathology images, we demonstrate the effectiveness of the proposed methods through quantitative and qualitative studies.</p>
+</div>
+</section>
+<section id="bib" class="ltx_bibliography">
+<h2 class="ltx_title ltx_title_bibliography">References</h2>
+
+<ul class="ltx_biblist">
+      
+<li id="bib.bib1" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Delrue et al. (2011)</span>
+<span class="ltx_bibblock">
+Louke Delrue, Robert Gosselin, Bart Ilsen, An Van Landeghem, Johan de Mey, and
+Philippe Duyck.
+
+</span>
+<span class="ltx_bibblock">Difficulties in the interpretation of chest radiography.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">Comparative Interpretation of CT and Standard Radiography of
+the Chest</em>, pages 27–49. Springer, 2011.
+
+</span>
+</li>
+      
+<li id="bib.bib2" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Hochreiter and Schmidhuber (1997)</span>
+<span class="ltx_bibblock">
+Sepp Hochreiter and Jürgen Schmidhuber.
+
+</span>
+<span class="ltx_bibblock">Long short-term memory.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Neural computation</em>, 9(8):1735–1780, 1997.
+
+</span>
+</li>
+      
+<li id="bib.bib3" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Kisilev et al. (2015)</span>
+<span class="ltx_bibblock">
+Pavel Kisilev, Eugene Walach, Ella Barkan, Boaz Ophir, Sharon Alpert, and
+Sharbell Y Hashoul.
+
+</span>
+<span class="ltx_bibblock">From medical image to automatic medical report generation.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">IBM Journal of Research and Development</em>, 59(2/3):2–1, 2015.
+
+</span>
+</li>
+      
+<li id="bib.bib4" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Shin et al. (2016)</span>
+<span class="ltx_bibblock">
+Hoo-Chang Shin, Kirk Roberts, Le Lu, Dina Demner-Fushman, Jianhua Yao, and
+Ronald M Summers.
+
+</span>
+<span class="ltx_bibblock">Learning to read chest x-rays: recurrent neural cascade model for
+automated image annotation.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">Proceedings of the IEEE Conference on Computer Vision and
+Pattern Recognition</em>, pages 2497–2506, 2016.
+
+</span>
+</li>
+      
+<li id="bib.bib5" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Zhang et al. (2017)</span>
+<span class="ltx_bibblock">
+Zizhao Zhang, Yuanpu Xie, Fuyong Xing, Mason McGough, and Lin Yang.
+
+</span>
+<span class="ltx_bibblock">Mdnet: A semantically and visually interpretable medical image
+diagnosis network.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">Proceedings of the IEEE Conference on Computer Vision and
+Pattern Recognition</em>, pages 6428–6436, 2017.
+
+</span>
+</li>
+      
+<li id="bib.bib6" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Vinyals et al. (2015)</span>
+<span class="ltx_bibblock">
+Oriol Vinyals, Alexander Toshev, Samy Bengio, and Dumitru Erhan.
+
+</span>
+<span class="ltx_bibblock">Show and tell: A neural image caption generator.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">Proceedings of the IEEE conference on computer vision and
+pattern recognition</em>, pages 3156–3164, 2015.
+
+</span>
+</li>
+      
+<li id="bib.bib7" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Fang et al. (2015)</span>
+<span class="ltx_bibblock">
+Hao Fang, Saurabh Gupta, Forrest Iandola, Rupesh K Srivastava, Li Deng, Piotr
+Dollár, Jianfeng Gao, Xiaodong He, Margaret Mitchell, John C Platt,
+et al.
+
+</span>
+<span class="ltx_bibblock">From captions to visual concepts and back.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">Proceedings of the IEEE conference on computer vision and
+pattern recognition</em>, pages 1473–1482, 2015.
+
+</span>
+</li>
+      
+<li id="bib.bib8" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Karpathy and Fei-Fei (2015)</span>
+<span class="ltx_bibblock">
+Andrej Karpathy and Li Fei-Fei.
+
+</span>
+<span class="ltx_bibblock">Deep visual-semantic alignments for generating image descriptions.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">Proceedings of the IEEE Conference on Computer Vision and
+Pattern Recognition</em>, pages 3128–3137, 2015.
+
+</span>
+</li>
+      
+<li id="bib.bib9" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Xu et al. (2015)</span>
+<span class="ltx_bibblock">
+Kelvin Xu, Jimmy Ba, Ryan Kiros, Kyunghyun Cho, Aaron Courville, Ruslan
+Salakhudinov, Rich Zemel, and Yoshua Bengio.
+
+</span>
+<span class="ltx_bibblock">Show, attend and tell: Neural image caption generation with visual
+attention.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">International Conference on Machine Learning</em>, pages
+2048–2057, 2015.
+
+</span>
+</li>
+      
+<li id="bib.bib10" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">You et al. (2016)</span>
+<span class="ltx_bibblock">
+Quanzeng You, Hailin Jin, Zhaowen Wang, Chen Fang, and Jiebo Luo.
+
+</span>
+<span class="ltx_bibblock">Image captioning with semantic attention.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">Proceedings of the IEEE Conference on Computer Vision and
+Pattern Recognition</em>, pages 4651–4659, 2016.
+
+</span>
+</li>
+      
+<li id="bib.bib11" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Krause et al. (2017)</span>
+<span class="ltx_bibblock">
+Jonathan Krause, Justin Johnson, Ranjay Krishna, and Li Fei-Fei.
+
+</span>
+<span class="ltx_bibblock">A hierarchical approach for generating descriptive image paragraphs.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">The IEEE Conference on Computer Vision and Pattern
+Recognition (CVPR)</em>, July 2017.
+
+</span>
+</li>
+      
+<li id="bib.bib12" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Liang et al. (2017)</span>
+<span class="ltx_bibblock">
+Xiaodan Liang, Zhiting Hu, Hao Zhang, Chuang Gan, and Eric P. Xing.
+
+</span>
+<span class="ltx_bibblock">Recurrent topic-transition gan for visual paragraph generation.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">The IEEE International Conference on Computer Vision
+(ICCV)</em>, Oct 2017.
+
+</span>
+</li>
+      
+<li id="bib.bib13" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Simonyan and Zisserman (2014)</span>
+<span class="ltx_bibblock">
+K. Simonyan and A. Zisserman.
+
+</span>
+<span class="ltx_bibblock">Very deep convolutional networks for large-scale image recognition.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">CoRR</em>, abs/1409.1556, 2014.
+
+</span>
+</li>
+      
+<li id="bib.bib14" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Ba et al. (2015)</span>
+<span class="ltx_bibblock">
+Jimmy Ba, Volodymyr Mnih, and Koray Kavukcuoglu.
+
+</span>
+<span class="ltx_bibblock">Multiple object recognition with visual attention.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">ICLR</em>, 2015.
+
+</span>
+</li>
+      
+<li id="bib.bib15" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Pascanu et al. (2014)</span>
+<span class="ltx_bibblock">
+Razvan Pascanu, Caglar Gulcehre, Kyunghyun Cho, and Yoshua Bengio.
+
+</span>
+<span class="ltx_bibblock">How to construct deep recurrent neural networks.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">ICLR</em>, 2014.
+
+</span>
+</li>
+      
+<li id="bib.bib16" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Demner-Fushman et al. (2015)</span>
+<span class="ltx_bibblock">
+Dina Demner-Fushman, Marc D Kohli, Marc B Rosenman, Sonya E Shooshan, Laritza
+Rodriguez, Sameer Antani, George R Thoma, and Clement J McDonald.
+
+</span>
+<span class="ltx_bibblock">Preparing a collection of radiology examinations for distribution and
+retrieval.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Journal of the American Medical Informatics Association</em>,
+23(2):304–310, 2015.
+
+</span>
+</li>
+      
+<li id="bib.bib17" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Donahue et al. (2015)</span>
+<span class="ltx_bibblock">
+Jeffrey Donahue, Lisa Anne Hendricks, Sergio Guadarrama, Marcus Rohrbach,
+Subhashini Venugopalan, Kate Saenko, and Trevor Darrell.
+
+</span>
+<span class="ltx_bibblock">Long-term recurrent convolutional networks for visual recognition and
+description.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">Proceedings of the IEEE conference on computer vision and
+pattern recognition</em>, pages 2625–2634, 2015.
+
+</span>
+</li>
+      
+<li id="bib.bib18" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Gong et al. (2013)</span>
+<span class="ltx_bibblock">
+Yunchao Gong, Yangqing Jia, Thomas Leung, Alexander Toshev, and Sergey Ioffe.
+
+</span>
+<span class="ltx_bibblock">Deep convolutional ranking for multilabel image annotation.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">ICLR</em>, 2013.
+
+</span>
+</li>
+      
+<li id="bib.bib19" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Guillaumin et al. (2009)</span>
+<span class="ltx_bibblock">
+Matthieu Guillaumin, Thomas Mensink, Jakob Verbeek, and Cordelia Schmid.
+
+</span>
+<span class="ltx_bibblock">Tagprop: Discriminative metric learning in nearest neighbor models
+for image auto-annotation.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">Computer Vision, 2009 IEEE 12th International Conference
+on</em>, pages 309–316. IEEE, 2009.
+
+</span>
+</li>
+      
+<li id="bib.bib20" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Kingma and Ba (2014)</span>
+<span class="ltx_bibblock">
+Diederik P Kingma and Jimmy Ba.
+
+</span>
+<span class="ltx_bibblock">Adam: A method for stochastic optimization.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">arXiv preprint arXiv:1412.6980</em>, 2014.
+
+</span>
+</li>
+      
+<li id="bib.bib21" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Papineni et al. (2002)</span>
+<span class="ltx_bibblock">
+Kishore Papineni, Salim Roukos, Todd Ward, and Wei-Jing Zhu.
+
+</span>
+<span class="ltx_bibblock">Bleu: a method for automatic evaluation of machine translation.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">Proceedings of the 40th annual meeting on association for
+computational linguistics</em>, pages 311–318. Association for Computational
+Linguistics, 2002.
+
+</span>
+</li>
+      
+<li id="bib.bib22" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Denkowski and Lavie (2014)</span>
+<span class="ltx_bibblock">
+Michael Denkowski and Alon Lavie.
+
+</span>
+<span class="ltx_bibblock">Meteor universal: Language specific translation evaluation for any
+target language.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">Proceedings of the ninth workshop on statistical machine
+translation</em>, pages 376–380, 2014.
+
+</span>
+</li>
+      
+<li id="bib.bib23" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Lin (2004)</span>
+<span class="ltx_bibblock">
+Chin-Yew Lin.
+
+</span>
+<span class="ltx_bibblock">Rouge: A package for automatic evaluation of summaries.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">Text summarization branches out: Proceedings of the ACL-04
+workshop</em>, volume 8. Barcelona, Spain, 2004.
+
+</span>
+</li>
+      
+<li id="bib.bib24" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Vedantam et al. (2015)</span>
+<span class="ltx_bibblock">
+Ramakrishna Vedantam, C Lawrence Zitnick, and Devi Parikh.
+
+</span>
+<span class="ltx_bibblock">Cider: Consensus-based image description evaluation.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">Proceedings of the IEEE conference on computer vision and
+pattern recognition</em>, pages 4566–4575, 2015.
+
+</span>
+</li>
+      
+<li id="bib.bib25" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Liu et al. (2015)</span>
+<span class="ltx_bibblock">
+Pengfei Liu, Xipeng Qiu, Xinchi Chen, Shiyu Wu, and Xuanjing Huang.
+
+</span>
+<span class="ltx_bibblock">Multi-timescale long short-term memory neural network for modelling
+sentences and documents.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">Proceedings of the 2015 conference on empirical methods in
+natural language processing</em>, pages 2326–2335, 2015.
+
+</span>
+</li>
+      
+<li id="bib.bib26" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Martin and Cundy (2018)</span>
+<span class="ltx_bibblock">
+Eric Martin and Chris Cundy.
+
+</span>
+<span class="ltx_bibblock">Parallelizing linear recurrent neural nets over sequence length.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">ICLR</em>, 2018.
+
+</span>
+</li>
+    
+</ul>
+</section>
+</article>
+</div>
+<footer class="ltx_page_footer">
+<div class="ltx_page_logo">Generated  on Thu Jun 11 14:54:04 2026 by <a href="http://dlmf.nist.gov/LaTeXML/" class="ltx_LaTeXML_logo"><span style="letter-spacing:-0.2em; margin-right:0.1em;">L<span class="ltx_font_smallcaps" style="position:relative; bottom:2.2pt;">a</span>T<span class="ltx_font_smallcaps" style="font-size:120%;position:relative; bottom:-0.2ex;">e</span></span><span style="font-size:90%; position:relative; bottom:-0.2ex;">XML</span><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAAOCAYAAAD5YeaVAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wKExQZLWTEaOUAAAAddEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIFRoZSBHSU1Q72QlbgAAAdpJREFUKM9tkL+L2nAARz9fPZNCKFapUn8kyI0e4iRHSR1Kb8ng0lJw6FYHFwv2LwhOpcWxTjeUunYqOmqd6hEoRDhtDWdA8ApRYsSUCDHNt5ul13vz4w0vWCgUnnEc975arX6ORqN3VqtVZbfbTQC4uEHANM3jSqXymFI6yWazP2KxWAXAL9zCUa1Wy2tXVxheKA9YNoR8Pt+aTqe4FVVVvz05O6MBhqUIBGk8Hn8HAOVy+T+XLJfLS4ZhTiRJgqIoVBRFIoric47jPnmeB1mW/9rr9ZpSSn3Lsmir1fJZlqWlUonKsvwWwD8ymc/nXwVBeLjf7xEKhdBut9Hr9WgmkyGEkJwsy5eHG5vN5g0AKIoCAEgkEkin0wQAfN9/cXPdheu6P33fBwB4ngcAcByHJpPJl+fn54mD3Gg0NrquXxeLRQAAwzAYj8cwTZPwPH9/sVg8PXweDAauqqr2cDjEer1GJBLBZDJBs9mE4zjwfZ85lAGg2+06hmGgXq+j3+/DsixYlgVN03a9Xu8jgCNCyIegIAgx13Vfd7vdu+FweG8YRkjXdWy329+dTgeSJD3ieZ7RNO0VAXAPwDEAO5VKndi2fWrb9jWl9Esul6PZbDY9Go1OZ7PZ9z/lyuD3OozU2wAAAABJRU5ErkJggg==" alt="Mascot Sammy"></a>
+</div></footer>
+</div>
+ <div class="col" id="R"><div class="lab">译（中文）</div><div class="ltx_page_content">
+<article class="ltx_document ltx_authors_1line">
+<h1 class="ltx_title ltx_title_document">医学影像报告的自动生成研究</h1>
+<div class="ltx_authors">
+<span class="ltx_creator ltx_role_author">
+<span class="ltx_personname">Baoyu Jing<sup class="ltx_sup"><math id="m1" class="ltx_Math" alttext="{\dagger}" display="inline"><mo>†</mo></math>*</sup>  Pengtao Xie<sup class="ltx_sup"><math id="m2" class="ltx_Math" alttext="{\dagger}" display="inline"><mo>†</mo></math>*</sup>  Eric P. Xing<sup class="ltx_sup"><math id="m3" class="ltx_Math" alttext="{\dagger}" display="inline"><mo>†</mo></math></sup>
+<br class="ltx_break"><sup class="ltx_sup"><math id="m4" class="ltx_Math" alttext="{\dagger}" display="inline"><mo>†</mo></math></sup>Petuum Inc, USA 
+<br class="ltx_break"><sup class="ltx_sup">*</sup>School of Computer Science, Carnegie Mellon University, USA
+<br class="ltx_break"><span class="ltx_text ltx_font_typewriter">{baoyu.jing, pengtao.xie, eric.xing}@petuum.com</span> 
+<br class="ltx_break">
+</span></span>
+</div>
+
+<div class="ltx_abstract">
+<h6 class="ltx_title ltx_title_abstract">Abstract</h6>
+    
+<p class="ltx_p">医学影像在临床诊疗中被广泛应用。对于经验不足的医师而言，撰写报告容易出错；而对于经验丰富的医师而言，撰写报告则耗时且枯燥。为解决上述问题，本文研究医学影像报告的自动生成。该任务面临若干挑战：第一，一份完整的报告包含多种异构形式的信息，如检查所见（findings）与关键词标签（tags）；第二，医学影像中的异常区域难以识别；第三，报告通常篇幅较长，包含多个句子。为应对这些挑战，本文：（1）构建了一个多任务学习框架，联合执行标签预测与段落生成；（2）提出一种协同注意力（co-attention）机制，以定位含异常的图像区域并为其生成对应描述；（3）设计一种分层长短期记忆网络（hierarchical LSTM），用于生成长段落。我们在两个公开数据集上验证了所提方法的有效性。</p>
+</div>
+<section id="S1" class="ltx_section">
+<h2 class="ltx_title ltx_title_section">
+<span class="ltx_tag ltx_tag_section">1 </span>引言</h2>
+
+<div id="S1.p1" class="ltx_para">
+<p class="ltx_p">医学影像（如放射学与病理学影像）在医院中被广泛用于肺炎、气胸等多种疾病的诊断与治疗。医学影像的判读与解释通常由专业医务人员完成。例如，放射学影像由放射科医师判读，其需撰写文字报告（图<a href="#S1.F1" title="Figure 1 ‣ 1 引言 ‣ 医学影像报告的自动生成研究" class="ltx_ref"><span class="ltx_text ltx_ref_tag">1</span></a>），对影像检查所涉人体各部位的发现进行叙述，具体说明各部位是否正常、异常或疑似异常。</p>
+</div>
+<figure id="S1.F1" class="ltx_figure"><img src="assets/1711.08195/x1.png" id="S1.F1.g1" class="ltx_graphics ltx_centering ltx_img_landscape" width="314" height="150" alt="Refer to caption">
+<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure">Figure 1: </span>一份典型胸部X线检查报告示例。在“印象”（impression）部分，放射科医师给出诊断结论；在“检查所见”（findings）部分，逐条列出针对影像检查所涉人体各部位的放射学观察结果；在“标签”（tags）部分，则列出代表检查所见关键信息的关键词，这些关键词由医学文本索引器（Medical Text Indexer, MTI）识别得出。</figcaption>
+</figure>
+<div id="S1.p2" class="ltx_para">
+<p class="ltx_p">对于经验较少的放射科医师与病理学医师（尤其是服务于医疗资源相对匮乏的农村地区的医师），撰写医学影像报告具有较高难度。例如，要准确判读一张胸部X线片，需具备以下能力<cite class="ltx_cite ltx_citemacro_cite">Delrue et al. (<a href="#bib.bib1" title="" class="ltx_ref">2011</a>)</cite>：（1）全面掌握胸廓正常解剖结构及胸部疾病基本生理知识；（2）掌握按固定模式分析影像的技能；（3）具备评估病灶随时间演变的能力；（4）熟悉患者的临床表现与病史；（5）了解影像结果与其他诊断结果（如实验室检查、心电图、肺功能检查）之间的相关性。</p>
+</div>
+<div id="S1.p3" class="ltx_para">
+<p class="ltx_p">对于经验丰富的放射科医师与病理学医师而言，撰写影像报告同样枯燥且耗时。在人口众多的国家（如中国），一名放射科医师每日需判读数百张放射学影像；将每张影像的检查所见录入计算机约需5–10分钟，占据其大部分工作时间。综上，无论对经验不足还是经验丰富的医务人员，撰写影像报告均属令人不悦的工作。</p>
+</div>
+<div id="S1.p4" class="ltx_para">
+<p class="ltx_p">这促使我们探究医学影像报告是否可实现自动自动生成。该任务需应对若干挑战：第一，一份完整的诊断报告由多种异构信息构成。如图<a href="#S1.F1" title="Figure 1 ‣ 1 引言 ‣ 医学影像报告的自动生成研究" class="ltx_ref"><span class="ltx_text ltx_ref_tag">1</span></a>所示，胸部X线报告包含单句形式的“印象”、段落形式的“检查所见”以及关键词列表形式的“标签”。在统一框架下生成此类异构信息在技术上极具挑战性。为此，我们构建了一个多任务学习框架：将标签预测建模为多标签分类任务，将长描述生成建模为文本生成任务。</p>
+</div>
+<div id="S1.p5" class="ltx_para">
+<p class="ltx_p">第二，如何准确定位图像区域并为其匹配恰当描述，亦具挑战性。我们通过引入协同注意力（co-attention）机制解决该问题，该机制同步关注图像与预测标签，并挖掘视觉信息与语义信息之间的协同效应。</p>
+</div>
+<div id="S1.p6" class="ltx_para">
+<p class="ltx_p">第三，影像报告中的描述通常篇幅较长，包含多个句子。生成此类长文本极具难度。不同于建模长词序列能力较弱的单层LSTM <cite class="ltx_cite ltx_citemacro_cite">Hochreiter and Schmidhuber (<a href="#bib.bib2" title="" class="ltx_ref">1997</a>)</cite>，我们利用报告固有的组合性结构，采用分层LSTM生成长文本。结合协同注意力机制，该分层LSTM首先生成高层级主题向量，再依据主题生成细粒度描述。</p>
+</div>
+<div id="S1.p7" class="ltx_para">
+<p class="ltx_p">总体而言，本文主要贡献如下：</p>
+<ul id="S1.I1" class="ltx_itemize">
+<li id="S1.I1.i1" class="ltx_item" style="list-style-type:none;">
+<span class="ltx_tag ltx_tag_item">•</span> 
+<div id="S1.I1.i1.p1" class="ltx_para">
+<p class="ltx_p">我们提出一种多任务学习框架，可同步预测关键词标签并生成文本描述。</p>
+</div>
+</li>
+<li id="S1.I1.i2" class="ltx_item" style="list-style-type:none;">
+<span class="ltx_tag ltx_tag_item">•</span> 
+<div id="S1.I1.i2.p1" class="ltx_para">
+<p class="ltx_p">我们引入一种协同注意力机制，用于定位图像中的子区域并生成对应描述。</p>
+</div>
+</li>
+<li id="S1.I1.i3" class="ltx_item" style="list-style-type:none;">
+<span class="ltx_tag ltx_tag_item">•</span> 
+<div id="S1.I1.i3.p1" class="ltx_para">
+<p class="ltx_p">我们构建了一种分层LSTM模型，用于生成长段落。</p>
+</div>
+</li>
+<li id="S1.I1.i4" class="ltx_item" style="list-style-type:none;">
+<span class="ltx_tag ltx_tag_item">•</span> 
+<div id="S1.I1.i4.p1" class="ltx_para">
+<p class="ltx_p">我们开展了大量实验，验证了所提方法的有效性。</p>
+</div>
+</li>
+</ul>
+</div>
+<div id="S1.p8" class="ltx_para">
+<p class="ltx_p">本文其余部分组织如下：第<a href="#S2" title="2 相关工作 ‣ 医学影像报告的自动生成研究" class="ltx_ref"><span class="ltx_text ltx_ref_tag">2</span></a>节综述相关工作；第<a href="#S3" title="3 方法 ‣ 医学影像报告的自动生成研究" class="ltx_ref"><span class="ltx_text ltx_ref_tag">3</span></a>节介绍所提方法；第<a href="#S4" title="4 实验 ‣ 医学影像报告的自动生成研究" class="ltx_ref"><span class="ltx_text ltx_ref_tag">4</span></a>节呈现实验结果；第<a href="#S5" title="5 结论 ‣ 医学影像报告的自动生成研究" class="ltx_ref"><span class="ltx_text ltx_ref_tag">5</span></a>节总结全文。</p>
+</div>
+<figure id="S1.F2" class="ltx_figure"><img src="assets/1711.08195/x2.png" id="S1.F2.g1" class="ltx_graphics ltx_centering ltx_img_landscape" width="628" height="141" alt="Refer to caption">
+<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure">Figure 2: </span>所提模型示意图。MLC表示多标签分类网络；语义特征为预测标签的词嵌入向量；加粗显示的标签“钙化肉芽肿”（calcified granuloma）与“肉芽肿”（granuloma）由协同注意力网络所关注。</figcaption>
+</figure>
+</section>
+<section id="S2" class="ltx_section">
+<h2 class="ltx_title ltx_title_section">
+<span class="ltx_tag ltx_tag_section">2 </span>相关工作</h2>
+
+<section id="S2.SS0.SSS0.Px1" class="ltx_paragraph">
+<h5 class="ltx_title ltx_title_paragraph">医学影像的文本标注</h5>
+
+<div id="S2.SS0.SSS0.Px1.p1" class="ltx_para">
+<p class="ltx_p">已有若干研究致力于为医学影像附加“文本”信息。在这些研究设定中，目标“文本”均为完全结构化或半结构化形式（如标签、模板），而非自然语言文本。<cite class="ltx_cite ltx_citemacro_citet">Kisilev et al. (<a href="#bib.bib3" title="" class="ltx_ref">2015</a>)</cite>构建了一条流水线以预测医学影像的属性；<cite class="ltx_cite ltx_citemacro_citet">Shin et al. (<a href="#bib.bib4" title="" class="ltx_ref">2016</a>)</cite>采用基于CNN-RNN的框架预测胸部X线影像的标签（如病灶位置、严重程度）；与本工作最接近的是<cite class="ltx_cite ltx_citemacro_cite">Zhang et al. (<a href="#bib.bib5" title="" class="ltx_ref">2017</a>)</cite>近期提出的半结构化病理报告生成方法，其内容被限定于5个预定义主题。</p>
+</div>
+<div id="S2.SS0.SSS0.Px1.p2" class="ltx_para">
+<p class="ltx_p">然而，在实际临床场景中，不同医师通常具有不同的书写习惯，且不同X线影像所呈现的异常亦各不相同。因此，收集半结构化报告实用性较低，构建能从自然语言报告中学习的模型至关重要。据我们所知，本工作是首个面向医师撰写的真正自然语言报告（通常篇幅长、涵盖主题广）的生成研究。</p>
+</div>
+</section>
+<section id="S2.SS0.SSS0.Px2" class="ltx_paragraph">
+<h5 class="ltx_title ltx_title_paragraph">基于深度学习的图像描述生成</h5>
+
+<div id="S2.SS0.SSS0.Px2.p1" class="ltx_para">
+<p class="ltx_p">图像描述生成（image captioning）旨在为给定图像自动生成文本描述。当前主流图像描述生成模型大多基于CNN-RNN框架<cite class="ltx_cite ltx_citemacro_cite">Vinyals et al. (<a href="#bib.bib6" title="" class="ltx_ref">2015</a>); Fang et al. (<a href="#bib.bib7" title="" class="ltx_ref">2015</a>); Karpathy and Fei-Fei (<a href="#bib.bib8" title="" class="ltx_ref">2015</a>); Xu et al. (<a href="#bib.bib9" title="" class="ltx_ref">2015</a>); You et al. (<a href="#bib.bib10" title="" class="ltx_ref">2016</a>); Krause et al. (<a href="#bib.bib11" title="" class="ltx_ref">2017</a>)</cite>。</p>
+</div>
+<div id="S2.SS0.SSS0.Px2.p2" class="ltx_para">
+<p class="ltx_p">近年来，注意力机制已被证明对图像描述生成具有显著效用<cite class="ltx_cite ltx_citemacro_cite">Xu et al. (<a href="#bib.bib9" title="" class="ltx_ref">2015</a>); You et al. (<a href="#bib.bib10" title="" class="ltx_ref">2016</a>)</cite>。<cite class="ltx_cite ltx_citemacro_citet">Xu et al. (<a href="#bib.bib9" title="" class="ltx_ref">2015</a>)</cite>在CNN中间层提取的图像特征上引入空间-视觉注意力机制；<cite class="ltx_cite ltx_citemacro_citet">You et al. (<a href="#bib.bib10" title="" class="ltx_ref">2016</a>)</cite>则在给定图像的标签上提出语义注意力机制。为更充分融合视觉特征与语义标签，我们提出一种面向报告生成的协同注意力机制。</p>
+</div>
+<div id="S2.SS0.SSS0.Px2.p3" class="ltx_para">
+<p class="ltx_p">不同于仅生成单句图像描述的方法，<cite class="ltx_cite ltx_citemacro_citet">Krause et al. (<a href="#bib.bib11" title="" class="ltx_ref">2017</a>)</cite>与<cite class="ltx_cite ltx_citemacro_citet">Liang et al. (<a href="#bib.bib12" title="" class="ltx_ref">2017</a>)</cite>采用分层LSTM生成段落式描述。我们的方法同样采用分层LSTM进行段落生成，但与<cite class="ltx_cite ltx_citemacro_citet">Krause et al. (<a href="#bib.bib11" title="" class="ltx_ref">2017</a>)</cite>不同，我们利用协同注意力网络生成主题向量。</p>
+</div>
+</section>
+</section>
+<section id="S3" class="ltx_section">
+<h2 class="ltx_title ltx_title_section">
+<span class="ltx_tag ltx_tag_section">3 </span>方法</h2>
+
+<section id="S3.SS1" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">3.1 </span>总体框架</h3>
+
+<div id="S3.SS1.p1" class="ltx_para">
+<p class="ltx_p">如图<a href="#S1.F1" title="Figure 1 ‣ 1 引言 ‣ 医学影像报告的自动生成研究" class="ltx_ref"><span class="ltx_text ltx_ref_tag">1</span></a>所示，一份完整的医学影像诊断报告由文本描述（长段落）与关键词标签列表共同构成。本文提出一种融合协同注意力机制的多任务分层模型，以自动预测关键词并生成长段落。给定一幅被划分为若干区域的图像，我们首先利用卷积神经网络（CNN）学习各图像块的视觉特征；随后将这些视觉特征输入多标签分类（MLC）网络以预测相关标签。在标签词表中，每个标签均由一个词嵌入向量表示；针对特定图像所预测的标签，其对应的词嵌入向量即构成该图像的语义特征。接着，将视觉特征与语义特征共同输入协同注意力模型，生成一个同时融合该图像视觉与语义信息的上下文向量。至此，编码过程完成。</p>
+</div>
+<div id="S3.SS1.p2" class="ltx_para">
+<p class="ltx_p">随后，解码过程从该上下文向量出发，生成文本描述。医学影像描述通常包含多个句子，且每个句子聚焦于某一特定主题。本模型充分利用该组合式结构，以分层方式生成报告：首先生成一系列高层级主题向量（分别表征各待生成句子），再由每个主题向量生成对应句子。具体而言，上下文向量作为句子级LSTM（sentence LSTM）的输入，经若干步展开后，每一步输出一个主题向量；该主题向量表征待生成句子的语义。给定一个主题向量，词级LSTM（word LSTM）以其为输入，生成一串词语构成完整句子；句子级LSTM控制展开过程的终止。</p>
+</div>
+</section>
+<section id="S3.SS2" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">3.2 </span>标签预测</h3>
+
+<div id="S3.SS2.p1" class="ltx_para">
+<p class="ltx_p">本模型的首要任务是预测给定图像的标签。我们将标签预测任务视为一个多标签分类（Multi-Label Classification, MLC）任务。具体而言，给定一幅图像<math id="S3.SS2.p1.m1" class="ltx_Math" alttext="I" display="inline"><mi>I</mi></math>，我们首先从卷积神经网络（CNN）某一中间层中提取其特征<math id="S3.SS2.p1.m2" class="ltx_Math" alttext="\{\mathbf{v}_{n}\}_{n=1}^{N}\in\mathbb{R}^{D}" display="inline"><mrow><msubsup><mrow><mo stretchy="false">{</mo><msub><mi>𝐯</mi><mi>n</mi></msub><mo stretchy="false">}</mo></mrow><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></msubsup><mo>∈</mo><msup><mi>ℝ</mi><mi>D</mi></msup></mrow></math>，再将<math id="S3.SS2.p1.m3" class="ltx_Math" alttext="\{\mathbf{v}_{n}\}_{n=1}^{N}" display="inline"><msubsup><mrow><mo stretchy="false">{</mo><msub><mi>𝐯</mi><mi>n</mi></msub><mo stretchy="false">}</mo></mrow><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></msubsup></math>输入至一个多标签分类网络，以生成覆盖全部<math id="S3.SS2.p1.m4" class="ltx_Math" alttext="L" display="inline"><mi>L</mi></math>个标签的概率分布：</p>
+</div>
+<div id="S3.SS2.p2" class="ltx_para">
+<table id="S3.E1" class="ltx_equation ltx_eqn_table">
+
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math id="S3.E1.m1" class="ltx_Math" alttext="\mathbf{p}_{\mathbf{l},pred}(\mathbf{l}_{i}=1|\{\mathbf{v}_{n}\}_{n=1}^{N})%
+\propto\exp(\text{MLC}_{i}(\{\mathbf{v}_{n}\}_{n=1}^{N}))" display="block"><mrow><mrow><msub><mi>𝐩</mi><mrow><mi>𝐥</mi><mo>,</mo><mrow><mi>p</mi><mo>⁢</mo><mi>r</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>d</mi></mrow></mrow></msub><mo>⁢</mo><mrow><mo stretchy="false">(</mo><mrow><msub><mi>𝐥</mi><mi>i</mi></msub><mo>=</mo><mrow><mn>1</mn><mo fence="false">|</mo><msubsup><mrow><mo stretchy="false">{</mo><msub><mi>𝐯</mi><mi>n</mi></msub><mo stretchy="false">}</mo></mrow><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></msubsup></mrow></mrow><mo stretchy="false">)</mo></mrow></mrow><mo>∝</mo><mrow><mi>exp</mi><mo>⁡</mo><mrow><mo stretchy="false">(</mo><mrow><msub><mtext>MLC</mtext><mi>i</mi></msub><mo>⁢</mo><mrow><mo stretchy="false">(</mo><msubsup><mrow><mo stretchy="false">{</mo><msub><mi>𝐯</mi><mi>n</mi></msub><mo stretchy="false">}</mo></mrow><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></msubsup><mo stretchy="false">)</mo></mrow></mrow><mo stretchy="false">)</mo></mrow></mrow></mrow></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td rowspan="1" class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right"><span class="ltx_tag ltx_tag_equation ltx_align_right">(1)</span></td>
+</tr></tbody>
+</table>
+</div>
+<div id="S3.SS2.p3" class="ltx_para ltx_noindent">
+<p class="ltx_p">其中<math id="S3.SS2.p3.m1" class="ltx_Math" alttext="\mathbf{l}\in\mathbb{R}^{L}" display="inline"><mrow><mi>𝐥</mi><mo>∈</mo><msup><mi>ℝ</mi><mi>L</mi></msup></mrow></math>为标签向量，<math id="S3.SS2.p3.m2" class="ltx_Math" alttext="\mathbf{l}_{i}=1/0" display="inline"><mrow><msub><mi>𝐥</mi><mi>i</mi></msub><mo>=</mo><mrow><mn>1</mn><mo>/</mo><mn>0</mn></mrow></mrow></math>分别表示第<math id="S3.SS2.p3.m3" class="ltx_Math" alttext="i" display="inline"><mi>i</mi></math>个标签的存在与缺失，MLCi表示MLC网络的第<math id="S3.SS2.p3.m5" class="ltx_Math" alttext="i" display="inline"><mi>i</mi></math>个输出。</p>
+</div>
+<div id="S3.SS2.p4" class="ltx_para">
+<p class="ltx_p">为简化实现，我们从VGG-19模型<cite class="ltx_cite ltx_citemacro_cite">Simonyan and Zisserman (<a href="#bib.bib13" title="" class="ltx_ref">2014</a>)</cite>的最后一个卷积层中提取视觉特征，并利用VGG-19的最后两个全连接层执行多标签分类。</p>
+</div>
+<div id="S3.SS2.p5" class="ltx_para">
+<p class="ltx_p">最终，概率最高的<math id="S3.SS2.p5.m1" class="ltx_Math" alttext="M" display="inline"><mi>M</mi></math>个标签的嵌入向量<math id="S3.SS2.p5.m2" class="ltx_Math" alttext="\{\mathbf{a}_{m}\}_{m=1}^{M}\in\mathbb{R}^{E}" display="inline"><mrow><msubsup><mrow><mo stretchy="false">{</mo><msub><mi>𝐚</mi><mi>m</mi></msub><mo stretchy="false">}</mo></mrow><mrow><mi>m</mi><mo>=</mo><mn>1</mn></mrow><mi>M</mi></msubsup><mo>∈</mo><msup><mi>ℝ</mi><mi>E</mi></msup></mrow></math>被用作主题生成的语义特征。</p>
+</div>
+</section>
+<section id="S3.SS3" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">3.3 </span>协同注意力机制</h3>
+
+<div id="S3.SS3.p1" class="ltx_para">
+<p class="ltx_p">已有研究表明，仅依赖视觉注意力即可在目标定位<cite class="ltx_cite ltx_citemacro_cite">Ba et al. (<a href="#bib.bib14" title="" class="ltx_ref">2015</a>)</cite>及辅助图像描述生成<cite class="ltx_cite ltx_citemacro_cite">Xu et al. (<a href="#bib.bib9" title="" class="ltx_ref">2015</a>)</cite>方面取得较好性能。然而，视觉注意力无法提供充分的高层语义信息。例如，若仅关注胸部X光片右下区域（图<a href="#S1.F1" title="Figure 1 ‣ 1 引言 ‣ 医学影像报告的自动生成研究" class="ltx_ref"><span class="ltx_text ltx_ref_tag">1</span></a>），而忽略其他区域，则可能无法识别所观察对象，更遑论检测异常征象。相比之下，标签始终可提供所需的高层语义信息。为此，我们提出一种协同注意力机制（co-attention mechanism），使其能够同时对视觉模态与语义模态进行注意力建模。</p>
+</div>
+<div id="S3.SS3.p2" class="ltx_para">
+<p class="ltx_p">在句子级长短期记忆网络（Sentence LSTM）的第<math id="S3.SS3.p2.m1" class="ltx_Math" alttext="s" display="inline"><mi>s</mi></math>个时间步，联合上下文向量<math id="S3.SS3.p2.m2" class="ltx_Math" alttext="\mathbf{ctx}^{(s)}\in\mathbb{R}^{C}" display="inline"><mrow><msup><mi>𝐜𝐭𝐱</mi><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msup><mo>∈</mo><msup><mi>ℝ</mi><mi>C</mi></msup></mrow></math>由协同注意力网络<math id="S3.SS3.p2.m3" class="ltx_Math" alttext="f_{co_{att}}" display="inline"><msub><mi>f</mi><mrow><mi>c</mi><mo>⁢</mo><msub><mi>o</mi><mrow><mi>a</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>t</mi></mrow></msub></mrow></msub></math>(<math id="S3.SS3.p2.m4" class="ltx_Math" alttext="\{\mathbf{v}_{n}\}_{n=1}^{N}" display="inline"><msubsup><mrow><mo stretchy="false">{</mo><msub><mi>𝐯</mi><mi>n</mi></msub><mo stretchy="false">}</mo></mrow><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></msubsup></math>, <math id="S3.SS3.p2.m5" class="ltx_Math" alttext="\{\mathbf{a}_{m}\}_{m=1}^{M}" display="inline"><msubsup><mrow><mo stretchy="false">{</mo><msub><mi>𝐚</mi><mi>m</mi></msub><mo stretchy="false">}</mo></mrow><mrow><mi>m</mi><mo>=</mo><mn>1</mn></mrow><mi>M</mi></msubsup></math>, <math id="S3.SS3.p2.m6" class="ltx_Math" alttext="\mathbf{h}_{sent}^{(s-1)}" display="inline"><msubsup><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mrow><mi>s</mi><mo>−</mo><mn>1</mn></mrow><mo stretchy="false">)</mo></mrow></msubsup></math>)生成，其中<math id="S3.SS3.p2.m7" class="ltx_Math" alttext="\mathbf{h}_{sent}^{(s-1)}\in\mathbb{R}^{H}" display="inline"><mrow><msubsup><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mrow><mi>s</mi><mo>−</mo><mn>1</mn></mrow><mo stretchy="false">)</mo></mrow></msubsup><mo>∈</mo><msup><mi>ℝ</mi><mi>H</mi></msup></mrow></math>为Sentence LSTM在第<math id="S3.SS3.p2.m8" class="ltx_Math" alttext="s-1" display="inline"><mrow><mi>s</mi><mo>−</mo><mn>1</mn></mrow></math>个时间步的隐藏状态。该协同注意力网络<math id="S3.SS3.p2.m9" class="ltx_Math" alttext="f_{co_{att}}" display="inline"><msub><mi>f</mi><mrow><mi>c</mi><mo>⁢</mo><msub><mi>o</mi><mrow><mi>a</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>t</mi></mrow></msub></mrow></msub></math>采用单层前馈网络，分别对输入图像特征与标签计算软性视觉注意力（soft visual attention）和软性语义注意力（soft semantic attention）：</p>
+</div>
+<div id="S3.SS3.p3" class="ltx_para">
+<table id="S5.EGx1" class="ltx_equationgroup ltx_eqn_align ltx_eqn_table">
+
+<tbody id="S3.E2"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><math id="S3.E2.m1" class="ltx_Math" alttext="\displaystyle\alpha_{\mathbf{v},n}" display="inline"><msub><mi>α</mi><mrow><mi>𝐯</mi><mo>,</mo><mi>n</mi></mrow></msub></math></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><math id="S3.E2.m2" class="ltx_Math" alttext="\displaystyle\propto\exp(\mathbf{W}_{\mathbf{v}_{att}}\tanh(\mathbf{W}_{%
+\mathbf{v}}\mathbf{v}_{n}+\mathbf{W}_{\mathbf{v},\mathbf{h}}\mathbf{h}_{sent}^%
+{(s-1)}))" display="inline"><mrow><mi></mi><mo>∝</mo><mrow><mi>exp</mi><mo>⁡</mo><mrow><mo stretchy="false">(</mo><mrow><msub><mi>𝐖</mi><msub><mi>𝐯</mi><mrow><mi>a</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>t</mi></mrow></msub></msub><mo lspace="0.167em">⁢</mo><mrow><mi>tanh</mi><mo>⁡</mo><mrow><mo stretchy="false">(</mo><mrow><mrow><msub><mi>𝐖</mi><mi>𝐯</mi></msub><mo>⁢</mo><msub><mi>𝐯</mi><mi>n</mi></msub></mrow><mo>+</mo><mrow><msub><mi>𝐖</mi><mrow><mi>𝐯</mi><mo>,</mo><mi>𝐡</mi></mrow></msub><mo>⁢</mo><msubsup><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mrow><mi>s</mi><mo>−</mo><mn>1</mn></mrow><mo stretchy="false">)</mo></mrow></msubsup></mrow></mrow><mo stretchy="false">)</mo></mrow></mrow></mrow><mo stretchy="false">)</mo></mrow></mrow></mrow></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td rowspan="1" class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right"><span class="ltx_tag ltx_tag_equation ltx_align_right">(2)</span></td>
+</tr></tbody>
+<tbody id="S3.E3"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><math id="S3.E3.m1" class="ltx_Math" alttext="\displaystyle\alpha_{\mathbf{a},m}" display="inline"><msub><mi>α</mi><mrow><mi>𝐚</mi><mo>,</mo><mi>m</mi></mrow></msub></math></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><math id="S3.E3.m2" class="ltx_Math" alttext="\displaystyle\propto\exp(\mathbf{W}_{\mathbf{a}_{att}}\tanh(\mathbf{W}_{%
+\mathbf{a}}\mathbf{a}_{m}+\mathbf{W}_{\mathbf{a},\mathbf{h}}\mathbf{h}_{sent}^%
+{(s-1)}))" display="inline"><mrow><mi></mi><mo>∝</mo><mrow><mi>exp</mi><mo>⁡</mo><mrow><mo stretchy="false">(</mo><mrow><msub><mi>𝐖</mi><msub><mi>𝐚</mi><mrow><mi>a</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>t</mi></mrow></msub></msub><mo lspace="0.167em">⁢</mo><mrow><mi>tanh</mi><mo>⁡</mo><mrow><mo stretchy="false">(</mo><mrow><mrow><msub><mi>𝐖</mi><mi>𝐚</mi></msub><mo>⁢</mo><msub><mi>𝐚</mi><mi>m</mi></msub></mrow><mo>+</mo><mrow><msub><mi>𝐖</mi><mrow><mi>𝐚</mi><mo>,</mo><mi>𝐡</mi></mrow></msub><mo>⁢</mo><msubsup><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mrow><mi>s</mi><mo>−</mo><mn>1</mn></mrow><mo stretchy="false">)</mo></mrow></msubsup></mrow></mrow><mo stretchy="false">)</mo></mrow></mrow></mrow><mo stretchy="false">)</mo></mrow></mrow></mrow></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td rowspan="1" class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right"><span class="ltx_tag ltx_tag_equation ltx_align_right">(3)</span></td>
+</tr></tbody>
+</table>
+</div>
+<div id="S3.SS3.p4" class="ltx_para ltx_noindent">
+<p class="ltx_p">其中<math id="S3.SS3.p4.m1" class="ltx_Math" alttext="\mathbf{W}_{\mathbf{v}}" display="inline"><msub><mi>𝐖</mi><mi>𝐯</mi></msub></math>、<math id="S3.SS3.p4.m2" class="ltx_Math" alttext="\mathbf{W}_{\mathbf{v},\mathbf{h}}" display="inline"><msub><mi>𝐖</mi><mrow><mi>𝐯</mi><mo>,</mo><mi>𝐡</mi></mrow></msub></math>与<math id="S3.SS3.p4.m3" class="ltx_Math" alttext="\mathbf{W}_{\mathbf{v}_{att}}" display="inline"><msub><mi>𝐖</mi><msub><mi>𝐯</mi><mrow><mi>a</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>t</mi></mrow></msub></msub></math>为视觉注意力网络的参数矩阵；<math id="S3.SS3.p4.m4" class="ltx_Math" alttext="\mathbf{W}_{\mathbf{a}}" display="inline"><msub><mi>𝐖</mi><mi>𝐚</mi></msub></math>、<math id="S3.SS3.p4.m5" class="ltx_Math" alttext="\mathbf{W}_{\mathbf{a},\mathbf{h}}" display="inline"><msub><mi>𝐖</mi><mrow><mi>𝐚</mi><mo>,</mo><mi>𝐡</mi></mrow></msub></math>与<math id="S3.SS3.p4.m6" class="ltx_Math" alttext="\mathbf{W}_{\mathbf{a}_{att}}" display="inline"><msub><mi>𝐖</mi><msub><mi>𝐚</mi><mrow><mi>a</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>t</mi></mrow></msub></msub></math>为语义注意力网络的参数矩阵。</p>
+</div>
+<div id="S3.SS3.p5" class="ltx_para">
+<p class="ltx_p">视觉上下文向量与语义上下文向量分别按如下方式计算：</p>
+</div>
+<div id="S3.SS3.p6" class="ltx_para">
+<table id="S3.Ex1" class="ltx_equation ltx_eqn_table">
+
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math id="S3.Ex1.m1" class="ltx_Math" alttext="\mathbf{v}_{att}^{(s)}=\sum_{n=1}^{N}\alpha_{\mathbf{v},n}\mathbf{v}_{n},\quad%
+\mathbf{a}_{att}^{(s)}=\sum_{m=1}^{M}\alpha_{\mathbf{a},m}\mathbf{a}_{m}." display="block"><mrow><mrow><mrow><msubsup><mi>𝐯</mi><mrow><mi>a</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msubsup><mo rspace="0.111em">=</mo><mrow><munderover><mo movablelimits="false">∑</mo><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow><mi>N</mi></munderover><mrow><msub><mi>α</mi><mrow><mi>𝐯</mi><mo>,</mo><mi>n</mi></mrow></msub><mo>⁢</mo><msub><mi>𝐯</mi><mi>n</mi></msub></mrow></mrow></mrow><mo rspace="1.167em">,</mo><mrow><msubsup><mi>𝐚</mi><mrow><mi>a</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msubsup><mo rspace="0.111em">=</mo><mrow><munderover><mo movablelimits="false">∑</mo><mrow><mi>m</mi><mo>=</mo><mn>1</mn></mrow><mi>M</mi></munderover><mrow><msub><mi>α</mi><mrow><mi>𝐚</mi><mo>,</mo><mi>m</mi></mrow></msub><mo>⁢</mo><msub><mi>𝐚</mi><mi>m</mi></msub></mrow></mrow></mrow></mrow><mo lspace="0em">.</mo></mrow></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+</div>
+<div id="S3.SS3.p7" class="ltx_para">
+<p class="ltx_p">融合视觉与语义上下文向量的方式多种多样，例如拼接（concatenation）或逐元素运算（element-wise operations）。本文首先将这两个向量拼接为<math id="S3.SS3.p7.m1" class="ltx_Math" alttext="[\mathbf{v}_{att}^{(s)};\mathbf{a}_{att}^{(s)}]" display="inline"><mrow><mo stretchy="false">[</mo><msubsup><mi>𝐯</mi><mrow><mi>a</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msubsup><mo>;</mo><msubsup><mi>𝐚</mi><mrow><mi>a</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msubsup><mo stretchy="false">]</mo></mrow></math>，再经由一个全连接层<math id="S3.SS3.p7.m2" class="ltx_Math" alttext="\mathbf{W}_{fc}" display="inline"><msub><mi>𝐖</mi><mrow><mi>f</mi><mo>⁢</mo><mi>c</mi></mrow></msub></math>得到联合上下文向量：</p>
+</div>
+<div id="S3.SS3.p8" class="ltx_para">
+<table id="S3.E4" class="ltx_equation ltx_eqn_table">
+
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math id="S3.E4.m1" class="ltx_Math" alttext="\mathbf{ctx}^{(s)}=\mathbf{W}_{fc}[\mathbf{v}_{att}^{(s)};\mathbf{a}_{att}^{(s%
+)}]." display="block"><mrow><mrow><msup><mi>𝐜𝐭𝐱</mi><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msup><mo>=</mo><mrow><msub><mi>𝐖</mi><mrow><mi>f</mi><mo>⁢</mo><mi>c</mi></mrow></msub><mo>⁢</mo><mrow><mo stretchy="false">[</mo><msubsup><mi>𝐯</mi><mrow><mi>a</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msubsup><mo>;</mo><msubsup><mi>𝐚</mi><mrow><mi>a</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msubsup><mo stretchy="false">]</mo></mrow></mrow></mrow><mo lspace="0em">.</mo></mrow></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td rowspan="1" class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right"><span class="ltx_tag ltx_tag_equation ltx_align_right">(4)</span></td>
+</tr></tbody>
+</table>
+</div>
+</section>
+<section id="S3.SS4" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">3.4 </span>句子级LSTM</h3>
+
+<div id="S3.SS4.p1" class="ltx_para">
+<p class="ltx_p">句子级LSTM为单层LSTM，以联合上下文向量<math id="S3.SS4.p1.m1" class="ltx_Math" alttext="\mathbf{ctx}\in\mathbb{R}^{C}" display="inline"><mrow><mi>𝐜𝐭𝐱</mi><mo>∈</mo><msup><mi>ℝ</mi><mi>C</mi></msup></mrow></math>作为输入，通过主题生成器（topic generator）生成供词级LSTM使用的主题向量<math id="S3.SS4.p1.m2" class="ltx_Math" alttext="\mathbf{t}\in\mathbb{R}^{K}" display="inline"><mrow><mi>𝐭</mi><mo>∈</mo><msup><mi>ℝ</mi><mi>K</mi></msup></mrow></math>，并借助停止控制组件（stop control component）判定是否继续或终止描述生成。</p>
+</div>
+<section id="S3.SS4.SSS0.Px1" class="ltx_paragraph">
+<h5 class="ltx_title ltx_title_paragraph">主题生成器</h5>
+
+<div id="S3.SS4.SSS0.Px1.p1" class="ltx_para">
+<p class="ltx_p">我们采用深度输出层（deep output layer）<cite class="ltx_cite ltx_citemacro_cite">Pascanu et al. (<a href="#bib.bib15" title="" class="ltx_ref">2014</a>)</cite>强化主题向量<math id="S3.SS4.SSS0.Px1.p1.m1" class="ltx_Math" alttext="\mathbf{t}^{(s)}" display="inline"><msup><mi>𝐭</mi><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msup></math>中的上下文信息，方法是将当前步的隐藏状态<math id="S3.SS4.SSS0.Px1.p1.m2" class="ltx_Math" alttext="\mathbf{h}_{sent}^{(s)}" display="inline"><msubsup><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msubsup></math>与联合上下文向量<math id="S3.SS4.SSS0.Px1.p1.m3" class="ltx_Math" alttext="\mathbf{ctx}^{(s)}" display="inline"><msup><mi>𝐜𝐭𝐱</mi><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msup></math>进行组合：</p>
+<table id="S3.E5" class="ltx_equation ltx_eqn_table">
+
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math id="S3.E5.m1" class="ltx_Math" alttext="\mathbf{t}^{(s)}=\tanh(\mathbf{W}_{\mathbf{t},\mathbf{h}_{sent}}\mathbf{h}_{%
+sent}^{(s)}+\mathbf{W}_{\mathbf{t},\mathbf{ctx}}\mathbf{ctx}^{(s)})" display="block"><mrow><msup><mi>𝐭</mi><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msup><mo>=</mo><mrow><mi>tanh</mi><mo>⁡</mo><mrow><mo stretchy="false">(</mo><mrow><mrow><msub><mi>𝐖</mi><mrow><mi>𝐭</mi><mo>,</mo><msub><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow></msub></mrow></msub><mo>⁢</mo><msubsup><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msubsup></mrow><mo>+</mo><mrow><msub><mi>𝐖</mi><mrow><mi>𝐭</mi><mo>,</mo><mi>𝐜𝐭𝐱</mi></mrow></msub><mo>⁢</mo><msup><mi>𝐜𝐭𝐱</mi><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msup></mrow></mrow><mo stretchy="false">)</mo></mrow></mrow></mrow></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td rowspan="1" class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right"><span class="ltx_tag ltx_tag_equation ltx_align_right">(5)</span></td>
+</tr></tbody>
+</table>
+</div>
+<div id="S3.SS4.SSS0.Px1.p2" class="ltx_para ltx_noindent">
+<p class="ltx_p">其中<math id="S3.SS4.SSS0.Px1.p2.m1" class="ltx_Math" alttext="\mathbf{W}_{\mathbf{t},\mathbf{h}_{sent}}" display="inline"><msub><mi>𝐖</mi><mrow><mi>𝐭</mi><mo>,</mo><msub><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow></msub></mrow></msub></math>与<math id="S3.SS4.SSS0.Px1.p2.m2" class="ltx_Math" alttext="\mathbf{W}_{\mathbf{t},\mathbf{ctx}}" display="inline"><msub><mi>𝐖</mi><mrow><mi>𝐭</mi><mo>,</mo><mi>𝐜𝐭𝐱</mi></mrow></msub></math>为权重参数。</p>
+</div>
+</section>
+<section id="S3.SS4.SSS0.Px2" class="ltx_paragraph">
+<h5 class="ltx_title ltx_title_paragraph">停止控制</h5>
+
+<div id="S3.SS4.SSS0.Px2.p1" class="ltx_para">
+<p class="ltx_p">我们亦采用深度输出层控制句子级LSTM的生成延续性。该层以先前及当前隐藏状态<math id="S3.SS4.SSS0.Px2.p1.m1" class="ltx_Math" alttext="\mathbf{h}_{sent}^{(s-1)}" display="inline"><msubsup><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mrow><mi>s</mi><mo>−</mo><mn>1</mn></mrow><mo stretchy="false">)</mo></mrow></msubsup></math>、<math id="S3.SS4.SSS0.Px2.p1.m2" class="ltx_Math" alttext="\mathbf{h}_{sent}^{(s)}" display="inline"><msubsup><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msubsup></math>为输入，输出关于{STOP=1, CONTINUE=0}的分布：</p>
+</div>
+<div id="S3.SS4.SSS0.Px2.p2" class="ltx_para">
+<table id="S3.E6" class="ltx_equation ltx_eqn_table">
+
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math id="S3.E6.m1" class="ltx_Math" alttext="\begin{split}&amp;p(STOP|\mathbf{h}_{sent}^{(s-1)},\mathbf{h}_{sent}^{(s)})\propto%
+\\
+&amp;\exp\{\mathbf{W}_{stop}\tanh(\mathbf{W}_{stop,s-1}\mathbf{h}_{sent}^{(s-1)}+%
+\mathbf{W}_{stop,s}\mathbf{h}_{sent}^{(s)})\}\end{split}" display="block"><mtable columnspacing="0pt" displaystyle="true" rowspacing="0pt"><mtr><mtd></mtd><mtd class="ltx_align_left" columnalign="left"><mrow><mrow><mi>p</mi><mo>⁢</mo><mrow><mo stretchy="false">(</mo><mrow><mrow><mi>S</mi><mo>⁢</mo><mi>T</mi><mo>⁢</mo><mi>O</mi><mo>⁢</mo><mi>P</mi></mrow><mo fence="false">|</mo><mrow><msubsup><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mrow><mi>s</mi><mo>−</mo><mn>1</mn></mrow><mo stretchy="false">)</mo></mrow></msubsup><mo>,</mo><msubsup><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msubsup></mrow></mrow><mo stretchy="false">)</mo></mrow></mrow><mo>∝</mo><mi></mi></mrow></mtd></mtr><mtr><mtd></mtd><mtd class="ltx_align_left" columnalign="left"><mrow><mi>exp</mi><mo>⁡</mo><mrow><mo stretchy="false">{</mo><mrow><msub><mi>𝐖</mi><mrow><mi>s</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>p</mi></mrow></msub><mo lspace="0.167em">⁢</mo><mrow><mi>tanh</mi><mo>⁡</mo><mrow><mo stretchy="false">(</mo><mrow><mrow><msub><mi>𝐖</mi><mrow><mrow><mi>s</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>p</mi></mrow><mo>,</mo><mrow><mi>s</mi><mo>−</mo><mn>1</mn></mrow></mrow></msub><mo>⁢</mo><msubsup><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mrow><mi>s</mi><mo>−</mo><mn>1</mn></mrow><mo stretchy="false">)</mo></mrow></msubsup></mrow><mo>+</mo><mrow><msub><mi>𝐖</mi><mrow><mrow><mi>s</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>p</mi></mrow><mo>,</mo><mi>s</mi></mrow></msub><mo>⁢</mo><msubsup><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msubsup></mrow></mrow><mo stretchy="false">)</mo></mrow></mrow></mrow><mo stretchy="false">}</mo></mrow></mrow></mtd></mtr></mtable></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td rowspan="1" class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right"><span class="ltx_tag ltx_tag_equation ltx_align_right">(6)</span></td>
+</tr></tbody>
+</table>
+</div>
+<div id="S3.SS4.SSS0.Px2.p3" class="ltx_para ltx_noindent">
+<p class="ltx_p">其中<math id="S3.SS4.SSS0.Px2.p3.m1" class="ltx_Math" alttext="\mathbf{W}_{stop}" display="inline"><msub><mi>𝐖</mi><mrow><mi>s</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>p</mi></mrow></msub></math>、<math id="S3.SS4.SSS0.Px2.p3.m2" class="ltx_Math" alttext="\mathbf{W}_{stop,s-1}" display="inline"><msub><mi>𝐖</mi><mrow><mrow><mi>s</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>p</mi></mrow><mo>,</mo><mrow><mi>s</mi><mo>−</mo><mn>1</mn></mrow></mrow></msub></math>与<math id="S3.SS4.SSS0.Px2.p3.m3" class="ltx_Math" alttext="\mathbf{W}_{stop,s}" display="inline"><msub><mi>𝐖</mi><mrow><mrow><mi>s</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>p</mi></mrow><mo>,</mo><mi>s</mi></mrow></msub></math>为参数矩阵。若<math id="S3.SS4.SSS0.Px2.p3.m4" class="ltx_Math" alttext="p(STOP|\mathbf{h}_{sent}^{(s-1)},\mathbf{h}_{sent}^{(s)})" display="inline"><mrow><mi>p</mi><mo>⁢</mo><mrow><mo stretchy="false">(</mo><mrow><mrow><mi>S</mi><mo>⁢</mo><mi>T</mi><mo>⁢</mo><mi>O</mi><mo>⁢</mo><mi>P</mi></mrow><mo fence="false">|</mo><mrow><msubsup><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mrow><mi>s</mi><mo>−</mo><mn>1</mn></mrow><mo stretchy="false">)</mo></mrow></msubsup><mo>,</mo><msubsup><mi>𝐡</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow><mrow><mo stretchy="false">(</mo><mi>s</mi><mo stretchy="false">)</mo></mrow></msubsup></mrow></mrow><mo stretchy="false">)</mo></mrow></mrow></math>大于预设阈值（例如0.5），则句子级LSTM将停止生成新的主题向量，词级LSTM亦随之停止生成词汇。</p>
+</div>
+</section>
+</section>
+<section id="S3.SS5" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">3.5 </span>词级LSTM</h3>
+
+<div id="S3.SS5.p1" class="ltx_para">
+<p class="ltx_p">每个句子的词汇由词级LSTM生成。与<cite class="ltx_cite ltx_citemacro_cite">Krause et al. (<a href="#bib.bib11" title="" class="ltx_ref">2017</a>)</cite>类似，句子级LSTM生成的主题向量<math id="S3.SS5.p1.m1" class="ltx_Math" alttext="\mathbf{t}" display="inline"><mi>𝐭</mi></math>与特殊起始标记（START token）分别作为词级LSTM的第一与第二输入，后续输入则为已生成的词序列。</p>
+</div>
+<div id="S3.SS5.p2" class="ltx_para">
+<p class="ltx_p">词级LSTM的隐藏状态<math id="S3.SS5.p2.m1" class="ltx_Math" alttext="\mathbf{h}_{word}\in\mathbb{R}^{H}" display="inline"><mrow><msub><mi>𝐡</mi><mrow><mi>w</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>r</mi><mo>⁢</mo><mi>d</mi></mrow></msub><mo>∈</mo><msup><mi>ℝ</mi><mi>H</mi></msup></mrow></math>被直接用于预测词汇分布：</p>
+</div>
+<div id="S3.SS5.p3" class="ltx_para">
+<table id="S3.E7" class="ltx_equation ltx_eqn_table">
+
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math id="S3.E7.m1" class="ltx_Math" alttext="p(word|\mathbf{h}_{word})\propto\exp(\mathbf{W}_{out}\mathbf{h}_{word})" display="block"><mrow><mrow><mi>p</mi><mo>⁢</mo><mrow><mo stretchy="false">(</mo><mrow><mrow><mi>w</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>r</mi><mo>⁢</mo><mi>d</mi></mrow><mo fence="false">|</mo><msub><mi>𝐡</mi><mrow><mi>w</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>r</mi><mo>⁢</mo><mi>d</mi></mrow></msub></mrow><mo stretchy="false">)</mo></mrow></mrow><mo>∝</mo><mrow><mi>exp</mi><mo>⁡</mo><mrow><mo stretchy="false">(</mo><mrow><msub><mi>𝐖</mi><mrow><mi>o</mi><mo>⁢</mo><mi>u</mi><mo>⁢</mo><mi>t</mi></mrow></msub><mo>⁢</mo><msub><mi>𝐡</mi><mrow><mi>w</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>r</mi><mo>⁢</mo><mi>d</mi></mrow></msub></mrow><mo stretchy="false">)</mo></mrow></mrow></mrow></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td rowspan="1" class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right"><span class="ltx_tag ltx_tag_equation ltx_align_right">(7)</span></td>
+</tr></tbody>
+</table>
+</div>
+<div id="S3.SS5.p4" class="ltx_para ltx_noindent">
+<p class="ltx_p">其中<math id="S3.SS5.p4.m1" class="ltx_Math" alttext="\mathbf{W}_{out}" display="inline"><msub><mi>𝐖</mi><mrow><mi>o</mi><mo>⁢</mo><mi>u</mi><mo>⁢</mo><mi>t</mi></mrow></msub></math>为参数矩阵。待各词级LSTM完成其词序列生成后，最终诊断报告即为所有生成序列的简单拼接。</p>
+</div>
+</section>
+<section id="S3.SS6" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">3.6 </span>参数学习</h3>
+
+<div id="S3.SS6.p1" class="ltx_para">
+<p class="ltx_p">每个训练样本为三元组(<math id="S3.SS6.p1.m1" class="ltx_Math" alttext="I" display="inline"><mi>I</mi></math>, <math id="S3.SS6.p1.m2" class="ltx_Math" alttext="\mathbf{l}" display="inline"><mi>𝐥</mi></math>, <math id="S3.SS6.p1.m3" class="ltx_Math" alttext="\mathbf{w}" display="inline"><mi>𝐰</mi></math>)，其中<math id="S3.SS6.p1.m4" class="ltx_Math" alttext="I" display="inline"><mi>I</mi></math>为一幅图像，<math id="S3.SS6.p1.m5" class="ltx_Math" alttext="\mathbf{l}" display="inline"><mi>𝐥</mi></math>表示真实标签向量（ground-truth tag vector），<math id="S3.SS6.p1.m6" class="ltx_Math" alttext="\mathbf{w}" display="inline"><mi>𝐰</mi></math>为诊断段落（diagnostic paragraph），该段落由<math id="S3.SS6.p1.m7" class="ltx_Math" alttext="S" display="inline"><mi>S</mi></math>个句子构成，每个句子包含<math id="S3.SS6.p1.m8" class="ltx_Math" alttext="T_{s}" display="inline"><msub><mi>T</mi><mi>s</mi></msub></math>个词。</p>
+</div>
+<div id="S3.SS6.p2" class="ltx_para">
+<p class="ltx_p">对于训练样本(<math id="S3.SS6.p2.m1" class="ltx_Math" alttext="I" display="inline"><mi>I</mi></math>, <math id="S3.SS6.p2.m2" class="ltx_Math" alttext="\mathbf{l}" display="inline"><mi>𝐥</mi></math>, <math id="S3.SS6.p2.m3" class="ltx_Math" alttext="\mathbf{w}" display="inline"><mi>𝐰</mi></math>)，本模型首先对<math id="S3.SS6.p2.m4" class="ltx_Math" alttext="I" display="inline"><mi>I</mi></math>执行多标签分类，生成覆盖全部标签的概率分布<math id="S3.SS6.p2.m5" class="ltx_Math" alttext="\mathbf{p}_{\mathbf{l},pred}" display="inline"><msub><mi>𝐩</mi><mrow><mi>𝐥</mi><mo>,</mo><mrow><mi>p</mi><mo>⁢</mo><mi>r</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>d</mi></mrow></mrow></msub></math>。注意，<math id="S3.SS6.p2.m6" class="ltx_Math" alttext="\mathbf{l}" display="inline"><mi>𝐥</mi></math>为二值向量，编码各标签的存在与否。通过对<math id="S3.SS6.p2.m7" class="ltx_Math" alttext="\mathbf{l}" display="inline"><mi>𝐥</mi></math>进行归一化，可获得真实标签分布<math id="S3.SS6.p2.m8" class="ltx_Math" alttext="\mathbf{p_{\mathbf{l}}}=\mathbf{l}/||\mathbf{l}||_{1}" display="inline"><mrow><msub><mi>𝐩</mi><mi>𝐥</mi></msub><mo>=</mo><mrow><mi>𝐥</mi><mo>/</mo><msub><mrow><mo stretchy="false">‖</mo><mi>𝐥</mi><mo stretchy="false">‖</mo></mrow><mn>1</mn></msub></mrow></mrow></math>。该步骤的训练损失为<math id="S3.SS6.p2.m9" class="ltx_Math" alttext="\ell_{tag}" display="inline"><msub><mi mathvariant="normal">ℓ</mi><mrow><mi>t</mi><mo>⁢</mo><mi>a</mi><mo>⁢</mo><mi>g</mi></mrow></msub></math>与<math id="S3.SS6.p2.m10" class="ltx_Math" alttext="\mathbf{p_{\mathbf{l}}}" display="inline"><msub><mi>𝐩</mi><mi>𝐥</mi></msub></math>之间的交叉熵损失<math id="S3.SS6.p2.m11" class="ltx_Math" alttext="\mathbf{p}_{\mathbf{l},pred}" display="inline"><msub><mi>𝐩</mi><mrow><mi>𝐥</mi><mo>,</mo><mrow><mi>p</mi><mo>⁢</mo><mi>r</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>d</mi></mrow></mrow></msub></math>。</p>
+</div>
+<div id="S3.SS6.p3" class="ltx_para">
+<p class="ltx_p">随后，句子级LSTM展开<math id="S3.SS6.p3.m1" class="ltx_Math" alttext="S" display="inline"><mi>S</mi></math>步，生成主题向量及关于{STOP, CONTINUE}的概率分布<math id="S3.SS6.p3.m2" class="ltx_Math" alttext="p_{stop}^{s}" display="inline"><msubsup><mi>p</mi><mrow><mi>s</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>p</mi></mrow><mi>s</mi></msubsup></math>。最终，<math id="S3.SS6.p3.m3" class="ltx_Math" alttext="S" display="inline"><mi>S</mi></math>个主题向量被输入词级LSTM以生成词汇序列<math id="S3.SS6.p3.m4" class="ltx_Math" alttext="\mathbf{w}_{s,t}" display="inline"><msub><mi>𝐰</mi><mrow><mi>s</mi><mo>,</mo><mi>t</mi></mrow></msub></math>。描述生成阶段的训练损失由两项交叉熵损失构成：针对停止分布<math id="S3.SS6.p3.m6" class="ltx_Math" alttext="p_{stop}^{s}" display="inline"><msubsup><mi>p</mi><mrow><mi>s</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>p</mi></mrow><mi>s</mi></msubsup></math>的损失<math id="S3.SS6.p3.m5" class="ltx_Math" alttext="\ell_{sent}" display="inline"><msub><mi mathvariant="normal">ℓ</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow></msub></math>，以及针对词汇分布<math id="S3.SS6.p3.m8" class="ltx_Math" alttext="p_{s,t}" display="inline"><msub><mi>p</mi><mrow><mi>s</mi><mo>,</mo><mi>t</mi></mrow></msub></math>的损失<math id="S3.SS6.p3.m7" class="ltx_Math" alttext="\ell_{word}" display="inline"><msub><mi mathvariant="normal">ℓ</mi><mrow><mi>w</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>r</mi><mo>⁢</mo><mi>d</mi></mrow></msub></math>。将上述各项整合，可得整体训练损失：</p>
+</div>
+<div id="S3.SS6.p4" class="ltx_para">
+<table id="S3.E8" class="ltx_equation ltx_eqn_table">
+
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math id="S3.E8.m1" class="ltx_Math" alttext="\begin{split}\ell(I,\mathbf{l},\mathbf{w})&amp;=\lambda_{tag}\ell_{tag}\\
+&amp;+\lambda_{sent}\sum_{s=1}^{S}\ell_{sent}(p_{stop}^{s},I\{s=S\})\\
+&amp;+\lambda_{word}\sum_{s=1}^{S}\sum_{t=1}^{T_{s}}\ell_{word}(p_{s,t},w_{s,t})%
+\end{split}" display="block"><mtable columnspacing="0pt" displaystyle="true" rowspacing="0pt"><mtr><mtd class="ltx_align_right" columnalign="right"><mrow><mi mathvariant="normal">ℓ</mi><mo>⁢</mo><mrow><mo stretchy="false">(</mo><mi>I</mi><mo>,</mo><mi>𝐥</mi><mo>,</mo><mi>𝐰</mi><mo stretchy="false">)</mo></mrow></mrow></mtd><mtd class="ltx_align_left" columnalign="left"><mrow><mi></mi><mo>=</mo><mrow><msub><mi>λ</mi><mrow><mi>t</mi><mo>⁢</mo><mi>a</mi><mo>⁢</mo><mi>g</mi></mrow></msub><mo>⁢</mo><msub><mi mathvariant="normal">ℓ</mi><mrow><mi>t</mi><mo>⁢</mo><mi>a</mi><mo>⁢</mo><mi>g</mi></mrow></msub></mrow></mrow></mtd></mtr><mtr><mtd></mtd><mtd class="ltx_align_left" columnalign="left"><mrow><mo>+</mo><mrow><msub><mi>λ</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow></msub><mo>⁢</mo><mrow><munderover><mo movablelimits="false">∑</mo><mrow><mi>s</mi><mo>=</mo><mn>1</mn></mrow><mi>S</mi></munderover><mrow><msub><mi mathvariant="normal">ℓ</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow></msub><mo>⁢</mo><mrow><mo stretchy="false">(</mo><msubsup><mi>p</mi><mrow><mi>s</mi><mo>⁢</mo><mi>t</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>p</mi></mrow><mi>s</mi></msubsup><mo>,</mo><mrow><mi>I</mi><mo>⁢</mo><mrow><mo stretchy="false">{</mo><mrow><mi>s</mi><mo>=</mo><mi>S</mi></mrow><mo stretchy="false">}</mo></mrow></mrow><mo stretchy="false">)</mo></mrow></mrow></mrow></mrow></mrow></mtd></mtr><mtr><mtd></mtd><mtd class="ltx_align_left" columnalign="left"><mrow><mo>+</mo><mrow><msub><mi>λ</mi><mrow><mi>w</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>r</mi><mo>⁢</mo><mi>d</mi></mrow></msub><mo>⁢</mo><mrow><munderover><mo movablelimits="false" rspace="0em">∑</mo><mrow><mi>s</mi><mo>=</mo><mn>1</mn></mrow><mi>S</mi></munderover><mrow><munderover><mo movablelimits="false">∑</mo><mrow><mi>t</mi><mo>=</mo><mn>1</mn></mrow><msub><mi>T</mi><mi>s</mi></msub></munderover><mrow><msub><mi mathvariant="normal">ℓ</mi><mrow><mi>w</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>r</mi><mo>⁢</mo><mi>d</mi></mrow></msub><mo>⁢</mo><mrow><mo stretchy="false">(</mo><msub><mi>p</mi><mrow><mi>s</mi><mo>,</mo><mi>t</mi></mrow></msub><mo>,</mo><msub><mi>w</mi><mrow><mi>s</mi><mo>,</mo><mi>t</mi></mrow></msub><mo stretchy="false">)</mo></mrow></mrow></mrow></mrow></mrow></mrow></mtd></mtr></mtable></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td rowspan="1" class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right"><span class="ltx_tag ltx_tag_equation ltx_align_right">(8)</span></td>
+</tr></tbody>
+</table>
+</div>
+<div id="S3.SS6.p5" class="ltx_para">
+<p class="ltx_p">除上述训练损失外，视觉注意力与语义注意力还引入一项正则化项。类比于<cite class="ltx_cite ltx_citemacro_cite">Xu et al. (<a href="#bib.bib9" title="" class="ltx_ref">2015</a>)</cite>，令<math id="S3.SS6.p5.m1" class="ltx_Math" alttext="\boldsymbol{\alpha}\in\mathbb{R}^{N\times S}" display="inline"><mrow><mi>𝜶</mi><mo>∈</mo><msup><mi>ℝ</mi><mrow><mi>N</mi><mo lspace="0.222em" rspace="0.222em">×</mo><mi>S</mi></mrow></msup></mrow></math>与<math id="S3.SS6.p5.m2" class="ltx_Math" alttext="\boldsymbol{\beta}\in\mathbb{R}^{M\times S}" display="inline"><mrow><mi>𝜷</mi><mo>∈</mo><msup><mi>ℝ</mi><mrow><mi>M</mi><mo lspace="0.222em" rspace="0.222em">×</mo><mi>S</mi></mrow></msup></mrow></math>分别为视觉注意力与语义注意力的矩阵，则作用于<math id="S3.SS6.p5.m3" class="ltx_Math" alttext="\boldsymbol{\alpha}" display="inline"><mi>𝜶</mi></math>与<math id="S3.SS6.p5.m4" class="ltx_Math" alttext="\boldsymbol{\beta}" display="inline"><mi>𝜷</mi></math>的正则化损失为：</p>
+</div>
+<div id="S3.SS6.p6" class="ltx_para">
+<table id="S3.E9" class="ltx_equation ltx_eqn_table">
+
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math id="S3.E9.m1" class="ltx_Math" alttext="\ell_{reg}=\lambda_{reg}[\sum_{n}^{N}(1-\sum_{s}^{S}\alpha_{n,s})^{2}+\sum_{m}%
+^{M}(1-\sum_{s}^{S}\beta_{m,s})^{2}]" display="block"><mrow><msub><mi mathvariant="normal">ℓ</mi><mrow><mi>r</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>g</mi></mrow></msub><mo>=</mo><mrow><msub><mi>λ</mi><mrow><mi>r</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>g</mi></mrow></msub><mo>⁢</mo><mrow><mo stretchy="false">[</mo><mrow><mrow><munderover><mo lspace="0em" movablelimits="false" rspace="0em">∑</mo><mi>n</mi><mi>N</mi></munderover><msup><mrow><mo stretchy="false">(</mo><mrow><mn>1</mn><mo rspace="0.055em">−</mo><mrow><munderover><mo movablelimits="false">∑</mo><mi>s</mi><mi>S</mi></munderover><msub><mi>α</mi><mrow><mi>n</mi><mo>,</mo><mi>s</mi></mrow></msub></mrow></mrow><mo stretchy="false">)</mo></mrow><mn>2</mn></msup></mrow><mo rspace="0.055em">+</mo><mrow><munderover><mo movablelimits="false" rspace="0em">∑</mo><mi>m</mi><mi>M</mi></munderover><msup><mrow><mo stretchy="false">(</mo><mrow><mn>1</mn><mo rspace="0.055em">−</mo><mrow><munderover><mo movablelimits="false">∑</mo><mi>s</mi><mi>S</mi></munderover><msub><mi>β</mi><mrow><mi>m</mi><mo>,</mo><mi>s</mi></mrow></msub></mrow></mrow><mo stretchy="false">)</mo></mrow><mn>2</mn></msup></mrow></mrow><mo stretchy="false">]</mo></mrow></mrow></mrow></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+<td rowspan="1" class="ltx_eqn_cell ltx_eqn_eqno ltx_align_middle ltx_align_right"><span class="ltx_tag ltx_tag_equation ltx_align_right">(9)</span></td>
+</tr></tbody>
+</table>
+</div>
+<div id="S3.SS6.p7" class="ltx_para ltx_noindent">
+<p class="ltx_p">此类正则化促使模型对不同图像区域及不同标签分配均衡的注意力。</p>
+</div>
+</section>
+</section>
+<section id="S4" class="ltx_section">
+<h2 class="ltx_title ltx_title_section">
+<span class="ltx_tag ltx_tag_section">4 </span>实验</h2>
+
+<div id="S4.p1" class="ltx_para">
+<p class="ltx_p">本节通过大量定量与定性实验对所提模型进行全面评估。</p>
+</div>
+<section id="S4.SS1" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">4.1 </span>数据集</h3>
+
+<div id="S4.SS1.p1" class="ltx_para">
+<p class="ltx_p">我们采用两个公开可用的医学影像数据集来评估所提出的模型。</p>
+</div>
+<section id="S4.SS1.SSS0.Px1" class="ltx_paragraph">
+<h5 class="ltx_title ltx_title_paragraph">IU X-Ray（印第安纳大学胸部X光片数据集）</h5>
+
+<div id="S4.SS1.SSS0.Px1.p1" class="ltx_para">
+<p class="ltx_p">印第安纳大学胸部X光片数据集（IU X-Ray）<cite class="ltx_cite ltx_citemacro_cite">Demner-Fushman et al. (<a href="#bib.bib16" title="" class="ltx_ref">2015</a>)</cite>是一组配对的胸部X光影像及其对应诊断报告。该数据集共包含7,470对影像与报告。每份报告由以下若干部分构成：印象（impression）、检查所见（findings）、标签（tags）、对比（comparison）及检查指征（indication）。其中，标签分为两类：人工标注的MeSH（Medical Subject Headings）标签与由医学文本索引器（Medical Text Indexer, MTI）自动生成的标签。本文将“印象”与“检查所见”两部分内容作为待生成的目标描述文本（将二者拼接为一个长段落，因“印象”可视为整份报告的结论或主题句），并将MTI标注的标签作为待预测的目标标签（图<a href="#S1.F1" title="Figure 1 ‣ 1 引言 ‣ 医学影像报告的自动生成研究" class="ltx_ref"><span class="ltx_text ltx_ref_tag">1</span></a>给出了一个示例）。</p>
+</div>
+<div id="S4.SS1.SSS0.Px1.p2" class="ltx_para">
+<p class="ltx_p">我们对数据进行了预处理：将所有词元（token）转换为小写形式，并移除所有非字母字符，最终得到572个唯一标签和1915个唯一词汇。平均每幅影像关联2.2个标签、5.7个句子，每个句子平均含6.5个词。此外，我们发现频次最高的前1000个词覆盖了该数据集中99.0%的词频出现次数，因此仅将这前1000个词纳入词典。最后，我们随机选取500幅影像用于验证集，另500幅用于测试集。</p>
+</div>
+</section>
+<section id="S4.SS1.SSS0.Px2" class="ltx_paragraph">
+<h5 class="ltx_title ltx_title_paragraph">PEIR Gross（PEIR宏观影像子集）</h5>
+
+<div id="S4.SS1.SSS0.Px2.p1" class="ltx_para">
+<p class="ltx_p">病理学教育信息资源（Pathology Education Informational Resource, PEIR）数字图书馆（PEIR © 阿拉巴马大学伯明翰分校病理学系，网址：http://peir.path.uab.edu/library/）是一个面向医学教育的公共医学影像库。我们从中采集了Gross（宏观）子集中的影像及其对应描述，构建了PEIR Gross数据集，共包含来自21个不同子类别的7,442对影像-描述样本。与IU X-Ray数据集不同，PEIR Gross中每条描述仅含一个句子。我们利用该数据集评估模型生成单句报告的能力。</p>
+</div>
+<div id="S4.SS1.SSS0.Px2.p2" class="ltx_para">
+<p class="ltx_p">对于PEIR Gross数据集，我们采用与IU X-Ray相同的预处理流程，最终得到4,452个唯一词汇；平均每幅影像对应12.0个词。此外，针对每条描述，我们选取其中tf-idf得分最高的5个词作为其标签。</p>
+</div>
+<figure id="S4.T1" class="ltx_table">
+<table class="ltx_tabular ltx_centering ltx_guessed_headers ltx_align_middle">
+<thead class="ltx_thead">
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_center ltx_th ltx_th_column ltx_th_row ltx_border_r ltx_border_t">Dataset</th>
+<th class="ltx_td ltx_align_left ltx_th ltx_th_column ltx_th_row ltx_border_r ltx_border_t">Methods</th>
+<th class="ltx_td ltx_align_center ltx_th ltx_th_column ltx_border_t">BLEU-1</th>
+<th class="ltx_td ltx_align_center ltx_th ltx_th_column ltx_border_t">BLEU-2</th>
+<th class="ltx_td ltx_align_center ltx_th ltx_th_column ltx_border_t">BLEU-3</th>
+<th class="ltx_td ltx_align_center ltx_th ltx_th_column ltx_border_t">BLEU-4</th>
+<th class="ltx_td ltx_align_center ltx_th ltx_th_column ltx_border_t">METEOR</th>
+<th class="ltx_td ltx_align_center ltx_th ltx_th_column ltx_border_t">ROUGE</th>
+<th class="ltx_td ltx_align_center ltx_th ltx_th_column ltx_border_t">CIDER</th>
+</tr>
+</thead>
+<tbody class="ltx_tbody">
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_center ltx_th ltx_th_row ltx_border_r ltx_border_t" rowspan="8">IU X-Ray</th>
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_r ltx_border_t">CNN-RNN <cite class="ltx_cite ltx_citemacro_cite">Vinyals et al. (<a href="#bib.bib6" title="" class="ltx_ref">2015</a>)</cite>
+</th>
+<td class="ltx_td ltx_align_center ltx_border_t">0.316</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.211</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.140</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.095</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.159</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.267</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.111</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_r">LRCN <cite class="ltx_cite ltx_citemacro_cite">Donahue et al. (<a href="#bib.bib17" title="" class="ltx_ref">2015</a>)</cite>
+</th>
+<td class="ltx_td ltx_align_center">0.369</td>
+<td class="ltx_td ltx_align_center">0.229</td>
+<td class="ltx_td ltx_align_center">0.149</td>
+<td class="ltx_td ltx_align_center">0.099</td>
+<td class="ltx_td ltx_align_center">0.155</td>
+<td class="ltx_td ltx_align_center">0.278</td>
+<td class="ltx_td ltx_align_center">0.190</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_r">Soft ATT <cite class="ltx_cite ltx_citemacro_cite">Xu et al. (<a href="#bib.bib9" title="" class="ltx_ref">2015</a>)</cite>
+</th>
+<td class="ltx_td ltx_align_center">0.399</td>
+<td class="ltx_td ltx_align_center">0.251</td>
+<td class="ltx_td ltx_align_center">0.168</td>
+<td class="ltx_td ltx_align_center">0.118</td>
+<td class="ltx_td ltx_align_center">0.167</td>
+<td class="ltx_td ltx_align_center">0.323</td>
+<td class="ltx_td ltx_align_center">0.302</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_r">ATT-RK <cite class="ltx_cite ltx_citemacro_cite">You et al. (<a href="#bib.bib10" title="" class="ltx_ref">2016</a>)</cite>
+</th>
+<td class="ltx_td ltx_align_center">0.369</td>
+<td class="ltx_td ltx_align_center">0.226</td>
+<td class="ltx_td ltx_align_center">0.151</td>
+<td class="ltx_td ltx_align_center">0.108</td>
+<td class="ltx_td ltx_align_center">0.171</td>
+<td class="ltx_td ltx_align_center">0.323</td>
+<td class="ltx_td ltx_align_center">0.155</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_r ltx_border_t">Ours-no-Attention</th>
+<td class="ltx_td ltx_align_center ltx_border_t">0.505</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.383</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.290</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.224</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.200</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.420</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.259</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_r">Ours-Semantic-only</th>
+<td class="ltx_td ltx_align_center">0.504</td>
+<td class="ltx_td ltx_align_center">0.371</td>
+<td class="ltx_td ltx_align_center">0.291</td>
+<td class="ltx_td ltx_align_center">0.230</td>
+<td class="ltx_td ltx_align_center">0.207</td>
+<td class="ltx_td ltx_align_center">0.418</td>
+<td class="ltx_td ltx_align_center">0.286</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_r">Ours-Visual-only</th>
+<td class="ltx_td ltx_align_center">0.507</td>
+<td class="ltx_td ltx_align_center">0.373</td>
+<td class="ltx_td ltx_align_center">0.297</td>
+<td class="ltx_td ltx_align_center">0.238</td>
+<td class="ltx_td ltx_align_center">0.211</td>
+<td class="ltx_td ltx_align_center">0.426</td>
+<td class="ltx_td ltx_align_center">0.300</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_r">Ours-CoAttention</th>
+<td class="ltx_td ltx_align_center"><span class="ltx_text ltx_font_bold">0.517</span></td>
+<td class="ltx_td ltx_align_center"><span class="ltx_text ltx_font_bold">0.386</span></td>
+<td class="ltx_td ltx_align_center"><span class="ltx_text ltx_font_bold">0.306</span></td>
+<td class="ltx_td ltx_align_center"><span class="ltx_text ltx_font_bold">0.247</span></td>
+<td class="ltx_td ltx_align_center"><span class="ltx_text ltx_font_bold">0.217</span></td>
+<td class="ltx_td ltx_align_center"><span class="ltx_text ltx_font_bold">0.447</span></td>
+<td class="ltx_td ltx_align_center"><span class="ltx_text ltx_font_bold">0.327</span></td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_center ltx_th ltx_th_row ltx_border_r ltx_border_tt" rowspan="7">PEIR Gross</th>
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_r ltx_border_tt">CNN-RNN <cite class="ltx_cite ltx_citemacro_cite">Vinyals et al. (<a href="#bib.bib6" title="" class="ltx_ref">2015</a>)</cite>
+</th>
+<td class="ltx_td ltx_align_center ltx_border_tt">0.247</td>
+<td class="ltx_td ltx_align_center ltx_border_tt">0.178</td>
+<td class="ltx_td ltx_align_center ltx_border_tt">0.134</td>
+<td class="ltx_td ltx_align_center ltx_border_tt">0.092</td>
+<td class="ltx_td ltx_align_center ltx_border_tt">0.129</td>
+<td class="ltx_td ltx_align_center ltx_border_tt">0.247</td>
+<td class="ltx_td ltx_align_center ltx_border_tt">0.205</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_r">LRCN <cite class="ltx_cite ltx_citemacro_cite">Donahue et al. (<a href="#bib.bib17" title="" class="ltx_ref">2015</a>)</cite>
+</th>
+<td class="ltx_td ltx_align_center">0.261</td>
+<td class="ltx_td ltx_align_center">0.184</td>
+<td class="ltx_td ltx_align_center">0.136</td>
+<td class="ltx_td ltx_align_center">0.088</td>
+<td class="ltx_td ltx_align_center">0.135</td>
+<td class="ltx_td ltx_align_center">0.254</td>
+<td class="ltx_td ltx_align_center">0.203</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_r">Soft ATT <cite class="ltx_cite ltx_citemacro_cite">Xu et al. (<a href="#bib.bib9" title="" class="ltx_ref">2015</a>)</cite>
+</th>
+<td class="ltx_td ltx_align_center">0.283</td>
+<td class="ltx_td ltx_align_center">0.212</td>
+<td class="ltx_td ltx_align_center">0.163</td>
+<td class="ltx_td ltx_align_center">0.113</td>
+<td class="ltx_td ltx_align_center">0.147</td>
+<td class="ltx_td ltx_align_center">0.271</td>
+<td class="ltx_td ltx_align_center">0.276</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_r">ATT-RK <cite class="ltx_cite ltx_citemacro_cite">You et al. (<a href="#bib.bib10" title="" class="ltx_ref">2016</a>)</cite>
+</th>
+<td class="ltx_td ltx_align_center">0.274</td>
+<td class="ltx_td ltx_align_center">0.201</td>
+<td class="ltx_td ltx_align_center">0.154</td>
+<td class="ltx_td ltx_align_center">0.104</td>
+<td class="ltx_td ltx_align_center">0.141</td>
+<td class="ltx_td ltx_align_center">0.264</td>
+<td class="ltx_td ltx_align_center">0.279</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_r ltx_border_t">Ours-No-Attention</th>
+<td class="ltx_td ltx_align_center ltx_border_t">0.248</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.180</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.133</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.093</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.131</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.242</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.206</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_r">Ours-Semantic-only</th>
+<td class="ltx_td ltx_align_center">0.263</td>
+<td class="ltx_td ltx_align_center">0.191</td>
+<td class="ltx_td ltx_align_center">0.145</td>
+<td class="ltx_td ltx_align_center">0.098</td>
+<td class="ltx_td ltx_align_center">0.138</td>
+<td class="ltx_td ltx_align_center">0.261</td>
+<td class="ltx_td ltx_align_center">0.274</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_r">Ours-Visual-only</th>
+<td class="ltx_td ltx_align_center">0.284</td>
+<td class="ltx_td ltx_align_center">0.209</td>
+<td class="ltx_td ltx_align_center">0.156</td>
+<td class="ltx_td ltx_align_center">0.105</td>
+<td class="ltx_td ltx_align_center"><span class="ltx_text ltx_font_bold">0.149</span></td>
+<td class="ltx_td ltx_align_center">0.274</td>
+<td class="ltx_td ltx_align_center">0.280</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_th ltx_th_row ltx_border_b ltx_border_r"></th>
+<th class="ltx_td ltx_align_left ltx_th ltx_th_row ltx_border_b ltx_border_r">Ours-CoAttention</th>
+<td class="ltx_td ltx_align_center ltx_border_b"><span class="ltx_text ltx_font_bold">0.300</span></td>
+<td class="ltx_td ltx_align_center ltx_border_b"><span class="ltx_text ltx_font_bold">0.218</span></td>
+<td class="ltx_td ltx_align_center ltx_border_b"><span class="ltx_text ltx_font_bold">0.165</span></td>
+<td class="ltx_td ltx_align_center ltx_border_b"><span class="ltx_text ltx_font_bold">0.113</span></td>
+<td class="ltx_td ltx_align_center ltx_border_b"><span class="ltx_text ltx_font_bold">0.149</span></td>
+<td class="ltx_td ltx_align_center ltx_border_b"><span class="ltx_text ltx_font_bold">0.279</span></td>
+<td class="ltx_td ltx_align_center ltx_border_b"><span class="ltx_text ltx_font_bold">0.329</span></td>
+</tr>
+</tbody>
+</table>
+<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_table">Table 1: </span>IU X-Ray数据集上的段落生成主结果（上半部分）与PEIR Gross数据集上的单句生成主结果（下半部分）。BLEU-n表示使用至n元语法（n-gram）的BLEU评分。</figcaption>
+</figure>
+</section>
+</section>
+<section id="S4.SS2" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">4.2 </span>实现细节</h3>
+
+<div id="S4.SS2.p1" class="ltx_para">
+<p class="ltx_p">标签预测任务采用完整的VGG-19模型<cite class="ltx_cite ltx_citemacro_cite">Simonyan and Zisserman (<a href="#bib.bib13" title="" class="ltx_ref">2014</a>)</cite>。对于多标签分类（Multi-Label Classification, MLC）任务的训练损失，由于语义注意力机制所用标签数固定为10，我们将MLC建模为一个多标签检索任务，并采用softmax交叉熵损失（即一种多标签排序损失），方法类似文献<cite class="ltx_cite ltx_citemacro_cite">Gong et al. (<a href="#bib.bib18" title="" class="ltx_ref">2013</a>); Guillaumin et al. (<a href="#bib.bib19" title="" class="ltx_ref">2009</a>)</cite>。</p>
+</div>
+<div id="S4.SS2.p2" class="ltx_para">
+<p class="ltx_p">在段落生成任务中，我们将所有隐状态及词嵌入的维度均设为512。对于词与标签，分别使用不同的嵌入矩阵，因为一个标签可能由多个词构成。我们采用概率最高的10个标签的嵌入向量作为语义特征向量<math id="S4.SS2.p2.m1" class="ltx_Math" alttext="\{\mathbf{a}_{m}\}_{m=1}^{M=10}" display="inline"><msubsup><mrow><mo stretchy="false">{</mo><msub><mi>𝐚</mi><mi>m</mi></msub><mo stretchy="false">}</mo></mrow><mrow><mi>m</mi><mo>=</mo><mn>1</mn></mrow><mrow><mi>M</mi><mo>=</mo><mn>10</mn></mrow></msubsup></math>。视觉特征则从VGG-19网络最后一个卷积层提取，得到尺寸为<math id="S4.SS2.p2.m2" class="ltx_Math" alttext="14\times 14\times 512" display="inline"><mrow><mn>14</mn><mo lspace="0.222em" rspace="0.222em">×</mo><mn>14</mn><mo lspace="0.222em" rspace="0.222em">×</mo><mn>512</mn></mrow></math>的特征图。</p>
+</div>
+<div id="S4.SS2.p3" class="ltx_para">
+<p class="ltx_p">参数学习采用Adam优化器<cite class="ltx_cite ltx_citemacro_cite">Kingma and Ba (<a href="#bib.bib20" title="" class="ltx_ref">2014</a>)</cite>。CNN（VGG-19）与分层LSTM的学习率分别设为1e-5与5e-4。各项损失函数的权重（<math id="S4.SS2.p3.m1" class="ltx_Math" alttext="\lambda_{tag}" display="inline"><msub><mi>λ</mi><mrow><mi>t</mi><mo>⁢</mo><mi>a</mi><mo>⁢</mo><mi>g</mi></mrow></msub></math>、<math id="S4.SS2.p3.m2" class="ltx_Math" alttext="\lambda_{sent}" display="inline"><msub><mi>λ</mi><mrow><mi>s</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>n</mi><mo>⁢</mo><mi>t</mi></mrow></msub></math>、<math id="S4.SS2.p3.m3" class="ltx_Math" alttext="\lambda_{word}" display="inline"><msub><mi>λ</mi><mrow><mi>w</mi><mo>⁢</mo><mi>o</mi><mo>⁢</mo><mi>r</mi><mo>⁢</mo><mi>d</mi></mrow></msub></math>与<math id="S4.SS2.p3.m4" class="ltx_Math" alttext="\lambda_{reg}" display="inline"><msub><mi>λ</mi><mrow><mi>r</mi><mo>⁢</mo><mi>e</mi><mo>⁢</mo><mi>g</mi></mrow></msub></math>）均设为1.0。停止控制阈值设为0.5。训练过程中采用早停（early stopping）策略以防止过拟合。</p>
+</div>
+</section>
+<section id="S4.SS3" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">4.3 </span>基线模型</h3>
+
+<div id="S4.SS3.p1" class="ltx_para">
+<p class="ltx_p">我们将所提方法与若干当前最先进的图像描述生成模型进行对比：CNN-RNN <cite class="ltx_cite ltx_citemacro_cite">Vinyals et al. (<a href="#bib.bib6" title="" class="ltx_ref">2015</a>)</cite>、LRCN <cite class="ltx_cite ltx_citemacro_cite">Donahue et al. (<a href="#bib.bib17" title="" class="ltx_ref">2015</a>)</cite>、Soft ATT <cite class="ltx_cite ltx_citemacro_cite">Xu et al. (<a href="#bib.bib9" title="" class="ltx_ref">2015</a>)</cite>以及ATT-RK <cite class="ltx_cite ltx_citemacro_cite">You et al. (<a href="#bib.bib10" title="" class="ltx_ref">2016</a>)</cite>。我们重新实现了全部基线模型，并统一采用VGG-19 <cite class="ltx_cite ltx_citemacro_cite">Simonyan and Zisserman (<a href="#bib.bib13" title="" class="ltx_ref">2014</a>)</cite>作为CNN编码器。考虑到这些模型原本面向单句描述生成任务，为更清晰地展现所提分层LSTM结构与注意力机制在段落生成任务中的有效性，我们还实现了一个无任何注意力机制的分层模型：Ours-no-Attention。该模型的输入为VGG-19输出的整体图像特征（维度为4096），可视为配备分层LSTM解码器的CNN-RNN <cite class="ltx_cite ltx_citemacro_cite">Vinyals et al. (<a href="#bib.bib6" title="" class="ltx_ref">2015</a>)</cite>。为进一步验证所提协同注意力（co-attention）机制的有效性，我们还实现了两种消融版本模型：Ours-Semantic-only（仅使用语义注意力）与Ours-Visual-only（仅使用视觉注意力），二者分别仅依赖语义注意力上下文向量或视觉注意力上下文向量生成主题向量。</p>
+</div>
+<figure id="S4.F3" class="ltx_figure"><img src="assets/1711.08195/x3.png" id="S4.F3.g1" class="ltx_graphics ltx_centering ltx_img_landscape" width="628" height="415" alt="Refer to caption">
+<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure">Figure 3: </span>Ours-CoAttention、Ours-no-Attention与Soft Attention模型生成的段落示例。下划线标出的句子为检测到的异常描述。第二张图像为侧位X光片。顶部两张图像为成功案例，第三张为部分失败案例，底部一张为完全失败案例。所有图像均来自测试集。</figcaption>
+</figure>
+</section>
+<section id="S4.SS4" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">4.4 </span>定量结果</h3>
+
+<div id="S4.SS4.p1" class="ltx_para">
+<p class="ltx_p">我们采用标准图像描述生成评估工具（https://github.com/tylin/coco-caption）报告段落生成（表<a href="#S4.T1" title="Table 1 ‣ PEIR Gross（PEIR宏观影像子集） ‣ 4.1 数据集 ‣ 4 实验 ‣ 医学影像报告的自动生成研究" class="ltx_ref"><span class="ltx_text ltx_ref_tag">1</span></a>上半部分）与单句生成（表<a href="#S4.T1" title="Table 1 ‣ PEIR Gross（PEIR宏观影像子集） ‣ 4.1 数据集 ‣ 4 实验 ‣ 医学影像报告的自动生成研究" class="ltx_ref"><span class="ltx_text ltx_ref_tag">1</span></a>下半部分）结果，该工具提供如下指标的评估：BLEU <cite class="ltx_cite ltx_citemacro_cite">Papineni et al. (<a href="#bib.bib21" title="" class="ltx_ref">2002</a>)</cite>、METEOR <cite class="ltx_cite ltx_citemacro_cite">Denkowski and Lavie (<a href="#bib.bib22" title="" class="ltx_ref">2014</a>)</cite>、ROUGE <cite class="ltx_cite ltx_citemacro_cite">Lin (<a href="#bib.bib23" title="" class="ltx_ref">2004</a>)</cite>与CIDER <cite class="ltx_cite ltx_citemacro_cite">Vedantam et al. (<a href="#bib.bib24" title="" class="ltx_ref">2015</a>)</cite>。</p>
+</div>
+<div id="S4.SS4.p2" class="ltx_para">
+<p class="ltx_p">就段落生成而言，如表<a href="#S4.T1" title="Table 1 ‣ PEIR Gross（PEIR宏观影像子集） ‣ 4.1 数据集 ‣ 4 实验 ‣ 医学影像报告的自动生成研究" class="ltx_ref"><span class="ltx_text ltx_ref_tag">1</span></a>上半部分所示，采用单层LSTM解码器的模型性能显著逊于采用分层LSTM解码器的模型。值得注意的是，Ours-no-Attention与CNN-RNN <cite class="ltx_cite ltx_citemacro_cite">Vinyals et al. (<a href="#bib.bib6" title="" class="ltx_ref">2015</a>)</cite>的唯一区别在于前者采用分层LSTM解码器，而后者采用单层LSTM。二者之间的性能对比直接证明了分层LSTM结构的有效性。该结果并不意外，因为已有研究明确指出单层LSTM难以有效建模长序列<cite class="ltx_cite ltx_citemacro_cite">Liu et al. (<a href="#bib.bib25" title="" class="ltx_ref">2015</a>); Martin and Cundy (<a href="#bib.bib26" title="" class="ltx_ref">2018</a>)</cite>。此外，单独使用语义注意力（Ours-Semantic-only）或视觉注意力（Ours-Visual-only）生成主题向量，对描述生成性能提升有限。潜在原因可能是：视觉注意力仅能捕获图像局部区域的视觉信息，无法准确把握整幅图像的语义；而语义注意力则难以精确定位图像中微小的异常区域。最终，我们的完整模型（Ours-CoAttention）在全部评估指标上均取得最优结果，充分验证了所提协同注意力机制的有效性。</p>
+</div>
+<div id="S4.SS4.p3" class="ltx_para">
+<p class="ltx_p">就单句生成结果（见表<a href="#S4.T1" title="Table 1 ‣ PEIR Gross（PEIR宏观影像子集） ‣ 4.1 数据集 ‣ 4 实验 ‣ 医学影像报告的自动生成研究" class="ltx_ref"><span class="ltx_text ltx_ref_tag">1</span></a>下半部分）而言，我们模型的两种消融版本（Ours-Semantic-only与Ours-Visual-only）相较于当前最先进方法已具备相当竞争力；而我们的完整模型（Ours-CoAttention）则全面超越所有基线模型，进一步证实了所提协同注意力机制的有效性。</p>
+</div>
+<figure id="S4.F4" class="ltx_figure"><img src="assets/1711.08195/x4.png" id="S4.F4.g1" class="ltx_graphics ltx_centering ltx_img_square" width="628" height="553" alt="Refer to caption">
+<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure">Figure 4: </span>三个样例的协同注意力可视化。每个样例包含四部分内容：（1）原始图像与视觉注意力热图；（2）真实标签及预测标签上的语义注意力分布；（3）模型生成的描述；（4）真实描述。在语义注意力部分，高亮显示注意力得分最高的三个标签；下划线标注的标签表示其同时出现在真实标签中。</figcaption>
+</figure>
+</section>
+<section id="S4.SS5" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">4.5 </span>定性结果</h3>
+
+<section id="S4.SS5.SSS1" class="ltx_subsubsection">
+<h4 class="ltx_title ltx_title_subsubsection">
+<span class="ltx_tag ltx_tag_subsubsection">4.5.1 </span>段落生成</h4>
+
+<div id="S4.SS5.SSS1.p1" class="ltx_para">
+<p class="ltx_p">图<a href="#S4.F3" title="Figure 3 ‣ 4.3 基线模型 ‣ 4 实验 ‣ 医学影像报告的自动生成研究" class="ltx_ref"><span class="ltx_text ltx_ref_tag">3</span></a>展示了三种模型（Ours-CoAttention、Ours-no-Attention与Soft Attention）生成的段落示例。可见，不同句子具有不同主题：首句通常为图像的高层级概览性描述，后续各句则分别对应图像某一特定区域（如“肺”、“心脏”等）。Soft Attention与Ours-no-Attention模型仅检测出少量异常，且存在误检；相比之下，Ours-CoAttention模型能够准确描述多种真实异常（如顶部三张图像所示）。该对比表明，协同注意力机制在异常检测方面更具优势。</p>
+</div>
+<div id="S4.SS5.SSS1.p2" class="ltx_para">
+<p class="ltx_p">对于第三张图像，Ours-CoAttention模型成功定位了异常区域（“右下叶”）及其异常类型（“事件化”eventration），但未能对该异常进行精确描述。此外，模型还识别出“间质性混浊”与“动脉粥样硬化性钙化”等异常，但这些在人类专家判断中并不属于真实异常。此类误描述的潜在原因可能是：该X光图像整体偏暗（相较前述图像），而我们的模型对此类光照变化过于敏感。</p>
+</div>
+<div id="S4.SS5.SSS1.p3" class="ltx_para">
+<p class="ltx_p">底部图像为Ours-CoAttention模型的一个失败案例。然而，即便模型对图像主要异常的判断错误，仍能识别出若干异常区域，例如“侧方透亮度增加”（lateral lucency）与“左下叶”（left lower lobe）。</p>
+</div>
+<div id="S4.SS5.SSS1.p4" class="ltx_para">
+<p class="ltx_p">为进一步考察各模型检测异常的能力，我们在表<a href="#S4.T2" title="Table 2 ‣ 4.5.1 段落生成 ‣ 4.5 定性结果 ‣ 4 实验 ‣ 医学影像报告的自动生成研究" class="ltx_ref"><span class="ltx_text ltx_ref_tag">2</span></a>中统计了描述正常性与异常性的句子占比。我们将包含‘无’（no）、‘正常’（normal）、‘清晰’（clear）、‘稳定’（stable）等关键词的句子判定为描述正常性的句子。显然，Ours-CoAttention模型对正常性与异常性分布的拟合效果最接近真实标注分布。</p>
+</div>
+<figure id="S4.T2" class="ltx_table">
+<table class="ltx_tabular ltx_centering ltx_guessed_headers ltx_align_middle">
+<thead class="ltx_thead">
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_center ltx_th ltx_th_column ltx_th_row ltx_border_r ltx_border_t">Method</th>
+<th class="ltx_td ltx_align_center ltx_th ltx_th_column ltx_border_t">Normality</th>
+<th class="ltx_td ltx_align_center ltx_th ltx_th_column ltx_border_t">Abnormality</th>
+<th class="ltx_td ltx_align_center ltx_th ltx_th_column ltx_border_t">Total</th>
+</tr>
+</thead>
+<tbody class="ltx_tbody">
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_center ltx_th ltx_th_row ltx_border_r ltx_border_t">Soft Attention</th>
+<td class="ltx_td ltx_align_center ltx_border_t">0.510</td>
+<td class="ltx_td ltx_align_center ltx_border_t">0.490</td>
+<td class="ltx_td ltx_align_center ltx_border_t">1.0</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_center ltx_th ltx_th_row ltx_border_r">Ours-no-Attention</th>
+<td class="ltx_td ltx_align_center">0.753</td>
+<td class="ltx_td ltx_align_center">0.247</td>
+<td class="ltx_td ltx_align_center">1.0</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_center ltx_th ltx_th_row ltx_border_r">Ours-CoAttention</th>
+<td class="ltx_td ltx_align_center">0.471</td>
+<td class="ltx_td ltx_align_center">0.529</td>
+<td class="ltx_td ltx_align_center">1.0</td>
+</tr>
+<tr class="ltx_tr">
+<th class="ltx_td ltx_align_center ltx_th ltx_th_row ltx_border_b ltx_border_r ltx_border_t">Ground Truth</th>
+<td class="ltx_td ltx_align_center ltx_border_b ltx_border_t">0.385</td>
+<td class="ltx_td ltx_align_center ltx_border_b ltx_border_t">0.615</td>
+<td class="ltx_td ltx_align_center ltx_border_b ltx_border_t">1.0</td>
+</tr>
+</tbody>
+</table>
+<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_table">Table 2: </span>描述图像中正常性与异常性的句子占比。</figcaption>
+</figure>
+</section>
+<section id="S4.SS5.SSS2" class="ltx_subsubsection">
+<h4 class="ltx_title ltx_title_subsubsection">
+<span class="ltx_tag ltx_tag_subsubsection">4.5.2 </span>协同注意力学习</h4>
+
+<div id="S4.SS5.SSS2.p1" class="ltx_para">
+<p class="ltx_p">图<a href="#S4.F4" title="Figure 4 ‣ 4.4 定量结果 ‣ 4 实验 ‣ 医学影像报告的自动生成研究" class="ltx_ref"><span class="ltx_text ltx_ref_tag">4</span></a>展示了协同注意力的可视化结果。图<a href="#S4.F4" title="Figure 4 ‣ 4.4 定量结果 ‣ 4 实验 ‣ 医学影像报告的自动生成研究" class="ltx_ref"><span class="ltx_text ltx_ref_tag">4</span></a>所呈现的第一个特性是：句子级长短期记忆网络（Sentence LSTM）可在不同时间步生成不同的主题，这是因为模型针对不同句子分别聚焦于图像的不同区域及不同标签。第二个发现是：视觉注意力可引导模型聚焦于图像中相关区域。例如，第一个样例的第三句描述的是“心脏（cardio）”，此时视觉注意力集中于心脏附近的区域。语义注意力亦表现出类似行为：在第一个样例的最后一句中，模型正确地将注意力集中于该句的主题词“退行性改变（degenerative change）”。最后，最后一个样例的第一句呈现了一种由标签语义注意力错误导致的误描述；此类错误注意力可通过构建更优的标签预测模块予以缓解。</p>
+</div>
+</section>
+</section>
+</section>
+<section id="S5" class="ltx_section">
+<h2 class="ltx_title ltx_title_section">
+<span class="ltx_tag ltx_tag_section">5 </span>结论</h2>
+
+<div id="S5.p1" class="ltx_para">
+<p class="ltx_p">本文研究了如何为医学影像自动生成文本报告，旨在辅助医务人员更准确、更高效地生成报告。我们所提出的模型方法旨在应对三大核心挑战：（1）如何在统一框架下生成多种异构形式的信息；（2）如何准确定位异常区域并为其生成精确描述；（3）如何生成包含多个句子乃至整段文字的长文本。为应对上述挑战，我们提出了一种多任务学习框架，联合执行标签预测与描述生成任务；引入一种协同注意力机制，可同步挖掘视觉信息与语义信息，从而实现对异常区域的精确定位与准确描述；并构建了一种分层式长短期记忆网络（hierarchical LSTM network），以更有效地建模长程语义依赖关系，并生成高质量的长文本。我们在两个分别包含放射学与病理学影像的医学数据集上，通过定量分析与定性分析，验证了所提方法的有效性。</p>
+</div>
+</section>
+<section id="bib" class="ltx_bibliography">
+<h2 class="ltx_title ltx_title_bibliography">参考文献</h2>
+
+<ul class="ltx_biblist">
+      
+<li id="bib.bib1" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Delrue et al. (2011)</span>
+<span class="ltx_bibblock">
+Louke Delrue, Robert Gosselin, Bart Ilsen, An Van Landeghem, Johan de Mey, and
+Philippe Duyck.
+
+</span>
+<span class="ltx_bibblock">Difficulties in the interpretation of chest radiography.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">Comparative Interpretation of CT and Standard Radiography of
+the Chest</em>, pages 27–49. Springer, 2011.
+
+</span>
+</li>
+      
+<li id="bib.bib2" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Hochreiter and Schmidhuber (1997)</span>
+<span class="ltx_bibblock">
+Sepp Hochreiter and Jürgen Schmidhuber.
+
+</span>
+<span class="ltx_bibblock">Long short-term memory.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Neural computation</em>, 9(8):1735–1780, 1997.
+
+</span>
+</li>
+      
+<li id="bib.bib3" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Kisilev et al. (2015)</span>
+<span class="ltx_bibblock">
+Pavel Kisilev, Eugene Walach, Ella Barkan, Boaz Ophir, Sharon Alpert, and
+Sharbell Y Hashoul.
+
+</span>
+<span class="ltx_bibblock">From medical image to automatic medical report generation.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">IBM Journal of Research and Development</em>, 59(2/3):2–1, 2015.
+
+</span>
+</li>
+      
+<li id="bib.bib4" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Shin et al. (2016)</span>
+<span class="ltx_bibblock">
+Hoo-Chang Shin, Kirk Roberts, Le Lu, Dina Demner-Fushman, Jianhua Yao, and
+Ronald M Summers.
+
+</span>
+<span class="ltx_bibblock">Learning to read chest x-rays: recurrent neural cascade model for
+automated image annotation.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">Proceedings of the IEEE Conference on Computer Vision and
+Pattern Recognition</em>, pages 2497–2506, 2016.
+
+</span>
+</li>
+      
+<li id="bib.bib5" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Zhang et al. (2017)</span>
+<span class="ltx_bibblock">
+Zizhao Zhang, Yuanpu Xie, Fuyong Xing, Mason McGough, and Lin Yang.
+
+</span>
+<span class="ltx_bibblock">Mdnet: A semantically and visually interpretable medical image
+diagnosis network.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">Proceedings of the IEEE Conference on Computer Vision and
+Pattern Recognition</em>, pages 6428–6436, 2017.
+
+</span>
+</li>
+      
+<li id="bib.bib6" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Vinyals et al. (2015)</span>
+<span class="ltx_bibblock">
+Oriol Vinyals, Alexander Toshev, Samy Bengio, and Dumitru Erhan.
+
+</span>
+<span class="ltx_bibblock">Show and tell: A neural image caption generator.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">Proceedings of the IEEE conference on computer vision and
+pattern recognition</em>, pages 3156–3164, 2015.
+
+</span>
+</li>
+      
+<li id="bib.bib7" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Fang et al. (2015)</span>
+<span class="ltx_bibblock">
+Hao Fang, Saurabh Gupta, Forrest Iandola, Rupesh K Srivastava, Li Deng, Piotr
+Dollár, Jianfeng Gao, Xiaodong He, Margaret Mitchell, John C Platt,
+et al.
+
+</span>
+<span class="ltx_bibblock">From captions to visual concepts and back.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">Proceedings of the IEEE conference on computer vision and
+pattern recognition</em>, pages 1473–1482, 2015.
+
+</span>
+</li>
+      
+<li id="bib.bib8" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Karpathy and Fei-Fei (2015)</span>
+<span class="ltx_bibblock">
+Andrej Karpathy and Li Fei-Fei.
+
+</span>
+<span class="ltx_bibblock">Deep visual-semantic alignments for generating image descriptions.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">Proceedings of the IEEE Conference on Computer Vision and
+Pattern Recognition</em>, pages 3128–3137, 2015.
+
+</span>
+</li>
+      
+<li id="bib.bib9" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Xu et al. (2015)</span>
+<span class="ltx_bibblock">
+Kelvin Xu, Jimmy Ba, Ryan Kiros, Kyunghyun Cho, Aaron Courville, Ruslan
+Salakhudinov, Rich Zemel, and Yoshua Bengio.
+
+</span>
+<span class="ltx_bibblock">Show, attend and tell: Neural image caption generation with visual
+attention.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">International Conference on Machine Learning</em>, pages
+2048–2057, 2015.
+
+</span>
+</li>
+      
+<li id="bib.bib10" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">You et al. (2016)</span>
+<span class="ltx_bibblock">
+Quanzeng You, Hailin Jin, Zhaowen Wang, Chen Fang, and Jiebo Luo.
+
+</span>
+<span class="ltx_bibblock">Image captioning with semantic attention.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">Proceedings of the IEEE Conference on Computer Vision and
+Pattern Recognition</em>, pages 4651–4659, 2016.
+
+</span>
+</li>
+      
+<li id="bib.bib11" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Krause et al. (2017)</span>
+<span class="ltx_bibblock">
+Jonathan Krause, Justin Johnson, Ranjay Krishna, and Li Fei-Fei.
+
+</span>
+<span class="ltx_bibblock">A hierarchical approach for generating descriptive image paragraphs.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">The IEEE Conference on Computer Vision and Pattern
+Recognition (CVPR)</em>, July 2017.
+
+</span>
+</li>
+      
+<li id="bib.bib12" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Liang et al. (2017)</span>
+<span class="ltx_bibblock">
+Xiaodan Liang, Zhiting Hu, Hao Zhang, Chuang Gan, and Eric P. Xing.
+
+</span>
+<span class="ltx_bibblock">Recurrent topic-transition gan for visual paragraph generation.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">The IEEE International Conference on Computer Vision
+(ICCV)</em>, Oct 2017.
+
+</span>
+</li>
+      
+<li id="bib.bib13" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Simonyan and Zisserman (2014)</span>
+<span class="ltx_bibblock">
+K. Simonyan and A. Zisserman.
+
+</span>
+<span class="ltx_bibblock">Very deep convolutional networks for large-scale image recognition.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">CoRR</em>, abs/1409.1556, 2014.
+
+</span>
+</li>
+      
+<li id="bib.bib14" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Ba et al. (2015)</span>
+<span class="ltx_bibblock">
+Jimmy Ba, Volodymyr Mnih, and Koray Kavukcuoglu.
+
+</span>
+<span class="ltx_bibblock">Multiple object recognition with visual attention.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">ICLR</em>, 2015.
+
+</span>
+</li>
+      
+<li id="bib.bib15" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Pascanu et al. (2014)</span>
+<span class="ltx_bibblock">
+Razvan Pascanu, Caglar Gulcehre, Kyunghyun Cho, and Yoshua Bengio.
+
+</span>
+<span class="ltx_bibblock">How to construct deep recurrent neural networks.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">ICLR</em>, 2014.
+
+</span>
+</li>
+      
+<li id="bib.bib16" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Demner-Fushman et al. (2015)</span>
+<span class="ltx_bibblock">
+Dina Demner-Fushman, Marc D Kohli, Marc B Rosenman, Sonya E Shooshan, Laritza
+Rodriguez, Sameer Antani, George R Thoma, and Clement J McDonald.
+
+</span>
+<span class="ltx_bibblock">Preparing a collection of radiology examinations for distribution and
+retrieval.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">Journal of the American Medical Informatics Association</em>,
+23(2):304–310, 2015.
+
+</span>
+</li>
+      
+<li id="bib.bib17" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Donahue et al. (2015)</span>
+<span class="ltx_bibblock">
+Jeffrey Donahue, Lisa Anne Hendricks, Sergio Guadarrama, Marcus Rohrbach,
+Subhashini Venugopalan, Kate Saenko, and Trevor Darrell.
+
+</span>
+<span class="ltx_bibblock">Long-term recurrent convolutional networks for visual recognition and
+description.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">Proceedings of the IEEE conference on computer vision and
+pattern recognition</em>, pages 2625–2634, 2015.
+
+</span>
+</li>
+      
+<li id="bib.bib18" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Gong et al. (2013)</span>
+<span class="ltx_bibblock">
+Yunchao Gong, Yangqing Jia, Thomas Leung, Alexander Toshev, and Sergey Ioffe.
+
+</span>
+<span class="ltx_bibblock">Deep convolutional ranking for multilabel image annotation.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">ICLR</em>, 2013.
+
+</span>
+</li>
+      
+<li id="bib.bib19" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Guillaumin et al. (2009)</span>
+<span class="ltx_bibblock">
+Matthieu Guillaumin, Thomas Mensink, Jakob Verbeek, and Cordelia Schmid.
+
+</span>
+<span class="ltx_bibblock">Tagprop: Discriminative metric learning in nearest neighbor models
+for image auto-annotation.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">Computer Vision, 2009 IEEE 12th International Conference
+on</em>, pages 309–316. IEEE, 2009.
+
+</span>
+</li>
+      
+<li id="bib.bib20" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Kingma and Ba (2014)</span>
+<span class="ltx_bibblock">
+Diederik P Kingma and Jimmy Ba.
+
+</span>
+<span class="ltx_bibblock">Adam: A method for stochastic optimization.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">arXiv preprint arXiv:1412.6980</em>, 2014.
+
+</span>
+</li>
+      
+<li id="bib.bib21" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Papineni et al. (2002)</span>
+<span class="ltx_bibblock">
+Kishore Papineni, Salim Roukos, Todd Ward, and Wei-Jing Zhu.
+
+</span>
+<span class="ltx_bibblock">Bleu: a method for automatic evaluation of machine translation.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">Proceedings of the 40th annual meeting on association for
+computational linguistics</em>, pages 311–318. Association for Computational
+Linguistics, 2002.
+
+</span>
+</li>
+      
+<li id="bib.bib22" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Denkowski and Lavie (2014)</span>
+<span class="ltx_bibblock">
+Michael Denkowski and Alon Lavie.
+
+</span>
+<span class="ltx_bibblock">Meteor universal: Language specific translation evaluation for any
+target language.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">Proceedings of the ninth workshop on statistical machine
+translation</em>, pages 376–380, 2014.
+
+</span>
+</li>
+      
+<li id="bib.bib23" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Lin (2004)</span>
+<span class="ltx_bibblock">
+Chin-Yew Lin.
+
+</span>
+<span class="ltx_bibblock">Rouge: A package for automatic evaluation of summaries.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">Text summarization branches out: Proceedings of the ACL-04
+workshop</em>, volume 8. Barcelona, Spain, 2004.
+
+</span>
+</li>
+      
+<li id="bib.bib24" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Vedantam et al. (2015)</span>
+<span class="ltx_bibblock">
+Ramakrishna Vedantam, C Lawrence Zitnick, and Devi Parikh.
+
+</span>
+<span class="ltx_bibblock">Cider: Consensus-based image description evaluation.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">Proceedings of the IEEE conference on computer vision and
+pattern recognition</em>, pages 4566–4575, 2015.
+
+</span>
+</li>
+      
+<li id="bib.bib25" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Liu et al. (2015)</span>
+<span class="ltx_bibblock">
+Pengfei Liu, Xipeng Qiu, Xinchi Chen, Shiyu Wu, and Xuanjing Huang.
+
+</span>
+<span class="ltx_bibblock">Multi-timescale long short-term memory neural network for modelling
+sentences and documents.
+
+</span>
+<span class="ltx_bibblock">In <em class="ltx_emph ltx_font_italic">Proceedings of the 2015 conference on empirical methods in
+natural language processing</em>, pages 2326–2335, 2015.
+
+</span>
+</li>
+      
+<li id="bib.bib26" class="ltx_bibitem">
+<span class="ltx_tag ltx_role_refnum ltx_tag_bibitem">Martin and Cundy (2018)</span>
+<span class="ltx_bibblock">
+Eric Martin and Chris Cundy.
+
+</span>
+<span class="ltx_bibblock">Parallelizing linear recurrent neural nets over sequence length.
+
+</span>
+<span class="ltx_bibblock"><em class="ltx_emph ltx_font_italic">ICLR</em>, 2018.
+
+</span>
+</li>
+    
+</ul>
+</section>
+</article>
+</div>
+<footer class="ltx_page_footer">
+<div class="ltx_page_logo">Generated  on Thu Jun 11 15:25:34 2026 by <a href="http://dlmf.nist.gov/LaTeXML/" class="ltx_LaTeXML_logo"><span style="letter-spacing:-0.2em; margin-right:0.1em;">L<span class="ltx_font_smallcaps" style="position:relative; bottom:2.2pt;">a</span>T<span class="ltx_font_smallcaps" style="font-size:120%;position:relative; bottom:-0.2ex;">e</span></span><span style="font-size:90%; position:relative; bottom:-0.2ex;">XML</span><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAAOCAYAAAD5YeaVAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wKExQZLWTEaOUAAAAddEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIFRoZSBHSU1Q72QlbgAAAdpJREFUKM9tkL+L2nAARz9fPZNCKFapUn8kyI0e4iRHSR1Kb8ng0lJw6FYHFwv2LwhOpcWxTjeUunYqOmqd6hEoRDhtDWdA8ApRYsSUCDHNt5ul13vz4w0vWCgUnnEc975arX6ORqN3VqtVZbfbTQC4uEHANM3jSqXymFI6yWazP2KxWAXAL9zCUa1Wy2tXVxheKA9YNoR8Pt+aTqe4FVVVvz05O6MBhqUIBGk8Hn8HAOVy+T+XLJfLS4ZhTiRJgqIoVBRFIoric47jPnmeB1mW/9rr9ZpSSn3Lsmir1fJZlqWlUonKsvwWwD8ymc/nXwVBeLjf7xEKhdBut9Hr9WgmkyGEkJwsy5eHG5vN5g0AKIoCAEgkEkin0wQAfN9/cXPdheu6P33fBwB4ngcAcByHJpPJl+fn54mD3Gg0NrquXxeLRQAAwzAYj8cwTZPwPH9/sVg8PXweDAauqqr2cDjEer1GJBLBZDJBs9mE4zjwfZ85lAGg2+06hmGgXq+j3+/DsixYlgVN03a9Xu8jgCNCyIegIAgx13Vfd7vdu+FweG8YRkjXdWy329+dTgeSJD3ieZ7RNO0VAXAPwDEAO5VKndi2fWrb9jWl9Esul6PZbDY9Go1OZ7PZ9z/lyuD3OozU2wAAAABJRU5ErkJggg==" alt="Mascot Sammy"></a>
+</div></footer>
+</div>
+</div><script>
+ const L=document.getElementById('L'),R=document.getElementById('R');let lock=false;
+ function sync(a,b){if(lock)return;lock=true;
+   b.scrollTop=(a.scrollTop/((a.scrollHeight-a.clientHeight)||1))*((b.scrollHeight-b.clientHeight)||1);
+   requestAnimationFrame(()=>lock=false);}
+ L.addEventListener('scroll',()=>sync(L,R));R.addEventListener('scroll',()=>sync(R,L));
+</script></body></html>
