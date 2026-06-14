@@ -1,5 +1,12 @@
 # XinDa（信达）— Fidelity-First Scholarly Document Translation
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Python 3.12](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-required-336791.svg)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/Docker-supported-2496ED.svg)](docker-compose.yml)
+
+**中文** | [English](README.en.md)
+
 **信达**取自严复"信、达、雅"：**信（保真）为先，达（全文可读）随后**。本框架面向科技论文的
 全文机器翻译与质量评测，核心命题是同时拆掉全文多语种出版的三个工程瓶颈：
 
