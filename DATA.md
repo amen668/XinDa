@@ -5,7 +5,7 @@
 | 腿 | 方向 | 格式 | 源文（原文） | 输出 |
 |---|---|---|---|---|
 | **中文期刊** | zh→en | JATS XML | `corpus/jats_zh2en/*.xml`（25 篇，CC-BY，色谱/血液/肺癌） | `results/jats_zh2en/` |
-| **arXiv** | en→zh | LaTeXML XML | `corpus/arxiv_en2zh/*.xml`（93 篇，多学科） | `results/arxiv_en2zh/` |
+| **arXiv** | en→zh | LaTeXML XML | `corpus/arxiv_en2zh/*.xml`（论文实验 92 篇，另含 1 篇 smoke test，多学科） | `results/arxiv_en2zh/` |
 
 ## 原文在哪
 
@@ -34,7 +34,7 @@ results/<leg>/
 
 ## 其他目录
 
-- `corpus/_archive/` —— 探路语料（jats=5 篇、jats_formula=9 篇公式压力子集），已被 25/93 篇正式语料取代。
+- `corpus/_archive/` —— 探路语料（jats=5 篇、jats_formula=9 篇公式压力子集），已被论文实验的 25/92 篇正式语料取代；另保留 1 篇 arXiv smoke test。
 - `corpus/_scratch/` —— 语料筛选过程留痕（筛选日志、候选清单），保留作复现/limitations 证据。
 - `workspace/` —— 流水线工作目录（arXiv 下载的 .tex、LaTeXML 中间产物）；DB 存的是这里的路径。
 - `data/glossaries/` —— 外部术语表（术语接地功能用，当前结构实验未启用）。
