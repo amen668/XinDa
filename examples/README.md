@@ -26,9 +26,12 @@ CC-BY 附署名发布）：
 
 ## corpus_manifests/ — 语料清单
 
-- `arxiv_en2zh_manifest.csv` — 93 篇 arXiv 论文：许可（仅 CC0/CC-BY/CC-BY-SA，
+- `arxiv_en2zh_manifest.csv` — 论文实验使用的 92 篇 arXiv 论文：许可（仅 CC0/CC-BY/CC-BY-SA，
   翻译属衍生作品故按许可筛选）、发表场刊、引用数、学科。
 - `jats_zh2en_manifest.csv` — 25 篇中文期刊 PMC OA 文章（均 CC-BY）：期刊、
   标题、结构统计。
+
+人工抽检记录、判读标准和门控汇总见 `audit/README.md`。单独用于流水线
+冒烟测试的 `2503.15129` 不计入论文的 92 篇实验语料。
 
 按清单中的 ID 即可用 `xinda/cli/build_corpus.py` / `jats_corpus.py` 重建完整语料。
