@@ -1,0 +1,13 @@
+{
+  "snapshot_utc": "2026-11-11T08:15:31.441234+00:00",
+  "target_lang": "zh",
+  "task_status_counts": {
+    "failed": 45,
+    "processing": 9,
+    "success": 1602
+  },
+  "source_record": "paper/全文英译重构_20261111/实验/服务器核验/数据库汇总.json",
+  "source_sha256": "7390064c34655f2390ea86bcfd0cb85839fac1870c7e3fd612378302377dc943",
+  "source_query": "SELECT status,target_lang,COUNT(*) tasks FROM arxiv_translation_jobs GROUP BY status,target_lang",
+  "note": "从既有只读数据库统计归档抽取，无身份或连接信息。9次为processing原始状态，未合并其他状态。success仅为任务状态，不代表全文译完或出版验收。此处为聚合计数，不提供失败和处理中任务的逐条记录。"
+}

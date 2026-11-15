@@ -1,0 +1,67 @@
+[
+  {
+    "model": "qwen3.7-plus-nothink",
+    "n": 92,
+    "n_ann": 170172,
+    "ann_kept": 166736,
+    "n_math": 46405,
+    "math_kept": 46327,
+    "fresh_tok": 1996270,
+    "completion_tok": 1291906,
+    "ann_pct": 97.980866417507,
+    "math_pct": 99.83191466436806,
+    "wellformed": 92
+  },
+  {
+    "model": "qwen3-max-2026-01-23",
+    "n": 92,
+    "n_ann": 170172,
+    "ann_kept": 166536,
+    "n_math": 46405,
+    "math_kept": 46185,
+    "fresh_tok": 1981764,
+    "completion_tok": 1212080,
+    "ann_pct": 97.86333826951555,
+    "math_pct": 99.52591315590993,
+    "wellformed": 92
+  },
+  {
+    "model": "glm-4.7",
+    "n": 92,
+    "n_ann": 170172,
+    "ann_kept": 166360,
+    "n_math": 46405,
+    "math_kept": 46144,
+    "fresh_tok": 1930560,
+    "completion_tok": 1200622,
+    "ann_pct": 97.75991349928307,
+    "math_pct": 99.43756060769313,
+    "wellformed": 92
+  },
+  {
+    "model": "kimi-k2.5",
+    "n": 92,
+    "n_ann": 170172,
+    "ann_kept": 165630,
+    "n_math": 46405,
+    "math_kept": 45892,
+    "fresh_tok": 1586356,
+    "completion_tok": 1414415,
+    "ann_pct": 97.33093575911431,
+    "math_pct": 98.89451567718996,
+    "wellformed": 92
+  },
+  {
+    "model": "minimax-m2.5",
+    "n": 92,
+    "n_ann": 170172,
+    "ann_kept": 165578,
+    "n_math": 46405,
+    "math_kept": 45763,
+    "fresh_tok": 1926013,
+    "completion_tok": 2064364,
+    "ann_pct": 97.30037844063654,
+    "math_pct": 98.61652839133714,
+    "wellformed": 92
+  }
+]

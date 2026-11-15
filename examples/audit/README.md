@@ -1,13 +1,28 @@
 # Human-audit evidence package
 
-This directory contains the records behind the residual-error and review-gate
-figures reported for the English-to-Chinese experiment. It is intentionally a
+This directory preserves historical audit and review-gate records for the
+English-to-Chinese experiment. It is intentionally a
 small audit package rather than a redistribution of the complete source corpus
 or all translated full texts.
 
-## Sampling and adjudication
+## Current interpretation (2026-11-15)
 
-- Population: 1,854 automatically released translation units from 10 jobs.
+The previously reported `7 / 311 = 2.3%` residual factual-error estimate is withdrawn.
+The records contain disputed author judgments and are not an independent expert gold
+standard. For example, HR8799 and V342 Peg identify the same object, while interpreting
+“Number of departures” requires its matrix-nestedness context. The original fields
+remain unchanged for traceability; they must not be treated as verified error labels.
+
+All 320 sampled units received tool screening. The prescribed human review covered
+71 flagged-stratum units and 50 randomly selected units from the 249 unflagged-stratum
+units, totaling 121. One additional record had been judged before stratification.
+The author used machine translation to assist a single-person review. This evidence
+cannot estimate the overall residual error rate, and it does not establish professional
+publication quality. See the updated [research package](../../research/revision_20261115/README.md).
+
+## Historical sampling and labels
+
+- Population: 1,854 units unflagged by the final gate across 10 jobs; unflagged is not verified correct.
 - Sampling: stratified by job with proportional allocation, `seed=42`, `n=320`.
 - The 71 abnormal-stratum records were all adjudicated. Fifty of the 249
   double-green records were randomly selected for adjudication.
@@ -17,12 +32,12 @@ or all translated full texts.
   differences, one unrestored formula/symbol placeholder, seven residual
   factual errors, and one record judged before stratification and explicitly
   excluded from the estimate.
-- Reported residual factual-error estimate: `7 / 311 = 2.3%`; the nine uncertain
-  records are excluded from the denominator.
+- The historical calculation excluded nine uncertain records from the 320-unit denominator.
+  That estimate is no longer endorsed, for the reasons above.
 
-The complete decision rubric and caveats are in `audit_判读标准.md`. The CSV
-retains the source/translation units and all decision fields so that the
-reported counts can be independently checked.
+The original decision rubric is retained in `audit_判读标准.md` as a historical document.
+The CSV retains source/translation units and original decision fields so that the
+record counts can be checked without silently replacing past judgments.
 
 ## Gate summaries
 
@@ -44,11 +59,11 @@ The full papers and complete translated corpora are not redistributed here.
 ## SHA-256
 
 ```text
-8496c2846686f2dfb1c8039b84fcd99e1f0fe7ca98675b0fe3557113773907aa  examples/audit/audit_sample.csv
-de755550bc07a8d27f4175694735d2c7e2fa4ec0e3518d29fa935962e32a8556  examples/audit/audit_判读标准.md
+504f2cad58764e1b8476d96676620b92835d445712a61ed0630f387044fa787a  examples/audit/audit_sample.csv
+96c18c06e62609bbd7ccbf3c697273a186b92ba586a0dfebedab3900768fc4b4  examples/audit/audit_判读标准.md
 cb531ff6ed4c55f8e348d90c8471d8f55f341d8c3ecf192b70d36c56178aa82c  examples/audit/gate_by_job.txt
 9bf8ddd617443d1a49dd46464fe18b407618cc32610e675c73920f6b4c705bd2  examples/audit/gate_pass1_vs_latest.txt
-7587c99cb9feea56c0e818e61d6a3fdaa6db5f27056427dae7e692d737751df5  examples/corpus_manifests/arxiv_en2zh_manifest.csv
-ad2425895a8b9e2039fe5ee7c73da2d11b247daf6d392efab38e7c64197b75a6  examples/corpus_manifests/jats_zh2en_manifest.csv
+27742adb69138f2d35e960af92ee62b121f336f7ed3e379c920f215766b3dd82  examples/corpus_manifests/arxiv_en2zh_manifest.csv
+c26cfcf85acb6a68e4ed2f90de83890370d9c9fa1774990592a0944cefcbc1ae  examples/corpus_manifests/jats_zh2en_manifest.csv
 ```
 

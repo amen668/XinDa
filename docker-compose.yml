@@ -9,7 +9,7 @@ services:
     environment:
       POSTGRES_DB: arxiv_translation_hub
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: root
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in your local .env}
     ports:
       - "5432:5432"
     volumes:
@@ -28,7 +28,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql+asyncpg://postgres:root@db:5432/arxiv_translation_hub
+      DATABASE_URL: postgresql+asyncpg://postgres:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in your local .env}@db:5432/arxiv_translation_hub
       DASHSCOPE_API_KEY: ${DASHSCOPE_API_KEY:-}
       # coding-plan endpoint key (cross-vendor models incl. GLM; audit screener)
       DASHSCOPE_CODING_API_KEY: ${DASHSCOPE_CODING_API_KEY:-}
@@ -61,7 +61,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql+asyncpg://postgres:root@db:5432/arxiv_translation_hub
+      DATABASE_URL: postgresql+asyncpg://postgres:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in your local .env}@db:5432/arxiv_translation_hub
       # gated-model download credentials (read token); accept the two model
       # licenses on huggingface.co with the same account.
       HF_TOKEN: ${HF_TOKEN:-}

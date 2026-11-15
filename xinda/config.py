@@ -20,9 +20,7 @@ class Settings(BaseSettings):
     )
 
     # ────────── database ──────────
-    database_url: str = (
-        "postgresql+asyncpg://postgres:root@localhost:5432/arxiv_translation_hub"
-    )
+    database_url: str = "postgresql+asyncpg://postgres@localhost:5432/arxiv_translation_hub"
 
     # ────────── DashScope / Qwen API ──────────
     dashscope_api_key: str = ""

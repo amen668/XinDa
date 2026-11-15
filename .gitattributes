@@ -9,3 +9,9 @@
 *.pdf binary
 *.tbx binary
 *.ckpt binary
+
+# Stable bytes for published checksums on Windows and Linux.
+examples/audit/** text eol=lf
+examples/corpus_manifests/** text eol=lf
+examples/results/** text eol=lf
+research/** -text whitespace=cr-at-eol

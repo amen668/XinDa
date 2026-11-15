@@ -1,0 +1,21 @@
+{
+  "date": "2026-11-15",
+  "status": "PASS",
+  "command": "python research/revision_20261115/scripts/recompute_all.py",
+  "environment": {"python": "3.12.14", "lxml": "6.1.1"},
+  "network_or_model_calls": 0,
+  "chinese_fulltext_articles": 50,
+  "chinese_saved_translation_outputs": 150,
+  "chinese_archived_summary_files_identical": 5,
+  "controlled_en2zh_pairs": 40,
+  "controlled_en2zh_source_groups": 34,
+  "legacy_models": 5,
+  "legacy_model_articles_each": 92,
+  "gate_units": 2230,
+  "gate_units_flagged_after_refinement": 376,
+  "historical_success_tasks": 1602,
+  "historical_distinct_articles": 1560,
+  "attribution_entries": 75,
+  "attribution_entries_with_unresolved_authors": 0,
+  "scope": "Offline recomputation of saved source/output files, responses, labels, CSV and anonymous history. This does not constitute new translation, expert validation or measured human editing time."
+}

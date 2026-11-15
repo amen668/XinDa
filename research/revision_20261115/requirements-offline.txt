@@ -1,0 +1,2 @@
+# Python 3.10+; public-package validation used Python 3.12.14 and lxml 6.1.1.
+lxml==6.1.1

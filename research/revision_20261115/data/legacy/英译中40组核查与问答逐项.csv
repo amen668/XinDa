@@ -1,0 +1,41 @@
+﻿trap,rcs_good,rcs_bad,fid_good,fid_bad,focus,source_sha256
+81,1.0,0.6666666666666666,preserved,weakened,"Different from the IU X-Ray dataset, each caption in PEIR Gross contains only one sentence.",b6afaad8a0441f1ea08eec7bff9a14ec7390aba853339f0626548d40dcbb9155
+82,0.6666666666666666,0.5,preserved,reversed,it has a strongly negative effect on the persistence of trophic networks,10b4434ca83c40ca158e694c74d4ca689a3d5053621d4d8a57bc41a7a25a398c
+83,0.8333333333333334,0.5,preserved,reversed,more nested networks are associated with larger feasibility domains,b767aa17f0bdddcbbe8b4e530014dea3d39a263eae1c3b34d900140f5d449907
+84,0.5,0.5,preserved,reversed,better than individual nestedness contributions,28b942f5d25da87ad23ee7df2dd77990599d5a503cddbc42c4d7862c3984da02
+99,1.0,0.8333333333333334,preserved,reversed,less floating point operations than ResNet-152,7dceeb9c80b5c87524ad4d2d42fb054a10099a96013a8cf5526142e3551e5095
+85,0.8333333333333334,0.6666666666666666,preserved,reversed,its yield is about five times smaller than that of,dd195604a0d6883896f87a67423eb5379991cf76061c16de6867ec19f52011eb
+86,0.6666666666666666,0.16666666666666666,preserved,reversed,more than one order of magnitude less precise than the SM prediction,8427c8357868347c5c89346f7cef65427c3bb540501206015094a06bbbcd3c96
+87,1.0,1.0,preserved,reversed,larger interaction strength,18a507d96c77671d3d3041c4ace72b0ec0c3c17f6e85afebac5dfaf9e121cec2
+88,0.8333333333333334,0.6666666666666666,preserved,reversed,the SPS predictions significantly outperform the IMF predictions,e2f50df1ec5df42139ca88f12e0750d2ed3e167205784955e9b34f5dd0a871a1
+89,0.8333333333333334,1.0,preserved,reversed,negative,e7321253f573db36d72866ceafb76ad923433ef04531805e7b93b9d101d070b6
+100,1.0,1.0,preserved,reversed,larger than or equal to,ba16dd0a2efec802e4ac91faf53e9ac439d3435cfea1345548415a28dbf9828b
+90,1.0,0.5,preserved,reversed,nestedness has a positive effect on the resilience of mutualistic networks,10b4434ca83c40ca158e694c74d4ca689a3d5053621d4d8a57bc41a7a25a398c
+91,0.5,0.5,preserved,preserved,equal,007af3cd3b7dbb7a69503c152665bc2285b925123418fd2e5fe32dc037b31a47
+92,0.8333333333333334,1.0,preserved,preserved,hadronic uncertainties cancel to a large extent,24e674e35cb95288fb146e592da2d5b2ed2f1f630e1b2ce4a2d418d7a9a73b5a
+93,0.8333333333333334,0.5,preserved,reversed,more than five times larger than the combined yields at the -factories,bea60015d361220935f1d345f186af3e767ad65e33a56937cc45b9d2ce7a7bfb
+94,1.0,1.0,weakened,weakened,planet mass and the gaseous gap width,70b0d5a455dbababa7b2d8a98bc226303b5dd81f5d876ca41da624a1b4c9bac4
+95,0.8333333333333334,0.5,preserved,reversed,the fitness-complexity metric exhibits systematically larger extinction areas than all the other metrics,c836828d722693956142dce789fbe4b8678b1fb3e53d36895d72da4a4d8eb6e7
+96,1.0,1.0,weakened,weakened,the distance between two given species in the interaction network is significantly correlated with their distance in the phylogeny,32a0db19089d82e66d19f215169a093639ec293cf01aeb38c3ec4fe14f814d8c
+97,0.6666666666666666,0.3333333333333333,preserved,reversed,larger than,5f6cf74b14ae4bd29eea10e19f59d692c087c728cbb498b14bd1eb62b231111e
+98,0.6666666666666666,0.6666666666666666,preserved,reversed,2.6 lower than the SM expectation,9e475df8b4f78788d634e418f2452d8b173aaf9e1555e1418d3ca0363eda96ba
+101,0.8333333333333334,0.8333333333333334,preserved,reversed,maximally unstable,34ffe98053ae20aef419a6a914843f508e71e0541ab506a769dfef54b87bcaa2
+102,0.8333333333333334,0.8333333333333334,preserved,reversed,substantially improve the GDPpc forecasts,e2f50df1ec5df42139ca88f12e0750d2ed3e167205784955e9b34f5dd0a871a1
+103,0.5,0.5,preserved,weakened,outperforming the state of the art mAP,af8217b2420d7f010f7ee8362f37beeed43e7b6eef197257804e352471396dab
+104,1.0,1.0,weakened,weakened,planet mass and the gap width,70b0d5a455dbababa7b2d8a98bc226303b5dd81f5d876ca41da624a1b4c9bac4
+105,0.8333333333333334,1.0,preserved,preserved,phylogenetically-similar species tend to play similar roles in the interaction network,32a0db19089d82e66d19f215169a093639ec293cf01aeb38c3ec4fe14f814d8c
+106,1.0,1.0,preserved,reversed,declines,98f768d7fdda96b5a3f908e522aef753307c581bcb1528549266ecd6a005b786
+107,1.0,1.0,preserved,reversed,YOLOv3 outperforms Faster R-CNN,a3d7ba3907b6de84e59225ce207083ef434e59c04609dc1e7cde87543db98909
+108,0.6666666666666666,0.3333333333333333,preserved,preserved,larger,d53402c24fb47182bcd7c35a49d171429198df08164ff891f6c955d7293a3092
+109,0.8333333333333334,0.8333333333333334,weakened,weakened,different from those by previous studies,65444fda00a02659b4525304e4bc5a4498c512277c63accee6b7f0bba4af9cc9
+110,0.5,0.0,preserved,reversed,exponentially enhanced,0fd07d0386b00319c46cc18ea92cb31df2ce7f97d474cd21e75c06160f65a8dc
+111,1.0,0.6666666666666666,preserved,reversed,YOLOv3 outperforms Faster R-CNN,8461813c2efbda2142565a3d918c1bafcf562c36b162dfea4a1293f0bb211932
+112,0.6666666666666666,0.6666666666666666,preserved,reversed,more fragile against the removal strategy,574d0e9aacf230d7444591062777fca3e5faabc2bb02ee6b548535395cfeaf85
+113,1.0,0.6666666666666666,weakened,weakened,compare different approaches to the calculation of the energy levels of this oscillator,0a6b97608a71fc61b53b981bd52c98fec0a24763f5e69dad161a27e0713816e7
+114,0.5,0.3333333333333333,preserved,reversed,gaps in cases are shallower but wider than the cases,3044a7b8d67ed9fe18b3b0d193c93499a7b97a359a778b8655783fe5f0507294
+115,0.3333333333333333,0.16666666666666666,preserved,reversed,lower than,7ce7d2ba481b5dbb5de7c1f004ce01f05d73e19d301d29a445be2aa5fcca0a92
+116,0.8333333333333334,0.5,preserved,reversed,better than those of the BaBar and Belle experiments,b58c1878ca3902668a505e5cd5329c051290b3cbb02e3568c8cb01f65423537a
+117,0.6666666666666666,0.3333333333333333,preserved,preserved,disappearances significantly better than appearances,d0582b34904df7896b61e9ff6e713bb74b60384b20bc29748417bc867012dccf
+118,1.0,1.0,preserved,weakened,below,98f768d7fdda96b5a3f908e522aef753307c581bcb1528549266ecd6a005b786
+119,0.6666666666666666,0.6666666666666666,preserved,preserved,surpasses competitors,48ac7e4372d5fc46ead0d4adefa0a09fd3e138e96948103337432d509b70e10f
+120,1.0,1.0,weakened,weakened,planet mass and the gaseous gap depth,70b0d5a455dbababa7b2d8a98bc226303b5dd81f5d876ca41da624a1b4c9bac4
